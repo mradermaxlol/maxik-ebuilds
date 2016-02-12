@@ -245,10 +245,11 @@ src_unpack() {
 src_prepare() {
 	local md5="$(md5sum server/protocol.def)"
 	local PATCHES=(
-		"${FILESDIR}"/${PN}-1.5.26-winegcc.patch #260726
-		"${FILESDIR}"/${PN}-1.4_rc2-multilib-portage.patch #395615
-		"${FILESDIR}"/${PN}-1.7.12-osmesa-check.patch #429386
-		"${FILESDIR}"/${PN}-1.6-memset-O3.patch #480508
+		#"${FILESDIR}"/${PN}-1.5.26-winegcc.patch #260726
+		#"${FILESDIR}"/${PN}-1.4_rc2-multilib-portage.patch #395615
+		#"${FILESDIR}"/${PN}-1.7.12-osmesa-check.patch #429386
+		#"${FILESDIR}"/${PN}-1.6-memset-O3.patch #480508
+		"${FILESDIR}"/wine-d3d9.patch #add Gallium Nine support
 	)
 	if [[ $(gcc-major-version) = 5 && $(gcc-minor-version) -ge 3 ]]; then
 		local PATCHES+=( "${FILESDIR}"/${PN}-1.9.3-gcc-5_3_0-disable-force-alignment.patch ) #574044
