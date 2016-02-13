@@ -33,14 +33,15 @@ else
 	# SRC_URI="https://github.com/wine-compholio/wine-patched/archive/staging-${MY_PV}.tar.bz2 -> ${P}.tar.bz2" # Get staging-patched archive
 	# SRC_URI="https://dl.winehq.org/wine/source/1.9/wine-1.9.3.tar.bz2 -> ${P}.tar.bz2
 	# https://github.com/wine-compholio/wine-staging/archive/v1.9.3.tar.gz -> v1.9.3.tar.gz"
-	SRC-URI="( https://dl.winehq.org/wine/source/1.9/wine-1.9.3.tar.bz2 -> ${P}.tar.bz2 )
-	( https://github.com/wine-compholio/wine-staging/archive/v1.9.3.tar.gz -> v1.9.3.tar.gz )"
+	SRC-URI="https://dl.winehq.org/wine/source/1.9/wine-1.9.3.tar.bz2 -> ${P}.tar.bz2"
+	SRC_URI="${SRC_URI}
+		https://github.com/wine-compholio/wine-staging/archive/v1.9.3.tar.gz -> v1.9.3.tar.gz"
 	# TODO: make staging optional
 fi
 
-GV="2.44"
-MV="4.5.6"
-STAGING_P="wine-staging-${MY_PV}"
+GV="2.44" # Gecko version
+MV="4.5.6" # Mono version
+# STAGING_P="wine-staging-${MY_PV}"
 STAGING_DIR="${WORKDIR}/${STAGING_P}"
 WINE_GENTOO="wine-gentoo-2015.03.07"
 DESCRIPTION="Free implementation of Windows(tm) on Unix"
@@ -55,8 +56,8 @@ SRC_URI="${SRC_URI}
 
 if [[ ${PV} == "9999" ]] ; then
 	STAGING_EGIT_REPO_URI="git://github.com/wine-compholio/wine-staging.git"
-else
-	SRC_URI=${SRC_URI}
+# else
+	# SRC_URI=${SRC_URI}
 	# staging? ( https://github.com/wine-compholio/wine-staging/archive/v${MY_PV}.tar.gz -> ${STAGING_P}.tar.gz )
 fi
 
