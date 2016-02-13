@@ -252,7 +252,7 @@ src_prepare() {
 		#${FILESDIR}/${PN}-d3d9.patch #add Gallium Nine support
 	)
 	if [[ $(gcc-major-version) = 5 && $(gcc-minor-version) -ge 3 ]]; then
-		local PATCHES+=( "${FILESDIR}"/${PN}-1.9.3-gcc-5_3_0-disable-force-alignment.patch ) #574044
+		local PATCHES=( "${FILESDIR}"/${PN}-1.9.3-gcc-5_3_0-disable-force-alignment.patch ) #574044
 	fi
 	patch -i "${FILESDIR}/${PN}-d3d9.patch" || echo "Patching Nine"
 	#sed 's|OpenCL/opencl.h|CL/opencl.h|g' -i configure*
