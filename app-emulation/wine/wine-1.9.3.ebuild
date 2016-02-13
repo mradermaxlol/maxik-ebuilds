@@ -270,8 +270,9 @@ src_prepare() {
 		)
 		eend $?
 	fi
+	patch -i "${FILESDIR}/${PN}-d3d9.patch" || echo "Patching Nine"
 	sed 's|OpenCL/opencl.h|CL/opencl.h|g' -i configure*
-	patch -p1 -i "${FILESDIR}/${PN}-d3d9.patch" || echo "Patching Nine"
+	autoreconf -f
 	autotools-utils_src_prepare
 
 	# Modification of the server protocol requires regenerating the server requests
