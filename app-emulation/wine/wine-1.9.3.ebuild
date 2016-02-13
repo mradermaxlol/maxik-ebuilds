@@ -265,9 +265,9 @@ src_prepare() {
 		ebegin "Running Wine-Staging patch installer"
 		(
 			set -- DESTDIR="${S}" --backend=epatch --no-autoconf --all ${STAGING_EXCLUDE}
-			patch -p1 < "${FILESDIR}"/${PN}-d3d9.patch
 			cd "${STAGING_DIR}/patches"
 			source "${STAGING_DIR}/patches/patchinstall.sh" || die "Failed to apply Wine-Staging patches."
+			patch -p1 < "${FILESDIR}"/${PN}-d3d9.patch
 		)
 		eend $?
 	fi
@@ -311,7 +311,8 @@ multilib_src_configure() {
 		$(use_with gphoto2 gphoto)
 		$(use_with gsm)
 		$(use_with gstreamer)
-		--without-hal
+		--without-hal \
+		--with-d3dadapter
 		$(use_with jpeg)
 		$(use_with ldap)
 		$(use_enable mono mscoree)
