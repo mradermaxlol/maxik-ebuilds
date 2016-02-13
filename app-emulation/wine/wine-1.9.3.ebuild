@@ -202,7 +202,7 @@ pkg_setup() {
 }
 
 src_unpack() {
-	git clone https://aur.archlinux.org/wine-gaming-nine.git/
+	git clone https://aur.archlinux.org/cgit/aur.git/tree/?h=wine-gaming-nine
 	unpack ${P}.tar.bz2
 	unpack v1.9.3.tar.gz
 	# use staging && unpack "${STAGING_P}.tar.gz" # We have fetched staging-patched Wine already => not needed
