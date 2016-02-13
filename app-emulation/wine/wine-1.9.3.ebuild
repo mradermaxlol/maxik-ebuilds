@@ -240,7 +240,7 @@ src_unpack() {
 		fi
 	else
 		wget "https://dl.winehq.org/wine/source/1.9/wine-1.9.3.tar.bz2" > ${P}.tar.bz2
-		wget "https://github.com/wine-compholio/wine-staging/archive/v1.9.3.tar.gz"
+		wget "https://github.com/wine-compholio/wine-staging/archive/v1.9.3.tar.gz" > v1.9.3.tar.gz
 		git clone https://aur.archlinux.org/wine-gaming-nine.git/
 		tar xjf ${P}.tar.bz2
 		# use staging && unpack "${STAGING_P}.tar.gz" # We have fetched staging-patched Wine already => not needed
@@ -250,6 +250,7 @@ src_unpack() {
 }
 
 src_prepare() {
+	cd wine-1.9.3
 	tar xvf ../v1.9.3.tar.gz -C . --strip-components 1
 	local md5="$(md5sum server/protocol.def)"
 	local PATCHES=(
