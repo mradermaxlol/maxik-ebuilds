@@ -240,7 +240,7 @@ src_prepare() {
 		)
 		eend $?
 	fi
-	source "${PN}-staging-${PV}/patches/patchinstall.sh" || die "Failed to apply Wine-Staging patches!"
+	# source "${PN}-staging-${PV}/patches/patchinstall.sh" || die "Failed to apply Wine-Staging patches!"
 	patch -p1 < wine-gaming-nine/nine-1.9.1.patch
 	patch -p1 < wine-gaming-nine/steam.patch
 	patch -p1 < wine-gaming-nine/mipmap.patch
