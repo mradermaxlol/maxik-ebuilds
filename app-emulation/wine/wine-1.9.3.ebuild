@@ -241,11 +241,11 @@ src_prepare() {
 		eend $?
 	fi
 	# source "${PN}-staging-${PV}/patches/patchinstall.sh" || die "Failed to apply Wine-Staging patches!"
-	patch -p1 < wine-gaming-nine/nine-1.9.1.patch
-	patch -p1 < wine-gaming-nine/steam.patch
-	patch -p1 < wine-gaming-nine/mipmap.patch
-	patch -p1 < wine-gaming-nine/heap_perf.patch
-	patch -p1 < wine-gaming-nine/wbemprox_query_v2.patch
+	patch -p1 < ../wine-gaming-nine/nine-1.9.1.patch
+	patch -p1 < ../wine-gaming-nine/steam.patch
+	patch -p1 < ../wine-gaming-nine/mipmap.patch
+	patch -p1 < ../wine-gaming-nine/heap_perf.patch
+	patch -p1 < ../wine-gaming-nine/wbemprox_query_v2.patch
 	patch -p1 -R < wine-gaming-nine/keybindings.patch
 	# sed 's|OpenCL/opencl.h|CL/opencl.h|g' -i configure*
 	autoreconf -f
