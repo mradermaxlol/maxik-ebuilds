@@ -249,11 +249,14 @@ src_prepare() {
 		#"${FILESDIR}"/${PN}-1.4_rc2-multilib-portage.patch #395615
 		#"${FILESDIR}"/${PN}-1.7.12-osmesa-check.patch #429386
 		#"${FILESDIR}"/${PN}-1.6-memset-O3.patch #480508
-		${FILESDIR}/${PN}-d3d9.patch #add Gallium Nine support
+		#${FILESDIR}/${PN}-d3d9.patch #add Gallium Nine support
 	)
 	if [[ $(gcc-major-version) = 5 && $(gcc-minor-version) -ge 3 ]]; then
 		local PATCHES+=( "${FILESDIR}"/${PN}-1.9.3-gcc-5_3_0-disable-force-alignment.patch ) #574044
 	fi
+	patch -i "${FILESDIR}/${PN}-d3d9.patch" || echo "Patching Nine"
+	#sed 's|OpenCL/opencl.h|CL/opencl.h|g' -i configure*
+	#autoreconf -f
 	if use staging; then
 		ewarn "Applying the Wine-Staging patchset. Any bug reports to the"
 		ewarn "Wine bugzilla should explicitly state that staging was used."
