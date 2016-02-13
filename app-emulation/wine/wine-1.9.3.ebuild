@@ -31,7 +31,7 @@ inherit autotools-utils eutils fdo-mime flag-o-matic gnome2-utils l10n multilib 
 
 GV="2.44" # Gecko version
 MV="4.5.6" # Mono version
-# STAGING_P="wine-staging-${MY_PV}"
+STAGING_P="wine-staging-${MY_PV}"
 STAGING_DIR="${WORKDIR}/${STAGING_P}"
 WINE_GENTOO="wine-gentoo-2015.03.07"
 DESCRIPTION="Free implementation of Windows(tm) on Unix"
@@ -224,7 +224,22 @@ src_prepare() {
 	if [[ $(gcc-major-version) = 5 && $(gcc-minor-version) -ge 3 ]]; then
 		local PATCHES=( "${FILESDIR}"/${PN}-1.9.3-gcc-5_3_0-disable-force-alignment.patch ) #574044
 	fi
-	# patch -i "${FILESDIR}/${PN}-d3d9.patch" || echo "Patching Nine" # Dirty workaround
+	if use staging; then
+		ewarn "Applying the Wine-Staging patchset. Any bug reports to the"
+		ewarn "Wine bugzilla should explicitly state that staging was used."
+
+		local STAGING_EXCLUDE=""
+		use pipelight || STAGING_EXCLUDE="${STAGING_EXCLUDE} -W Pipelight"
+
+		# Launch wine-staging patcher in a subshell, using epatch as a backend, and gitapply.sh as a backend for binary patches
+		ebegin "Running Wine-Staging patch installer"
+		(
+			set -- DESTDIR="${S}" --backend=epatch --no-autoconf --all ${STAGING_EXCLUDE}
+			cd "${STAGING_DIR}/patches"
+			source "${STAGING_DIR}/patches/patchinstall.sh" || die "Failed to apply Wine-Staging patches."
+		)
+		eend $?
+	fi
 	source "${PN}-staging-${PV}/patches/patchinstall.sh" || die "Failed to apply Wine-Staging patches!"
 	patch -p1 < wine-gaming-nine/nine-1.9.1.patch
 	patch -p1 < wine-gaming-nine/steam.patch
@@ -238,7 +253,6 @@ src_prepare() {
 		ewarn "Applying the Wine-Staging patchset. Any bug reports to the"
 		ewarn "Wine bugzilla should explicitly state that staging was used."
 	fi
-	#patch -i "${FILESDIR}/${PN}-d3d9.patch" || echo "Patching Nine"
 	sed 's|OpenCL/opencl.h|CL/opencl.h|g' -i configure*
 	autoreconf -f
 	autotools-utils_src_prepare
