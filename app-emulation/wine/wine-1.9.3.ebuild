@@ -10,15 +10,6 @@ PLOCALE_BACKUP="en"
 
 inherit autotools-utils eutils fdo-mime flag-o-matic gnome2-utils l10n multilib multilib-minimal pax-utils toolchain-funcs virtualx versionator
 
-if [[ ${PV} == "9999" ]] ; then
-	EGIT_REPO_URI="git://source.winehq.org/git/wine.git http://source.winehq.org/git/wine.git"
-	GSTREAMER_COMMIT="e8311270ab7e01b8c58ec615f039335bd166882a"
-	inherit git-r3
-	MY_PV="${PV}"
-	MY_P="${P}"
-	#S RC_URI=""
-	# KEYWORDS=""
-else
 	MAJOR_V=$(get_version_component_range 1-2)
 	let "MINOR_V_ODD=$(get_version_component_range 2) % 2"
 	MY_PV="${PV}"
@@ -37,7 +28,6 @@ else
 	SRC_URI="${SRC_URI}
 		https://github.com/wine-compholio/wine-staging/archive/v1.9.3.tar.gz -> v1.9.3.tar.gz"
 	# TODO: make staging optional
-fi
 
 GV="2.44" # Gecko version
 MV="4.5.6" # Mono version
@@ -53,20 +43,6 @@ SRC_URI="${SRC_URI}
 	)
 	mono? ( https://dl.winehq.org/wine/wine-mono/${MV}/wine-mono-${MV}.msi )
 	https://dev.gentoo.org/~tetromino/distfiles/${PN}/${WINE_GENTOO}.tar.bz2"
-
-if [[ ${PV} == "9999" ]] ; then
-	STAGING_EGIT_REPO_URI="git://github.com/wine-compholio/wine-staging.git"
-# else
-	# SRC_URI=${SRC_URI}
-	# staging? ( https://github.com/wine-compholio/wine-staging/archive/v${MY_PV}.tar.gz -> ${STAGING_P}.tar.gz )
-fi
-
-################
-		#wget "https://dl.winehq.org/wine/source/1.9/wine-1.9.3.tar.bz2" > ${P}.tar.bz2
-		#wget "https://github.com/wine-compholio/wine-staging/archive/v1.9.3.tar.gz" > v1.9.3.tar.gz
-		#git clone https://aur.archlinux.org/wine-gaming-nine.git/
-		#tar xjf ${P}.tar.bz2
-################
 
 LICENSE="LGPL-2.1"
 SLOT="0"
@@ -218,11 +194,6 @@ wine_build_environment_check() {
 
 pkg_pretend() {
 	wine_build_environment_check || die
-	if [[ ${PV} == "9999" ]] && use staging; then
-		ewarn "You have enabled a live ebuild of Wine with USE +staging."
-		ewarn "All git branch and commit references will link to the Wine-Staging git tree."
-		ewarn "By default the Wine-Staging git tree branch master will be used."
-	fi
 }
 
 pkg_setup() {
@@ -231,28 +202,10 @@ pkg_setup() {
 }
 
 src_unpack() {
-	if [[ ${PV} == "9999" ]] ; then
-		# Reference either Wine or Wine Staging git branch (depending on +staging use flag)
-		EGIT_BRANCH=${EGIT_BRANCH:-master}
-		if use staging; then
-			EGIT_REPO_URI=${STAGING_EGIT_REPO_URI} EGIT_CHECKOUT_DIR=${STAGING_DIR} git-r3_src_unpack
-			local WINE_COMMIT=$("${STAGING_DIR}/patches/patchinstall.sh" --upstream-commit)
-			[[ ! ${WINE_COMMIT} =~ [[:xdigit:]]{40} ]] && die "Failed to get Wine git commit corresponding to Wine-Staging git commit ${EGIT_VERSION}."
-			einfo "Building Wine commit ${WINE_COMMIT} referenced by Wine-Staging commit ${EGIT_VERSION} ..."
-			EGIT_COMMIT="${WINE_COMMIT}"
-		fi
-		EGIT_CHECKOUT_DIR="${S}" git-r3_src_unpack
-		if use gstreamer && grep -q "gstreamer-0.10" "${S}"/configure ; then
-			ewarn "Wine commit ${GSTREAMER_COMMIT} first introduced support for the gstreamer:1.0 branch."
-			ewarn "Specify a newer Wine commit or emerge with USE -gstreamer."
-			die "This live ebuild does not support Wine builds using the older gstreamer:0.1 branch."
-		fi
-	else
-		git clone https://aur.archlinux.org/wine-gaming-nine.git/
-		unpack ${P}.tar.bz2
-		unpack v1.9.3.tar.gz
-		# use staging && unpack "${STAGING_P}.tar.gz" # We have fetched staging-patched Wine already => not needed
-	fi
+	git clone https://aur.archlinux.org/wine-gaming-nine.git/
+	unpack ${P}.tar.bz2
+	unpack v1.9.3.tar.gz
+	# use staging && unpack "${STAGING_P}.tar.gz" # We have fetched staging-patched Wine already => not needed
 	unpack ${WINE_GENTOO}.tar.bz2
 	l10n_find_plocales_changes "${S}/po" "" ".po"
 }
@@ -272,14 +225,14 @@ src_prepare() {
 		local PATCHES=( "${FILESDIR}"/${PN}-1.9.3-gcc-5_3_0-disable-force-alignment.patch ) #574044
 	fi
 	# patch -i "${FILESDIR}/${PN}-d3d9.patch" || echo "Patching Nine" # Dirty workaround
-	./patches/patchinstall.sh DESTDIR="$(pwd)" --all
-	patch -p1 < ../wine-gaming-nine/nine-1.9.1.patch
-	patch -p1 < ../wine-gaming-nine/steam.patch
-	patch -p1 < ../wine-gaming-nine/mipmap.patch
-	patch -p1 < ../wine-gaming-nine/heap_perf.patch
-	patch -p1 < ../wine-gaming-nine/wbemprox_query_v2.patch
-	patch -p1 -R < ../wine-gaming-nine/keybindings.patch
-	sed 's|OpenCL/opencl.h|CL/opencl.h|g' -i configure*
+	./${PN}-staging-${PV}/patches/patchinstall.sh DESTDIR="$(pwd)" --all
+	patch -p1 < wine-gaming-nine/nine-1.9.1.patch
+	patch -p1 < wine-gaming-nine/steam.patch
+	patch -p1 < wine-gaming-nine/mipmap.patch
+	patch -p1 < wine-gaming-nine/heap_perf.patch
+	patch -p1 < wine-gaming-nine/wbemprox_query_v2.patch
+	patch -p1 -R < wine-gaming-nine/keybindings.patch
+	# sed 's|OpenCL/opencl.h|CL/opencl.h|g' -i configure*
 	autoreconf -f
 	if use staging; then
 		ewarn "Applying the Wine-Staging patchset. Any bug reports to the"
