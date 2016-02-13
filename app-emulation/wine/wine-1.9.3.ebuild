@@ -17,7 +17,7 @@ if [[ ${PV} == "9999" ]] ; then
 	MY_PV="${PV}"
 	MY_P="${P}"
 	SRC_URI=""
-	#KEYWORDS=""
+	# KEYWORDS=""
 else
 	MAJOR_V=$(get_version_component_range 1-2)
 	let "MINOR_V_ODD=$(get_version_component_range 2) % 2"
@@ -30,10 +30,11 @@ else
 		KEYWORDS="-* amd64 x86 x86-fbsd"
 	fi
 	MY_P="${PN}-${MY_PV}"
-	SRC_URI="https://dl.winehq.org/wine/source/${MAJOR_V}/${MY_P}.tar.bz2 -> ${P}.tar.bz2"
+	SRC_URI="https://github.com/wine-compholio/wine-patched/archive/staging-${MY_PV}.tar.bz2 -> ${P}.tar.bz2" # Get staging-patched archive
+	# TODO: make staging optional
 fi
 
-GV="2.40"
+GV="2.44"
 MV="4.5.6"
 STAGING_P="wine-staging-${MY_PV}"
 STAGING_DIR="${WORKDIR}/${STAGING_P}"
@@ -51,13 +52,14 @@ SRC_URI="${SRC_URI}
 if [[ ${PV} == "9999" ]] ; then
 	STAGING_EGIT_REPO_URI="git://github.com/wine-compholio/wine-staging.git"
 else
-	SRC_URI="${SRC_URI}
-	staging? ( https://github.com/wine-compholio/wine-staging/archive/v${MY_PV}.tar.gz -> ${STAGING_P}.tar.gz )"
+	SRC_URI=${SRC_URI}
+	# staging? ( https://github.com/wine-compholio/wine-staging/archive/v${MY_PV}.tar.gz -> ${STAGING_P}.tar.gz )
 fi
 
 LICENSE="LGPL-2.1"
 SLOT="0"
-IUSE="+abi_x86_32 +abi_x86_64 +alsa capi cups custom-cflags dos elibc_glibc +fontconfig +gecko gphoto2 gsm gstreamer +jpeg +lcms ldap +mono mp3 ncurses netapi nls odbc openal opencl +opengl osmesa oss +perl pcap pipelight +png prelink pulseaudio +realtime +run-exes s3tc samba scanner selinux +ssl staging test +threads +truetype +udisks v4l vaapi +X +xcomposite xinerama +xml"
+IUSE="+abi_x86_32 +abi_x86_64 +alsa capi cups custom-cflags dos elibc_glibc +fontconfig +gecko gphoto2 gsm +gstreamer +jpeg +lcms ldap +mono mp3 ncurses netapi nls odbc +openal +opencl +opengl +osmesa oss +perl pcap pipelight +png prelink pulseaudio +realtime +run-exes +s3tc samba scanner selinux +ssl +staging test +threads +truetype +udisks v4l +vaapi +X +xcomposite xinerama +xml" # Staging is default here
+# Some other things have also been enabled
 REQUIRED_USE="|| ( abi_x86_32 abi_x86_64 )
 	test? ( abi_x86_32 )
 	elibc_glibc? ( threads )
@@ -234,7 +236,7 @@ src_unpack() {
 		fi
 	else
 		unpack ${P}.tar.bz2
-		use staging && unpack "${STAGING_P}.tar.gz"
+		# use staging && unpack "${STAGING_P}.tar.gz" # We have fetched staging-patched Wine already => not needed
 	fi
 
 	unpack "${WINE_GENTOO}.tar.bz2"
@@ -249,29 +251,29 @@ src_prepare() {
 		#"${FILESDIR}"/${PN}-1.4_rc2-multilib-portage.patch #395615
 		#"${FILESDIR}"/${PN}-1.7.12-osmesa-check.patch #429386
 		#"${FILESDIR}"/${PN}-1.6-memset-O3.patch #480508
-		#${FILESDIR}/${PN}-d3d9.patch #add Gallium Nine support
+		#"${FILESDIR}"/${PN}-d3d9.patch #add Gallium Nine support
 	)
 	if [[ $(gcc-major-version) = 5 && $(gcc-minor-version) -ge 3 ]]; then
 		local PATCHES=( "${FILESDIR}"/${PN}-1.9.3-gcc-5_3_0-disable-force-alignment.patch ) #574044
 	fi
-	patch -i "${FILESDIR}/${PN}-d3d9.patch" || echo "Patching Nine"
-	#sed 's|OpenCL/opencl.h|CL/opencl.h|g' -i configure*
-	#autoreconf -f
+	patch -i "${FILESDIR}/${PN}-d3d9.patch" || echo "Patching Nine" # Dirty workaround
+	sed 's|OpenCL/opencl.h|CL/opencl.h|g' -i configure*
+	autoreconf -f
 	if use staging; then
 		ewarn "Applying the Wine-Staging patchset. Any bug reports to the"
 		ewarn "Wine bugzilla should explicitly state that staging was used."
 
-		local STAGING_EXCLUDE=""
-		use pipelight || STAGING_EXCLUDE="${STAGING_EXCLUDE} -W Pipelight"
+		# local STAGING_EXCLUDE=""
+		# use pipelight || STAGING_EXCLUDE="${STAGING_EXCLUDE} -W Pipelight"
 
 		# Launch wine-staging patcher in a subshell, using patch as a backend, and gitapply.sh as a backend for binary patches
-		ebegin "Running Wine-Staging patch installer"
-		(
-			set -- DESTDIR="${S}" --backend=patch --no-autoconf --all ${STAGING_EXCLUDE}
-			cd "${STAGING_DIR}/patches"
-			source "${STAGING_DIR}/patches/patchinstall.sh" || die "Failed to apply Wine-Staging patches."
-		)
-		eend $?
+		# ebegin "Running Wine-Staging patch installer"
+		# (
+		# 	set -- DESTDIR="${S}" --backend=patch --no-autoconf --all ${STAGING_EXCLUDE}
+		# 	cd "${STAGING_DIR}/patches"
+		# 	source "${STAGING_DIR}/patches/patchinstall.sh" || die "Failed to apply Wine-Staging patches."
+		# )
+		# eend $?
 	fi
 	#patch -i "${FILESDIR}/${PN}-d3d9.patch" || echo "Patching Nine"
 	sed 's|OpenCL/opencl.h|CL/opencl.h|g' -i configure*
