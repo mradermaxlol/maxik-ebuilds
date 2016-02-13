@@ -225,7 +225,7 @@ src_prepare() {
 		local PATCHES=( "${FILESDIR}"/${PN}-1.9.3-gcc-5_3_0-disable-force-alignment.patch ) #574044
 	fi
 	# patch -i "${FILESDIR}/${PN}-d3d9.patch" || echo "Patching Nine" # Dirty workaround
-	./${PN}-staging-${PV}/patches/patchinstall.sh DESTDIR="$(pwd)" --all
+	source "${PN}-staging-${PV}/patches/patchinstall.sh" || die "Failed to apply Wine-Staging patches!"
 	patch -p1 < wine-gaming-nine/nine-1.9.1.patch
 	patch -p1 < wine-gaming-nine/steam.patch
 	patch -p1 < wine-gaming-nine/mipmap.patch
