@@ -33,7 +33,7 @@ else
 	# SRC_URI="https://github.com/wine-compholio/wine-patched/archive/staging-${MY_PV}.tar.bz2 -> ${P}.tar.bz2" # Get staging-patched archive
 	# SRC_URI="https://dl.winehq.org/wine/source/1.9/wine-1.9.3.tar.bz2 -> ${P}.tar.bz2
 	# https://github.com/wine-compholio/wine-staging/archive/v1.9.3.tar.gz -> v1.9.3.tar.gz"
-	SRC-URI="https://dl.winehq.org/wine/source/1.9/wine-1.9.3.tar.bz2 -> ${P}.tar.bz2"
+	SRC_URI="https://dl.winehq.org/wine/source/${MAJOR_V}/${MY_P}.tar.bz2 -> ${P}.tar.bz2"
 	SRC_URI="${SRC_URI}
 		https://github.com/wine-compholio/wine-staging/archive/v1.9.3.tar.gz -> v1.9.3.tar.gz"
 	# TODO: make staging optional
