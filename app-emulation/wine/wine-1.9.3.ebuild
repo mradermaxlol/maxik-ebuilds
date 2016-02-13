@@ -33,7 +33,8 @@ else
 	# SRC_URI="https://github.com/wine-compholio/wine-patched/archive/staging-${MY_PV}.tar.bz2 -> ${P}.tar.bz2" # Get staging-patched archive
 	# SRC_URI="https://dl.winehq.org/wine/source/1.9/wine-1.9.3.tar.bz2 -> ${P}.tar.bz2
 	# https://github.com/wine-compholio/wine-staging/archive/v1.9.3.tar.gz -> v1.9.3.tar.gz"
-	# SRC-URI=""
+	SRC-URI="( https://dl.winehq.org/wine/source/1.9/wine-1.9.3.tar.bz2 -> ${P}.tar.bz2 )
+	( https://github.com/wine-compholio/wine-staging/archive/v1.9.3.tar.gz -> v1.9.3.tar.gz )"
 	# TODO: make staging optional
 fi
 
@@ -58,6 +59,13 @@ else
 	SRC_URI=${SRC_URI}
 	# staging? ( https://github.com/wine-compholio/wine-staging/archive/v${MY_PV}.tar.gz -> ${STAGING_P}.tar.gz )
 fi
+
+################
+		#wget "https://dl.winehq.org/wine/source/1.9/wine-1.9.3.tar.bz2" > ${P}.tar.bz2
+		#wget "https://github.com/wine-compholio/wine-staging/archive/v1.9.3.tar.gz" > v1.9.3.tar.gz
+		#git clone https://aur.archlinux.org/wine-gaming-nine.git/
+		#tar xjf ${P}.tar.bz2
+################
 
 LICENSE="LGPL-2.1"
 SLOT="0"
@@ -239,19 +247,18 @@ src_unpack() {
 			die "This live ebuild does not support Wine builds using the older gstreamer:0.1 branch."
 		fi
 	else
-		wget "https://dl.winehq.org/wine/source/1.9/wine-1.9.3.tar.bz2" > ${P}.tar.bz2
-		wget "https://github.com/wine-compholio/wine-staging/archive/v1.9.3.tar.gz" > v1.9.3.tar.gz
 		git clone https://aur.archlinux.org/wine-gaming-nine.git/
-		tar xjf ${P}.tar.bz2
+		unpack ${P}.tar.bz2
+		unpack v1.9.3.tar.gz
 		# use staging && unpack "${STAGING_P}.tar.gz" # We have fetched staging-patched Wine already => not needed
 	fi
-	tar xjf ${WINE_GENTOO}.tar.bz2
+	unpack ${WINE_GENTOO}.tar.bz2
 	l10n_find_plocales_changes "${S}/po" "" ".po"
 }
 
 src_prepare() {
-	cd wine-1.9.3
-	tar xvf ../v1.9.3.tar.gz -C . --strip-components 1
+	# cd wine-1.9.3
+	# tar xvf ../v1.9.3.tar.gz -C . --strip-components 1
 	local md5="$(md5sum server/protocol.def)"
 	local PATCHES=(
 		#"${FILESDIR}"/${PN}-1.5.26-winegcc.patch #260726
