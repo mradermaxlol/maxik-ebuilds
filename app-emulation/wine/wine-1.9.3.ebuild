@@ -267,10 +267,11 @@ src_prepare() {
 			set -- DESTDIR="${S}" --backend=epatch --no-autoconf --all ${STAGING_EXCLUDE}
 			cd "${STAGING_DIR}/patches"
 			source "${STAGING_DIR}/patches/patchinstall.sh" || die "Failed to apply Wine-Staging patches."
-			patch -p1 < "${FILESDIR}"/${PN}-d3d9.patch
 		)
 		eend $?
 	fi
+	sed 's|OpenCL/opencl.h|CL/opencl.h|g' -i configure*
+	patch -p1 -i "${FILESDIR}/${PN}-d3d9.patch" || echo "Patching Nine"
 	autotools-utils_src_prepare
 
 	# Modification of the server protocol requires regenerating the server requests
