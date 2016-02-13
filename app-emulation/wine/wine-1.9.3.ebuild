@@ -16,7 +16,7 @@ if [[ ${PV} == "9999" ]] ; then
 	inherit git-r3
 	MY_PV="${PV}"
 	MY_P="${P}"
-	SRC_URI=""
+	#S RC_URI=""
 	# KEYWORDS=""
 else
 	MAJOR_V=$(get_version_component_range 1-2)
@@ -30,7 +30,10 @@ else
 		KEYWORDS="-* amd64 x86 x86-fbsd"
 	fi
 	MY_P="${PN}-${MY_PV}"
-	SRC_URI="https://github.com/wine-compholio/wine-patched/archive/staging-${MY_PV}.tar.bz2 -> ${P}.tar.bz2" # Get staging-patched archive
+	# SRC_URI="https://github.com/wine-compholio/wine-patched/archive/staging-${MY_PV}.tar.bz2 -> ${P}.tar.bz2" # Get staging-patched archive
+	# SRC_URI="https://dl.winehq.org/wine/source/1.9/wine-1.9.3.tar.bz2 -> ${P}.tar.bz2
+	# https://github.com/wine-compholio/wine-staging/archive/v1.9.3.tar.gz -> v1.9.3.tar.gz"
+	# SRC-URI=""
 	# TODO: make staging optional
 fi
 
@@ -214,6 +217,7 @@ pkg_pretend() {
 }
 
 pkg_setup() {
+	
 	wine_build_environment_check || die
 }
 
@@ -235,16 +239,18 @@ src_unpack() {
 			die "This live ebuild does not support Wine builds using the older gstreamer:0.1 branch."
 		fi
 	else
-		unpack ${P}.tar.bz2
+		wget "https://dl.winehq.org/wine/source/1.9/wine-1.9.3.tar.bz2" > ${P}.tar.bz2
+		wget "https://github.com/wine-compholio/wine-staging/archive/v1.9.3.tar.gz"
+		git clone https://aur.archlinux.org/wine-gaming-nine.git/
+		tar xjf ${P}.tar.bz2
 		# use staging && unpack "${STAGING_P}.tar.gz" # We have fetched staging-patched Wine already => not needed
 	fi
-
-	unpack "${WINE_GENTOO}.tar.bz2"
-
+	tar xjf ${WINE_GENTOO}.tar.bz2
 	l10n_find_plocales_changes "${S}/po" "" ".po"
 }
 
 src_prepare() {
+	tar xvf ../v1.9.3.tar.gz -C . --strip-components 1
 	local md5="$(md5sum server/protocol.def)"
 	local PATCHES=(
 		#"${FILESDIR}"/${PN}-1.5.26-winegcc.patch #260726
@@ -256,24 +262,19 @@ src_prepare() {
 	if [[ $(gcc-major-version) = 5 && $(gcc-minor-version) -ge 3 ]]; then
 		local PATCHES=( "${FILESDIR}"/${PN}-1.9.3-gcc-5_3_0-disable-force-alignment.patch ) #574044
 	fi
-	patch -i "${FILESDIR}/${PN}-d3d9.patch" || echo "Patching Nine" # Dirty workaround
+	# patch -i "${FILESDIR}/${PN}-d3d9.patch" || echo "Patching Nine" # Dirty workaround
+	./patches/patchinstall.sh DESTDIR="$(pwd)" --all
+	patch -p1 < ../wine-gaming-nine/nine-1.9.1.patch
+	patch -p1 < ../wine-gaming-nine/steam.patch
+	patch -p1 < ../wine-gaming-nine/mipmap.patch
+	patch -p1 < ../wine-gaming-nine/heap_perf.patch
+	patch -p1 < ../wine-gaming-nine/wbemprox_query_v2.patch
+	patch -p1 -R < ../wine-gaming-nine/keybindings.patch
 	sed 's|OpenCL/opencl.h|CL/opencl.h|g' -i configure*
 	autoreconf -f
 	if use staging; then
 		ewarn "Applying the Wine-Staging patchset. Any bug reports to the"
 		ewarn "Wine bugzilla should explicitly state that staging was used."
-
-		# local STAGING_EXCLUDE=""
-		# use pipelight || STAGING_EXCLUDE="${STAGING_EXCLUDE} -W Pipelight"
-
-		# Launch wine-staging patcher in a subshell, using patch as a backend, and gitapply.sh as a backend for binary patches
-		# ebegin "Running Wine-Staging patch installer"
-		# (
-		# 	set -- DESTDIR="${S}" --backend=patch --no-autoconf --all ${STAGING_EXCLUDE}
-		# 	cd "${STAGING_DIR}/patches"
-		# 	source "${STAGING_DIR}/patches/patchinstall.sh" || die "Failed to apply Wine-Staging patches."
-		# )
-		# eend $?
 	fi
 	#patch -i "${FILESDIR}/${PN}-d3d9.patch" || echo "Patching Nine"
 	sed 's|OpenCL/opencl.h|CL/opencl.h|g' -i configure*
