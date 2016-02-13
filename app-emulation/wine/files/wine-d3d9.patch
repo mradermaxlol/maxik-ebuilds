@@ -1,5 +1,5 @@
-#diff --git a/configure.ac b/configure.ac
-index 59fc4fa..460d1d0 100644
+diff --git a/configure.ac b/configure.ac
+index 8a90202..75994d4 100644
 --- a/configure.ac
 +++ b/configure.ac
 @@ -65,6 +65,8 @@ AC_ARG_WITH(openal,    AS_HELP_STRING([--without-openal],[do not use OpenAL]),
@@ -216,7 +216,7 @@ index 59fc4fa..460d1d0 100644
      CPPFLAGS="$ac_save_CPPFLAGS"
  else
      X_CFLAGS=""
-@@ -2801,6 +2994,7 @@ WINE_CONFIG_DLL(d3d8,,[implib])
+@@ -2811,6 +3004,7 @@ WINE_CONFIG_DLL(d3d8,,[implib])
  WINE_CONFIG_TEST(dlls/d3d8/tests)
  WINE_CONFIG_DLL(d3d9,,[implib])
  WINE_CONFIG_TEST(dlls/d3d9/tests)
@@ -227,8 +227,7 @@ index 59fc4fa..460d1d0 100644
 diff --git a/dlls/d3d9-nine/Makefile.in b/dlls/d3d9-nine/Makefile.in
 new file mode 100644
 index 0000000..ba8896c
-#--- /dev/null
---- a/dlls/d3d9-nine/Makefile.in
+--- /dev/null
 +++ b/dlls/d3d9-nine/Makefile.in
 @@ -0,0 +1,12 @@
 +MODULE    = d3d9-nine.dll
@@ -4237,8 +4236,8 @@ index 1c05f5a..dc06d68 100644
  
  C_SRCS = \
  	buffer.c \
-#diff --git a/dlls/ntdll/loader.c b/dlls/ntdll/loader.c
-index 5bcc03e..46082f3 100644
+diff --git a/dlls/ntdll/loader.c b/dlls/ntdll/loader.c
+index a0049fe..000b108 100644
 --- a/dlls/ntdll/loader.c
 +++ b/dlls/ntdll/loader.c
 @@ -92,6 +92,7 @@ struct builtin_load_info
@@ -4268,7 +4267,7 @@ index 5bcc03e..46082f3 100644
              !(wm->ldr.Flags & LDR_DONT_RESOLVE_REFS))
          {
              if (process_attach( wm, NULL ) != STATUS_SUCCESS)
-@@ -592,7 +594,7 @@ static WINE_MODREF *import_dll( HMODULE module, const IMAGE_IMPORT_DESCRIPTOR *d
+@@ -599,7 +601,7 @@ static BOOL import_dll( HMODULE module, const IMAGE_IMPORT_DESCRIPTOR *descr, LP
      {
          ascii_to_unicode( buffer, name, len );
          buffer[len] = 0;
@@ -4277,8 +4276,8 @@ index 5bcc03e..46082f3 100644
      }
      else  /* need to allocate a larger buffer */
      {
-@@ -600,7 +602,7 @@ static WINE_MODREF *import_dll( HMODULE module, const IMAGE_IMPORT_DESCRIPTOR *d
-         if (!ptr) return NULL;
+@@ -607,7 +609,7 @@ static BOOL import_dll( HMODULE module, const IMAGE_IMPORT_DESCRIPTOR *descr, LP
+         if (!ptr) return FALSE;
          ascii_to_unicode( ptr, name, len );
          ptr[len] = 0;
 -        status = load_dll( load_path, ptr, 0, &wmImp );
@@ -4286,7 +4285,7 @@ index 5bcc03e..46082f3 100644
          RtlFreeHeap( GetProcessHeap(), 0, ptr );
      }
  
-@@ -916,7 +918,7 @@ static NTSTATUS fixup_imports( WINE_MODREF *wm, LPCWSTR load_path )
+@@ -927,7 +929,7 @@ static NTSTATUS fixup_imports( WINE_MODREF *wm, LPCWSTR load_path )
   * Allocate a WINE_MODREF structure and add it to the process list
   * The loader_section must be locked while calling this function.
   */
@@ -4295,7 +4294,7 @@ index 5bcc03e..46082f3 100644
  {
      WINE_MODREF *wm;
      const WCHAR *p;
-@@ -939,7 +941,7 @@ static WINE_MODREF *alloc_module( HMODULE hModule, LPCWSTR filename )
+@@ -950,7 +952,7 @@ static WINE_MODREF *alloc_module( HMODULE hModule, LPCWSTR filename )
      wm->ldr.TimeDateStamp = 0;
      wm->ldr.ActivationContext = 0;
  
@@ -4304,7 +4303,7 @@ index 5bcc03e..46082f3 100644
      if ((p = strrchrW( wm->ldr.FullDllName.Buffer, '\\' ))) p++;
      else p = wm->ldr.FullDllName.Buffer;
      RtlInitUnicodeString( &wm->ldr.BaseDllName, p );
-@@ -1578,7 +1580,7 @@ static void load_builtin_callback( void *module, const char *filename )
+@@ -1589,7 +1591,7 @@ static void load_builtin_callback( void *module, const char *filename )
          return;
      }
  
@@ -4313,7 +4312,7 @@ index 5bcc03e..46082f3 100644
      RtlFreeHeap( GetProcessHeap(), 0, fullname );
      if (!wm)
      {
-@@ -1760,8 +1762,8 @@ static NTSTATUS perform_relocations( void *module, SIZE_T len )
+@@ -1771,8 +1773,8 @@ static NTSTATUS perform_relocations( void *module, SIZE_T len )
  /******************************************************************************
   *	load_native_dll  (internal)
   */
@@ -4324,7 +4323,7 @@ index 5bcc03e..46082f3 100644
  {
      void *module;
      HANDLE mapping;
-@@ -1795,7 +1797,7 @@ static NTSTATUS load_native_dll( LPCWSTR load_path, LPCWSTR name, HANDLE file,
+@@ -1806,7 +1808,7 @@ static NTSTATUS load_native_dll( LPCWSTR load_path, LPCWSTR name, HANDLE file,
  
      /* create the MODREF */
  
@@ -4333,7 +4332,7 @@ index 5bcc03e..46082f3 100644
      {
          status = STATUS_NO_MEMORY;
          goto done;
-@@ -1859,8 +1861,8 @@ done:
+@@ -1870,8 +1872,8 @@ done:
  /***********************************************************************
   *           load_builtin_dll
   */
@@ -4344,7 +4343,7 @@ index 5bcc03e..46082f3 100644
  {
      char error[256], dllname[MAX_PATH];
      const WCHAR *name, *p;
-@@ -1880,6 +1882,7 @@ static NTSTATUS load_builtin_dll( LPCWSTR load_path, LPCWSTR path, HANDLE file,
+@@ -1891,6 +1893,7 @@ static NTSTATUS load_builtin_dll( LPCWSTR load_path, LPCWSTR path, HANDLE file,
       */
      info.load_path = load_path;
      info.filename  = NULL;
@@ -4352,7 +4351,7 @@ index 5bcc03e..46082f3 100644
      info.status    = STATUS_SUCCESS;
      info.wm        = NULL;
  
-@@ -2198,14 +2201,14 @@ overflow:
+@@ -2209,14 +2212,14 @@ overflow:
      return STATUS_BUFFER_TOO_SMALL;
  }
  
@@ -4369,7 +4368,7 @@ index 5bcc03e..46082f3 100644
  {
      enum loadorder loadorder;
      WCHAR buffer[64];
-@@ -2242,6 +2245,25 @@ static NTSTATUS load_dll( LPCWSTR load_path, LPCWSTR libname, DWORD flags, WINE_
+@@ -2253,6 +2256,25 @@ static NTSTATUS load_dll( LPCWSTR load_path, LPCWSTR libname, DWORD flags, WINE_
      }
  
      main_exe = get_modref( NtCurrentTeb()->Peb->ImageBaseAddress );
@@ -4395,7 +4394,7 @@ index 5bcc03e..46082f3 100644
      loadorder = get_load_order( main_exe ? main_exe->ldr.BaseDllName.Buffer : NULL, filename );
  
      if (handle && is_fake_dll( handle ))
-@@ -2264,22 +2286,22 @@ static NTSTATUS load_dll( LPCWSTR load_path, LPCWSTR libname, DWORD flags, WINE_
+@@ -2275,22 +2297,22 @@ static NTSTATUS load_dll( LPCWSTR load_path, LPCWSTR libname, DWORD flags, WINE_
          if (!handle) nts = STATUS_DLL_NOT_FOUND;
          else
          {
@@ -4423,7 +4422,7 @@ index 5bcc03e..46082f3 100644
          if (nts == STATUS_SUCCESS && loadorder == LO_DEFAULT &&
              (MODULE_InitDLL( *pwm, DLL_WINE_PREATTACH, NULL ) != STATUS_SUCCESS))
          {
-@@ -2289,7 +2311,7 @@ static NTSTATUS load_dll( LPCWSTR load_path, LPCWSTR libname, DWORD flags, WINE_
+@@ -2300,7 +2322,7 @@ static NTSTATUS load_dll( LPCWSTR load_path, LPCWSTR libname, DWORD flags, WINE_
              nts = STATUS_DLL_NOT_FOUND;
          }
          if (nts == STATUS_DLL_NOT_FOUND && loadorder != LO_BUILTIN)
@@ -4432,7 +4431,7 @@ index 5bcc03e..46082f3 100644
          break;
      }
  
-@@ -2322,7 +2344,7 @@ NTSTATUS WINAPI DECLSPEC_HOTPATCH LdrLoadDll(LPCWSTR path_name, DWORD flags,
+@@ -2333,7 +2355,7 @@ NTSTATUS WINAPI DECLSPEC_HOTPATCH LdrLoadDll(LPCWSTR path_name, DWORD flags,
      RtlEnterCriticalSection( &loader_section );
  
      if (!path_name) path_name = NtCurrentTeb()->Peb->ProcessParameters->DllPath.Buffer;
@@ -4441,7 +4440,7 @@ index 5bcc03e..46082f3 100644
  
      if (nts == STATUS_SUCCESS && !(wm->ldr.Flags & LDR_DONT_RESOLVE_REFS))
      {
-@@ -3285,7 +3307,7 @@ void __wine_process_init(void)
+@@ -3296,7 +3318,7 @@ void __wine_process_init(void)
      /* setup the load callback and create ntdll modref */
      wine_dll_set_callback( load_builtin_callback );
  
