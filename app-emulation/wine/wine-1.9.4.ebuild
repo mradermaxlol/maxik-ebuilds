@@ -21,12 +21,9 @@ inherit autotools-utils eutils fdo-mime flag-o-matic gnome2-utils l10n multilib 
 		KEYWORDS="-* amd64 x86 x86-fbsd"
 	fi
 	MY_P="${PN}-${MY_PV}"
-	# SRC_URI="https://github.com/wine-compholio/wine-patched/archive/staging-${MY_PV}.tar.bz2 -> ${P}.tar.bz2" # Get staging-patched archive
-	# SRC_URI="https://dl.winehq.org/wine/source/1.9/wine-1.9.3.tar.bz2 -> ${P}.tar.bz2
-	# https://github.com/wine-compholio/wine-staging/archive/v1.9.3.tar.gz -> v1.9.3.tar.gz"
 	SRC_URI="https://dl.winehq.org/wine/source/${MAJOR_V}/${MY_P}.tar.bz2 -> ${P}.tar.bz2"
 	SRC_URI="${SRC_URI}
-		https://github.com/wine-compholio/wine-staging/archive/v1.9.3.tar.gz -> v1.9.3.tar.gz"
+		https://github.com/wine-compholio/wine-staging/archive/v1.9.4.tar.gz -> v1.9.4.tar.gz"
 	# TODO: make staging optional
 
 GV="2.44" # Gecko version
@@ -204,15 +201,13 @@ pkg_setup() {
 src_unpack() {
 	git clone https://aur.archlinux.org/wine-gaming-nine.git
 	unpack ${P}.tar.bz2
-	unpack v1.9.3.tar.gz
+	unpack v1.9.4.tar.gz
 	# use staging && unpack "${STAGING_P}.tar.gz" # We have fetched staging-patched Wine already => not needed
 	unpack ${WINE_GENTOO}.tar.bz2
 	l10n_find_plocales_changes "${S}/po" "" ".po"
 }
 
 src_prepare() {
-	# cd wine-1.9.3
-	# tar xvf ../v1.9.3.tar.gz -C . --strip-components 1
 	local md5="$(md5sum server/protocol.def)"
 	local PATCHES=(
 		#"${FILESDIR}"/${PN}-1.5.26-winegcc.patch #260726
