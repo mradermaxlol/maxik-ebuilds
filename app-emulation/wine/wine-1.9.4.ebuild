@@ -23,7 +23,7 @@ inherit autotools-utils eutils fdo-mime flag-o-matic gnome2-utils l10n multilib 
 	MY_P="${PN}-${MY_PV}"
 	SRC_URI="https://dl.winehq.org/wine/source/${MAJOR_V}/${MY_P}.tar.bz2 -> ${P}.tar.bz2"
 	SRC_URI="${SRC_URI}
-		https://github.com/wine-compholio/wine-staging/archive/v1.9.4.tar.gz -> v1.9.4.tar.gz"
+		https://github.com/wine-compholio/wine-staging/archive/v${PV}.tar.gz -> v${PV}.tar.gz"
 	# TODO: make staging optional
 
 GV="2.44" # Gecko version
@@ -201,7 +201,7 @@ pkg_setup() {
 src_unpack() {
 	git clone https://aur.archlinux.org/wine-gaming-nine.git
 	unpack ${P}.tar.bz2
-	unpack v1.9.4.tar.gz
+	unpack v${PV}.tar.gz
 	# use staging && unpack "${STAGING_P}.tar.gz" # We have fetched staging-patched Wine already => not needed
 	unpack ${WINE_GENTOO}.tar.bz2
 	l10n_find_plocales_changes "${S}/po" "" ".po"
