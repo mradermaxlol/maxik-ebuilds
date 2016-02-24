@@ -209,9 +209,6 @@ src_unpack() {
 
 src_prepare() {
 	local md5="$(md5sum server/protocol.def)"
-	local PATCHES=(
-		"${FILESDIR}"/${PN}-d3d9.patch # add Gallium Nine support
-	)
 	if [[ $(gcc-major-version) = 5 && $(gcc-minor-version) -ge 3 ]]; then
 		local PATCHES=( "${FILESDIR}"/${PN}-1.9.3-gcc-5_3_0-disable-force-alignment.patch ) #574044
 	fi
@@ -232,6 +229,7 @@ src_prepare() {
 		eend $?
 	fi
 	# patch -p1 < ../wine-gaming-nine/nine-1.9.1.patch # Replaced by NP-Hardass' patch (freshly generated, of course)
+	patch -p1 < ${FILESDIR}/${PN}-d3d9.patch
 	patch -p1 < ../wine-gaming-nine/steam.patch
 	patch -p1 < ../wine-gaming-nine/mipmap.patch
 	patch -p1 < ../wine-gaming-nine/heap_perf.patch
@@ -240,6 +238,8 @@ src_prepare() {
 	if use staging; then
 		ewarn "Applying the Wine-Staging patchset. Any bug reports to the"
 		ewarn "Wine bugzilla should explicitly state that staging was used."
+		ewarn "Gallium Nine is enabled. If you encounter bugs using it,"
+		ewarn "report to IXiT bugtracked on freenode or github."
 	fi
 	sed 's|OpenCL/opencl.h|CL/opencl.h|g' -i configure*
 	autoreconf -f
