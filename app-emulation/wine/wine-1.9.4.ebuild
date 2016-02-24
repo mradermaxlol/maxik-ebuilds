@@ -212,6 +212,7 @@ src_prepare() {
 	if [[ $(gcc-major-version) = 5 && $(gcc-minor-version) -ge 3 ]]; then
 		local PATCHES=( "${FILESDIR}"/${PN}-1.9.3-gcc-5_3_0-disable-force-alignment.patch ) #574044
 	fi
+	patch -p1 < ${FILESDIR}/${PN}-d3d9.patch # It's here to test if new patchorder works
 	if use staging; then
 		ewarn "Applying the Wine-Staging patchset. Any bug reports to the"
 		ewarn "Wine bugzilla should explicitly state that staging was used."
@@ -229,7 +230,6 @@ src_prepare() {
 		eend $?
 	fi
 	# patch -p1 < ../wine-gaming-nine/nine-1.9.1.patch # Replaced by NP-Hardass' patch (freshly generated, of course)
-	patch -p1 < ${FILESDIR}/${PN}-d3d9.patch
 	patch -p1 < ../wine-gaming-nine/steam.patch
 	patch -p1 < ../wine-gaming-nine/mipmap.patch
 	patch -p1 < ../wine-gaming-nine/heap_perf.patch
