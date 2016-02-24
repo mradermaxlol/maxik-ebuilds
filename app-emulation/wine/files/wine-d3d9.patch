@@ -1,8 +1,743 @@
+diff --git a/configure b/configure
+index 18e02b7..e29874a 100755
+--- a/configure
++++ b/configure
+@@ -681,6 +681,8 @@ XSLT_LIBS
+ XSLT_CFLAGS
+ XML2_LIBS
+ XML2_CFLAGS
++D3D_LIBS
++D3D_CFLAGS
+ X_EXTRA_LIBS
+ X_LIBS
+ X_PRE_LIBS
+@@ -723,6 +725,7 @@ LDRPATH_INSTALL
+ DLLFLAGS
+ dlldir
+ CPP
++D3DADAPTER9_LIBS
+ OPENGL_LIBS
+ ICOTOOL
+ CONVERT
+@@ -835,6 +838,8 @@ with_netapi
+ with_openal
+ with_opencl
+ with_opengl
++with_d3dadapter
++with_d3dadapter_dri2_fallback
+ with_osmesa
+ with_oss
+ with_pcap
+@@ -1009,6 +1014,7 @@ enable_d3d10core
+ enable_d3d11
+ enable_d3d8
+ enable_d3d9
++enable_d3d9_nine
+ enable_d3dcompiler_33
+ enable_d3dcompiler_34
+ enable_d3dcompiler_35
+@@ -2221,6 +2227,9 @@ Optional Packages:
+   --without-openal        do not use OpenAL
+   --without-opencl        do not use OpenCL
+   --without-opengl        do not use OpenGL
++  --without-d3dadapter    do not use native Direct3D
++  --without-d3dadapter-dri2-fallback
++                          add a DRI2 fallback to d3dadapter DRI3 code
+   --without-osmesa        do not use the OSMesa library
+   --without-oss           do not use the OSS sound support
+   --without-pcap          do not use the Packet Capture library
+@@ -3461,6 +3470,18 @@ if test "${with_opengl+set}" = set; then :
+ fi
+
+
++# Check whether --with-d3dadapter was given.
++if test "${with_d3dadapter+set}" = set; then :
++  withval=$with_d3dadapter;
++fi
++
++
++# Check whether --with-d3dadapter-dri2-fallback was given.
++if test "${with_d3dadapter_dri2_fallback+set}" = set; then :
++  withval=$with_d3dadapter_dri2_fallback;
++fi
++
++
+ # Check whether --with-osmesa was given.
+ if test "${with_osmesa+set}" = set; then :
+   withval=$with_osmesa;
+@@ -6240,6 +6261,9 @@ fi
+ OPENGL_LIBS=""
+
+
++D3DADAPTER9_LIBS=""
++
++
+
+ # Check whether --enable-largefile was given.
+ if test "${enable_largefile+set}" = set; then :
+@@ -11083,6 +11107,632 @@ This is an error since --with-va was requested." "$LINENO" 5 ;;
+ esac
+ fi
+
++
++
++        if test "x$with_d3dadapter" != "xno"
++    then
++         D3D_CFLAGS=`pkg-config --cflags d3d`
++         D3D_LIBS=`pkg-config --libs d3d`
++
++
++
++$as_echo "#define SONAME_D3DADAPTER9 \"d3dadapter9.so.1\"" >>confdefs.h
++
++
++cat >>confdefs.h <<_ACEOF
++#define D3D_MODULE_DIR "`pkg-config --variable=moduledir d3d`"
++_ACEOF
++
++         D3DADAPTER9_LIBS=""
++         { $as_echo "$as_me:${as_lineno-$LINENO}: checking for -lxcb" >&5
++$as_echo_n "checking for -lxcb... " >&6; }
++if ${ac_cv_lib_soname_xcb+:} false; then :
++  $as_echo_n "(cached) " >&6
++else
++  ac_check_soname_save_LIBS=$LIBS
++LIBS="-lxcb  $LIBS"
++  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
++/* end confdefs.h.  */
++
++/* Override any GCC internal prototype to avoid an error.
++   Use char because int might match the return type of a GCC
++   builtin and then its argument prototype would still apply.  */
++#ifdef __cplusplus
++extern "C"
++#endif
++char xcb_request_check ();
++int
++main ()
++{
++return xcb_request_check ();
++  ;
++  return 0;
++}
++_ACEOF
++if ac_fn_c_try_link "$LINENO"; then :
++  case "$LIBEXT" in
++    dll) ac_cv_lib_soname_xcb=`$ac_cv_path_LDD conftest.exe | grep "xcb" | sed -e "s/dll.*/dll/"';2,$d'` ;;
++    dylib) ac_cv_lib_soname_xcb=`$OTOOL -L conftest$ac_exeext | grep "libxcb\\.[0-9A-Za-z.]*dylib" | sed -e "s/^.*\/\(libxcb\.[0-9A-Za-z.]*dylib\).*$/\1/"';2,$d'` ;;
++    *) ac_cv_lib_soname_xcb=`$READELF -d conftest$ac_exeext | grep "NEEDED.*libxcb\\.$LIBEXT" | sed -e "s/^.*\\[\\(libxcb\\.$LIBEXT[^	 ]*\\)\\].*$/\1/"';2,$d'`
++       if ${ac_cv_lib_soname_xcb:+false} :; then :
++  ac_cv_lib_soname_xcb=`$LDD conftest$ac_exeext | grep "libxcb\\.$LIBEXT" | sed -e "s/^.*\(libxcb\.$LIBEXT[^	 ]*\).*$/\1/"';2,$d'`
++fi ;;
++  esac
++fi
++rm -f core conftest.err conftest.$ac_objext \
++    conftest$ac_exeext conftest.$ac_ext
++  LIBS=$ac_check_soname_save_LIBS
++fi
++if ${ac_cv_lib_soname_xcb:+false} :; then :
++  { $as_echo "$as_me:${as_lineno-$LINENO}: result: not found" >&5
++$as_echo "not found" >&6; }
++
++else
++  { $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_lib_soname_xcb" >&5
++$as_echo "$ac_cv_lib_soname_xcb" >&6; }
++
++cat >>confdefs.h <<_ACEOF
++#define SONAME_LIBXCB "$ac_cv_lib_soname_xcb"
++_ACEOF
++
++       D3DADAPTER9_LIBS="-lxcb $D3DADAPTER9_LIBS"
++fi
++         if test "x$D3DADAPTER9_LIBS" != "x-lxcb "; then :
++  case "x$with_d3dadapter" in
++  xno) ;;
++  *)   as_fn_error $? "D3Dadapter9 requires libxcb
++Use the --without-d3dadapter option if you really want this." "$LINENO" 5 ;;
++esac
++fi
++         { $as_echo "$as_me:${as_lineno-$LINENO}: checking for -lxcb-dri3" >&5
++$as_echo_n "checking for -lxcb-dri3... " >&6; }
++if ${ac_cv_lib_soname_xcb_dri3+:} false; then :
++  $as_echo_n "(cached) " >&6
++else
++  ac_check_soname_save_LIBS=$LIBS
++LIBS="-lxcb-dri3  $LIBS"
++  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
++/* end confdefs.h.  */
++
++/* Override any GCC internal prototype to avoid an error.
++   Use char because int might match the return type of a GCC
++   builtin and then its argument prototype would still apply.  */
++#ifdef __cplusplus
++extern "C"
++#endif
++char xcb_dri3_open ();
++int
++main ()
++{
++return xcb_dri3_open ();
++  ;
++  return 0;
++}
++_ACEOF
++if ac_fn_c_try_link "$LINENO"; then :
++  case "$LIBEXT" in
++    dll) ac_cv_lib_soname_xcb_dri3=`$ac_cv_path_LDD conftest.exe | grep "xcb-dri3" | sed -e "s/dll.*/dll/"';2,$d'` ;;
++    dylib) ac_cv_lib_soname_xcb_dri3=`$OTOOL -L conftest$ac_exeext | grep "libxcb-dri3\\.[0-9A-Za-z.]*dylib" | sed -e "s/^.*\/\(libxcb-dri3\.[0-9A-Za-z.]*dylib\).*$/\1/"';2,$d'` ;;
++    *) ac_cv_lib_soname_xcb_dri3=`$READELF -d conftest$ac_exeext | grep "NEEDED.*libxcb-dri3\\.$LIBEXT" | sed -e "s/^.*\\[\\(libxcb-dri3\\.$LIBEXT[^	 ]*\\)\\].*$/\1/"';2,$d'`
++       if ${ac_cv_lib_soname_xcb_dri3:+false} :; then :
++  ac_cv_lib_soname_xcb_dri3=`$LDD conftest$ac_exeext | grep "libxcb-dri3\\.$LIBEXT" | sed -e "s/^.*\(libxcb-dri3\.$LIBEXT[^	 ]*\).*$/\1/"';2,$d'`
++fi ;;
++  esac
++fi
++rm -f core conftest.err conftest.$ac_objext \
++    conftest$ac_exeext conftest.$ac_ext
++  LIBS=$ac_check_soname_save_LIBS
++fi
++if ${ac_cv_lib_soname_xcb_dri3:+false} :; then :
++  { $as_echo "$as_me:${as_lineno-$LINENO}: result: not found" >&5
++$as_echo "not found" >&6; }
++
++else
++  { $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_lib_soname_xcb_dri3" >&5
++$as_echo "$ac_cv_lib_soname_xcb_dri3" >&6; }
++
++cat >>confdefs.h <<_ACEOF
++#define SONAME_LIBXCB_DRI3 "$ac_cv_lib_soname_xcb_dri3"
++_ACEOF
++
++       D3DADAPTER9_LIBS="-lxcb-dri3 $D3DADAPTER9_LIBS"
++fi
++         if test "x$D3DADAPTER9_LIBS" != "x-lxcb-dri3 -lxcb "; then :
++  case "x$with_d3dadapter" in
++  xno) ;;
++  *)   as_fn_error $? "D3Dadapter9 requires libxcb-dri3
++Use the --without-d3dadapter option if you really want this." "$LINENO" 5 ;;
++esac
++fi
++         { $as_echo "$as_me:${as_lineno-$LINENO}: checking for -lxcb-present" >&5
++$as_echo_n "checking for -lxcb-present... " >&6; }
++if ${ac_cv_lib_soname_xcb_present+:} false; then :
++  $as_echo_n "(cached) " >&6
++else
++  ac_check_soname_save_LIBS=$LIBS
++LIBS="-lxcb-present  $LIBS"
++  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
++/* end confdefs.h.  */
++
++/* Override any GCC internal prototype to avoid an error.
++   Use char because int might match the return type of a GCC
++   builtin and then its argument prototype would still apply.  */
++#ifdef __cplusplus
++extern "C"
++#endif
++char xcb_present_notify_msc ();
++int
++main ()
++{
++return xcb_present_notify_msc ();
++  ;
++  return 0;
++}
++_ACEOF
++if ac_fn_c_try_link "$LINENO"; then :
++  case "$LIBEXT" in
++    dll) ac_cv_lib_soname_xcb_present=`$ac_cv_path_LDD conftest.exe | grep "xcb-present" | sed -e "s/dll.*/dll/"';2,$d'` ;;
++    dylib) ac_cv_lib_soname_xcb_present=`$OTOOL -L conftest$ac_exeext | grep "libxcb-present\\.[0-9A-Za-z.]*dylib" | sed -e "s/^.*\/\(libxcb-present\.[0-9A-Za-z.]*dylib\).*$/\1/"';2,$d'` ;;
++    *) ac_cv_lib_soname_xcb_present=`$READELF -d conftest$ac_exeext | grep "NEEDED.*libxcb-present\\.$LIBEXT" | sed -e "s/^.*\\[\\(libxcb-present\\.$LIBEXT[^	 ]*\\)\\].*$/\1/"';2,$d'`
++       if ${ac_cv_lib_soname_xcb_present:+false} :; then :
++  ac_cv_lib_soname_xcb_present=`$LDD conftest$ac_exeext | grep "libxcb-present\\.$LIBEXT" | sed -e "s/^.*\(libxcb-present\.$LIBEXT[^	 ]*\).*$/\1/"';2,$d'`
++fi ;;
++  esac
++fi
++rm -f core conftest.err conftest.$ac_objext \
++    conftest$ac_exeext conftest.$ac_ext
++  LIBS=$ac_check_soname_save_LIBS
++fi
++if ${ac_cv_lib_soname_xcb_present:+false} :; then :
++  { $as_echo "$as_me:${as_lineno-$LINENO}: result: not found" >&5
++$as_echo "not found" >&6; }
++
++else
++  { $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_lib_soname_xcb_present" >&5
++$as_echo "$ac_cv_lib_soname_xcb_present" >&6; }
++
++cat >>confdefs.h <<_ACEOF
++#define SONAME_LIBXCB_PRESENT "$ac_cv_lib_soname_xcb_present"
++_ACEOF
++
++       D3DADAPTER9_LIBS="-lxcb-present $D3DADAPTER9_LIBS"
++fi
++         if test "x$D3DADAPTER9_LIBS" != "x-lxcb-present -lxcb-dri3 -lxcb "; then :
++  case "x$with_d3dadapter" in
++  xno) ;;
++  *)   as_fn_error $? "D3Dadapter9 requires libxcb-present
++Use the --without-d3dadapter option if you really want this." "$LINENO" 5 ;;
++esac
++fi
++         { $as_echo "$as_me:${as_lineno-$LINENO}: checking for -lX11-xcb" >&5
++$as_echo_n "checking for -lX11-xcb... " >&6; }
++if ${ac_cv_lib_soname_X11_xcb+:} false; then :
++  $as_echo_n "(cached) " >&6
++else
++  ac_check_soname_save_LIBS=$LIBS
++LIBS="-lX11-xcb  $LIBS"
++  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
++/* end confdefs.h.  */
++
++/* Override any GCC internal prototype to avoid an error.
++   Use char because int might match the return type of a GCC
++   builtin and then its argument prototype would still apply.  */
++#ifdef __cplusplus
++extern "C"
++#endif
++char XGetXCBConnection ();
++int
++main ()
++{
++return XGetXCBConnection ();
++  ;
++  return 0;
++}
++_ACEOF
++if ac_fn_c_try_link "$LINENO"; then :
++  case "$LIBEXT" in
++    dll) ac_cv_lib_soname_X11_xcb=`$ac_cv_path_LDD conftest.exe | grep "X11-xcb" | sed -e "s/dll.*/dll/"';2,$d'` ;;
++    dylib) ac_cv_lib_soname_X11_xcb=`$OTOOL -L conftest$ac_exeext | grep "libX11-xcb\\.[0-9A-Za-z.]*dylib" | sed -e "s/^.*\/\(libX11-xcb\.[0-9A-Za-z.]*dylib\).*$/\1/"';2,$d'` ;;
++    *) ac_cv_lib_soname_X11_xcb=`$READELF -d conftest$ac_exeext | grep "NEEDED.*libX11-xcb\\.$LIBEXT" | sed -e "s/^.*\\[\\(libX11-xcb\\.$LIBEXT[^	 ]*\\)\\].*$/\1/"';2,$d'`
++       if ${ac_cv_lib_soname_X11_xcb:+false} :; then :
++  ac_cv_lib_soname_X11_xcb=`$LDD conftest$ac_exeext | grep "libX11-xcb\\.$LIBEXT" | sed -e "s/^.*\(libX11-xcb\.$LIBEXT[^	 ]*\).*$/\1/"';2,$d'`
++fi ;;
++  esac
++fi
++rm -f core conftest.err conftest.$ac_objext \
++    conftest$ac_exeext conftest.$ac_ext
++  LIBS=$ac_check_soname_save_LIBS
++fi
++if ${ac_cv_lib_soname_X11_xcb:+false} :; then :
++  { $as_echo "$as_me:${as_lineno-$LINENO}: result: not found" >&5
++$as_echo "not found" >&6; }
++
++else
++  { $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_lib_soname_X11_xcb" >&5
++$as_echo "$ac_cv_lib_soname_X11_xcb" >&6; }
++
++cat >>confdefs.h <<_ACEOF
++#define SONAME_LIBX11_XCB "$ac_cv_lib_soname_X11_xcb"
++_ACEOF
++
++       D3DADAPTER9_LIBS="-lX11-xcb $D3DADAPTER9_LIBS"
++fi
++         if test "x$D3DADAPTER9_LIBS" != "x-lX11-xcb -lxcb-present -lxcb-dri3 -lxcb "; then :
++  case "x$with_d3dadapter" in
++  xno) ;;
++  *)   as_fn_error $? "D3Dadapter9 requires libX11-xcb
++Use the --without-d3dadapter option if you really want this." "$LINENO" 5 ;;
++esac
++fi
++         { $as_echo "$as_me:${as_lineno-$LINENO}: checking for -lxcb-xfixes" >&5
++$as_echo_n "checking for -lxcb-xfixes... " >&6; }
++if ${ac_cv_lib_soname_xcb_xfixes+:} false; then :
++  $as_echo_n "(cached) " >&6
++else
++  ac_check_soname_save_LIBS=$LIBS
++LIBS="-lxcb-xfixes  $LIBS"
++  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
++/* end confdefs.h.  */
++
++/* Override any GCC internal prototype to avoid an error.
++   Use char because int might match the return type of a GCC
++   builtin and then its argument prototype would still apply.  */
++#ifdef __cplusplus
++extern "C"
++#endif
++char xcb_xfixes_create_region ();
++int
++main ()
++{
++return xcb_xfixes_create_region ();
++  ;
++  return 0;
++}
++_ACEOF
++if ac_fn_c_try_link "$LINENO"; then :
++  case "$LIBEXT" in
++    dll) ac_cv_lib_soname_xcb_xfixes=`$ac_cv_path_LDD conftest.exe | grep "xcb-xfixes" | sed -e "s/dll.*/dll/"';2,$d'` ;;
++    dylib) ac_cv_lib_soname_xcb_xfixes=`$OTOOL -L conftest$ac_exeext | grep "libxcb-xfixes\\.[0-9A-Za-z.]*dylib" | sed -e "s/^.*\/\(libxcb-xfixes\.[0-9A-Za-z.]*dylib\).*$/\1/"';2,$d'` ;;
++    *) ac_cv_lib_soname_xcb_xfixes=`$READELF -d conftest$ac_exeext | grep "NEEDED.*libxcb-xfixes\\.$LIBEXT" | sed -e "s/^.*\\[\\(libxcb-xfixes\\.$LIBEXT[^	 ]*\\)\\].*$/\1/"';2,$d'`
++       if ${ac_cv_lib_soname_xcb_xfixes:+false} :; then :
++  ac_cv_lib_soname_xcb_xfixes=`$LDD conftest$ac_exeext | grep "libxcb-xfixes\\.$LIBEXT" | sed -e "s/^.*\(libxcb-xfixes\.$LIBEXT[^	 ]*\).*$/\1/"';2,$d'`
++fi ;;
++  esac
++fi
++rm -f core conftest.err conftest.$ac_objext \
++    conftest$ac_exeext conftest.$ac_ext
++  LIBS=$ac_check_soname_save_LIBS
++fi
++if ${ac_cv_lib_soname_xcb_xfixes:+false} :; then :
++  { $as_echo "$as_me:${as_lineno-$LINENO}: result: not found" >&5
++$as_echo "not found" >&6; }
++
++else
++  { $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_lib_soname_xcb_xfixes" >&5
++$as_echo "$ac_cv_lib_soname_xcb_xfixes" >&6; }
++
++cat >>confdefs.h <<_ACEOF
++#define SONAME_LIBXCB_XFIXES "$ac_cv_lib_soname_xcb_xfixes"
++_ACEOF
++
++       D3DADAPTER9_LIBS="-lxcb-xfixes $D3DADAPTER9_LIBS"
++fi
++         if test "x$D3DADAPTER9_LIBS" != "x-lxcb-xfixes -lX11-xcb -lxcb-present -lxcb-dri3 -lxcb "; then :
++  case "x$with_d3dadapter" in
++  xno) ;;
++  *)   as_fn_error $? "D3Dadapter9 requires libxcb-xfixes
++Use the --without-d3dadapter option if you really want this." "$LINENO" 5 ;;
++esac
++fi
++         { $as_echo "$as_me:${as_lineno-$LINENO}: checking for -lX11" >&5
++$as_echo_n "checking for -lX11... " >&6; }
++if ${ac_cv_lib_soname_X11+:} false; then :
++  $as_echo_n "(cached) " >&6
++else
++  ac_check_soname_save_LIBS=$LIBS
++LIBS="-lX11  $LIBS"
++  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
++/* end confdefs.h.  */
++
++/* Override any GCC internal prototype to avoid an error.
++   Use char because int might match the return type of a GCC
++   builtin and then its argument prototype would still apply.  */
++#ifdef __cplusplus
++extern "C"
++#endif
++char XOpenDisplay ();
++int
++main ()
++{
++return XOpenDisplay ();
++  ;
++  return 0;
++}
++_ACEOF
++if ac_fn_c_try_link "$LINENO"; then :
++  case "$LIBEXT" in
++    dll) ac_cv_lib_soname_X11=`$ac_cv_path_LDD conftest.exe | grep "X11" | sed -e "s/dll.*/dll/"';2,$d'` ;;
++    dylib) ac_cv_lib_soname_X11=`$OTOOL -L conftest$ac_exeext | grep "libX11\\.[0-9A-Za-z.]*dylib" | sed -e "s/^.*\/\(libX11\.[0-9A-Za-z.]*dylib\).*$/\1/"';2,$d'` ;;
++    *) ac_cv_lib_soname_X11=`$READELF -d conftest$ac_exeext | grep "NEEDED.*libX11\\.$LIBEXT" | sed -e "s/^.*\\[\\(libX11\\.$LIBEXT[^	 ]*\\)\\].*$/\1/"';2,$d'`
++       if ${ac_cv_lib_soname_X11:+false} :; then :
++  ac_cv_lib_soname_X11=`$LDD conftest$ac_exeext | grep "libX11\\.$LIBEXT" | sed -e "s/^.*\(libX11\.$LIBEXT[^	 ]*\).*$/\1/"';2,$d'`
++fi ;;
++  esac
++fi
++rm -f core conftest.err conftest.$ac_objext \
++    conftest$ac_exeext conftest.$ac_ext
++  LIBS=$ac_check_soname_save_LIBS
++fi
++if ${ac_cv_lib_soname_X11:+false} :; then :
++  { $as_echo "$as_me:${as_lineno-$LINENO}: result: not found" >&5
++$as_echo "not found" >&6; }
++
++else
++  { $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_lib_soname_X11" >&5
++$as_echo "$ac_cv_lib_soname_X11" >&6; }
++
++cat >>confdefs.h <<_ACEOF
++#define SONAME_LIBX11 "$ac_cv_lib_soname_X11"
++_ACEOF
++
++       D3DADAPTER9_LIBS="-lX11 $D3DADAPTER9_LIBS"
++fi
++         if test "x$D3DADAPTER9_LIBS" != "x-lX11 -lxcb-xfixes -lX11-xcb -lxcb-present -lxcb-dri3 -lxcb "; then :
++  case "x$with_d3dadapter" in
++  xno) ;;
++  *)   as_fn_error $? "D3Dadapter9 requires libX11
++Use the --without-d3dadapter option if you really want this." "$LINENO" 5 ;;
++esac
++fi
++         { $as_echo "$as_me:${as_lineno-$LINENO}: checking for -lXext" >&5
++$as_echo_n "checking for -lXext... " >&6; }
++if ${ac_cv_lib_soname_Xext+:} false; then :
++  $as_echo_n "(cached) " >&6
++else
++  ac_check_soname_save_LIBS=$LIBS
++LIBS="-lXext  $LIBS"
++  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
++/* end confdefs.h.  */
++
++/* Override any GCC internal prototype to avoid an error.
++   Use char because int might match the return type of a GCC
++   builtin and then its argument prototype would still apply.  */
++#ifdef __cplusplus
++extern "C"
++#endif
++char XextRemoveDisplay ();
++int
++main ()
++{
++return XextRemoveDisplay ();
++  ;
++  return 0;
++}
++_ACEOF
++if ac_fn_c_try_link "$LINENO"; then :
++  case "$LIBEXT" in
++    dll) ac_cv_lib_soname_Xext=`$ac_cv_path_LDD conftest.exe | grep "Xext" | sed -e "s/dll.*/dll/"';2,$d'` ;;
++    dylib) ac_cv_lib_soname_Xext=`$OTOOL -L conftest$ac_exeext | grep "libXext\\.[0-9A-Za-z.]*dylib" | sed -e "s/^.*\/\(libXext\.[0-9A-Za-z.]*dylib\).*$/\1/"';2,$d'` ;;
++    *) ac_cv_lib_soname_Xext=`$READELF -d conftest$ac_exeext | grep "NEEDED.*libXext\\.$LIBEXT" | sed -e "s/^.*\\[\\(libXext\\.$LIBEXT[^	 ]*\\)\\].*$/\1/"';2,$d'`
++       if ${ac_cv_lib_soname_Xext:+false} :; then :
++  ac_cv_lib_soname_Xext=`$LDD conftest$ac_exeext | grep "libXext\\.$LIBEXT" | sed -e "s/^.*\(libXext\.$LIBEXT[^	 ]*\).*$/\1/"';2,$d'`
++fi ;;
++  esac
++fi
++rm -f core conftest.err conftest.$ac_objext \
++    conftest$ac_exeext conftest.$ac_ext
++  LIBS=$ac_check_soname_save_LIBS
++fi
++if ${ac_cv_lib_soname_Xext:+false} :; then :
++  { $as_echo "$as_me:${as_lineno-$LINENO}: result: not found" >&5
++$as_echo "not found" >&6; }
++
++else
++  { $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_lib_soname_Xext" >&5
++$as_echo "$ac_cv_lib_soname_Xext" >&6; }
++
++cat >>confdefs.h <<_ACEOF
++#define SONAME_LIBXEXT "$ac_cv_lib_soname_Xext"
++_ACEOF
++
++       D3DADAPTER9_LIBS="-lXext $D3DADAPTER9_LIBS"
++fi
++         if test "x$D3DADAPTER9_LIBS" != "x-lXext -lX11 -lxcb-xfixes -lX11-xcb -lxcb-present -lxcb-dri3 -lxcb "; then :
++  case "x$with_d3dadapter" in
++  xno) ;;
++  *)   as_fn_error $? "D3Dadapter9 requires libXext
++Use the --without-d3dadapter option if you really want this." "$LINENO" 5 ;;
++esac
++fi
++         { $as_echo "$as_me:${as_lineno-$LINENO}: checking for -lpthread" >&5
++$as_echo_n "checking for -lpthread... " >&6; }
++if ${ac_cv_lib_soname_pthread+:} false; then :
++  $as_echo_n "(cached) " >&6
++else
++  ac_check_soname_save_LIBS=$LIBS
++LIBS="-lpthread  $LIBS"
++  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
++/* end confdefs.h.  */
++
++/* Override any GCC internal prototype to avoid an error.
++   Use char because int might match the return type of a GCC
++   builtin and then its argument prototype would still apply.  */
++#ifdef __cplusplus
++extern "C"
++#endif
++char pthread_mutex_lock ();
++int
++main ()
++{
++return pthread_mutex_lock ();
++  ;
++  return 0;
++}
++_ACEOF
++if ac_fn_c_try_link "$LINENO"; then :
++  case "$LIBEXT" in
++    dll) ac_cv_lib_soname_pthread=`$ac_cv_path_LDD conftest.exe | grep "pthread" | sed -e "s/dll.*/dll/"';2,$d'` ;;
++    dylib) ac_cv_lib_soname_pthread=`$OTOOL -L conftest$ac_exeext | grep "libpthread\\.[0-9A-Za-z.]*dylib" | sed -e "s/^.*\/\(libpthread\.[0-9A-Za-z.]*dylib\).*$/\1/"';2,$d'` ;;
++    *) ac_cv_lib_soname_pthread=`$READELF -d conftest$ac_exeext | grep "NEEDED.*libpthread\\.$LIBEXT" | sed -e "s/^.*\\[\\(libpthread\\.$LIBEXT[^	 ]*\\)\\].*$/\1/"';2,$d'`
++       if ${ac_cv_lib_soname_pthread:+false} :; then :
++  ac_cv_lib_soname_pthread=`$LDD conftest$ac_exeext | grep "libpthread\\.$LIBEXT" | sed -e "s/^.*\(libpthread\.$LIBEXT[^	 ]*\).*$/\1/"';2,$d'`
++fi ;;
++  esac
++fi
++rm -f core conftest.err conftest.$ac_objext \
++    conftest$ac_exeext conftest.$ac_ext
++  LIBS=$ac_check_soname_save_LIBS
++fi
++if ${ac_cv_lib_soname_pthread:+false} :; then :
++  { $as_echo "$as_me:${as_lineno-$LINENO}: result: not found" >&5
++$as_echo "not found" >&6; }
++
++else
++  { $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_lib_soname_pthread" >&5
++$as_echo "$ac_cv_lib_soname_pthread" >&6; }
++
++cat >>confdefs.h <<_ACEOF
++#define SONAME_LIBPTHREAD "$ac_cv_lib_soname_pthread"
++_ACEOF
++
++       D3DADAPTER9_LIBS="-lpthread $D3DADAPTER9_LIBS"
++fi
++         if test "x$D3DADAPTER9_LIBS" != "x-lpthread -lXext -lX11 -lxcb-xfixes -lX11-xcb -lxcb-present -lxcb-dri3 -lxcb "; then :
++  case "x$with_d3dadapter" in
++  xno) ;;
++  *)   as_fn_error $? "D3Dadapter9 requires libpthread
++Use the --without-d3dadapter option if you really want this." "$LINENO" 5 ;;
++esac
++fi
++
++         if test "x$with_d3dadapter_dri2_fallback" != "xno"
++         then
++
++$as_echo "#define D3DADAPTER9_DRI2 1" >>confdefs.h
++
++             { $as_echo "$as_me:${as_lineno-$LINENO}: checking for -lGL" >&5
++$as_echo_n "checking for -lGL... " >&6; }
++if ${ac_cv_lib_soname_GL+:} false; then :
++  $as_echo_n "(cached) " >&6
++else
++  ac_check_soname_save_LIBS=$LIBS
++LIBS="-lGL  $LIBS"
++  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
++/* end confdefs.h.  */
++
++/* Override any GCC internal prototype to avoid an error.
++   Use char because int might match the return type of a GCC
++   builtin and then its argument prototype would still apply.  */
++#ifdef __cplusplus
++extern "C"
++#endif
++char glGenFramebuffers ();
++int
++main ()
++{
++return glGenFramebuffers ();
++  ;
++  return 0;
++}
++_ACEOF
++if ac_fn_c_try_link "$LINENO"; then :
++  case "$LIBEXT" in
++    dll) ac_cv_lib_soname_GL=`$ac_cv_path_LDD conftest.exe | grep "GL" | sed -e "s/dll.*/dll/"';2,$d'` ;;
++    dylib) ac_cv_lib_soname_GL=`$OTOOL -L conftest$ac_exeext | grep "libGL\\.[0-9A-Za-z.]*dylib" | sed -e "s/^.*\/\(libGL\.[0-9A-Za-z.]*dylib\).*$/\1/"';2,$d'` ;;
++    *) ac_cv_lib_soname_GL=`$READELF -d conftest$ac_exeext | grep "NEEDED.*libGL\\.$LIBEXT" | sed -e "s/^.*\\[\\(libGL\\.$LIBEXT[^	 ]*\\)\\].*$/\1/"';2,$d'`
++       if ${ac_cv_lib_soname_GL:+false} :; then :
++  ac_cv_lib_soname_GL=`$LDD conftest$ac_exeext | grep "libGL\\.$LIBEXT" | sed -e "s/^.*\(libGL\.$LIBEXT[^	 ]*\).*$/\1/"';2,$d'`
++fi ;;
++  esac
++fi
++rm -f core conftest.err conftest.$ac_objext \
++    conftest$ac_exeext conftest.$ac_ext
++  LIBS=$ac_check_soname_save_LIBS
++fi
++if ${ac_cv_lib_soname_GL:+false} :; then :
++  { $as_echo "$as_me:${as_lineno-$LINENO}: result: not found" >&5
++$as_echo "not found" >&6; }
++
++else
++  { $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_lib_soname_GL" >&5
++$as_echo "$ac_cv_lib_soname_GL" >&6; }
++
++cat >>confdefs.h <<_ACEOF
++#define SONAME_LIBGL "$ac_cv_lib_soname_GL"
++_ACEOF
++
++       D3DADAPTER9_LIBS="-lGL $D3DADAPTER9_LIBS"
++fi
++             if test "x$D3DADAPTER9_LIBS" != "x-lGL -lpthread -lXext -lX11 -lxcb-xfixes -lX11-xcb -lxcb-present -lxcb-dri3 -lxcb "; then :
++  case "x$with_d3dadapter" in
++  xno) ;;
++  *)   as_fn_error $? "D3Dadapter9 DRI2 fallback requires libGL
++Use the --without-d3dadapter option if you really want this." "$LINENO" 5 ;;
++esac
++fi
++             { $as_echo "$as_me:${as_lineno-$LINENO}: checking for -lEGL" >&5
++$as_echo_n "checking for -lEGL... " >&6; }
++if ${ac_cv_lib_soname_EGL+:} false; then :
++  $as_echo_n "(cached) " >&6
++else
++  ac_check_soname_save_LIBS=$LIBS
++LIBS="-lEGL  $LIBS"
++  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
++/* end confdefs.h.  */
++
++/* Override any GCC internal prototype to avoid an error.
++   Use char because int might match the return type of a GCC
++   builtin and then its argument prototype would still apply.  */
++#ifdef __cplusplus
++extern "C"
++#endif
++char eglCreateContext ();
++int
++main ()
++{
++return eglCreateContext ();
++  ;
++  return 0;
++}
++_ACEOF
++if ac_fn_c_try_link "$LINENO"; then :
++  case "$LIBEXT" in
++    dll) ac_cv_lib_soname_EGL=`$ac_cv_path_LDD conftest.exe | grep "EGL" | sed -e "s/dll.*/dll/"';2,$d'` ;;
++    dylib) ac_cv_lib_soname_EGL=`$OTOOL -L conftest$ac_exeext | grep "libEGL\\.[0-9A-Za-z.]*dylib" | sed -e "s/^.*\/\(libEGL\.[0-9A-Za-z.]*dylib\).*$/\1/"';2,$d'` ;;
++    *) ac_cv_lib_soname_EGL=`$READELF -d conftest$ac_exeext | grep "NEEDED.*libEGL\\.$LIBEXT" | sed -e "s/^.*\\[\\(libEGL\\.$LIBEXT[^	 ]*\\)\\].*$/\1/"';2,$d'`
++       if ${ac_cv_lib_soname_EGL:+false} :; then :
++  ac_cv_lib_soname_EGL=`$LDD conftest$ac_exeext | grep "libEGL\\.$LIBEXT" | sed -e "s/^.*\(libEGL\.$LIBEXT[^	 ]*\).*$/\1/"';2,$d'`
++fi ;;
++  esac
++fi
++rm -f core conftest.err conftest.$ac_objext \
++    conftest$ac_exeext conftest.$ac_ext
++  LIBS=$ac_check_soname_save_LIBS
++fi
++if ${ac_cv_lib_soname_EGL:+false} :; then :
++  { $as_echo "$as_me:${as_lineno-$LINENO}: result: not found" >&5
++$as_echo "not found" >&6; }
++
++else
++  { $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_lib_soname_EGL" >&5
++$as_echo "$ac_cv_lib_soname_EGL" >&6; }
++
++cat >>confdefs.h <<_ACEOF
++#define SONAME_LIBEGL "$ac_cv_lib_soname_EGL"
++_ACEOF
++
++       D3DADAPTER9_LIBS="-lEGL $D3DADAPTER9_LIBS"
++fi
++             if test "x$D3DADAPTER9_LIBS" != "x-lEGL -lGL -lpthread -lXext -lX11 -lxcb-xfixes -lX11-xcb -lxcb-present -lxcb-dri3 -lxcb "; then :
++  case "x$with_d3dadapter" in
++  xno) ;;
++  *)   as_fn_error $? "D3Dadapter9 DRI2 fallback requires libEGL
++Use the --without-d3dadapter option if you really want this." "$LINENO" 5 ;;
++esac
++fi
++         fi
++    fi
++
+     CPPFLAGS="$ac_save_CPPFLAGS"
+ else
+     X_CFLAGS=""
+@@ -17728,6 +18378,7 @@ ac_config_commands="$ac_config_commands include/stamp-h"
+ $as_echo_n "creating Makefile rules..." >&6
+
+ ALL_VARS_RULES="OPENGL_LIBS = $OPENGL_LIBS
++D3DADAPTER9_LIBS = $D3DADAPTER9_LIBS
+ SOCKET_LIBS = $SOCKET_LIBS
+ COREFOUNDATION_LIBS = $COREFOUNDATION_LIBS
+ IOKIT_LIBS = $IOKIT_LIBS
+@@ -17747,6 +18398,8 @@ X_CFLAGS = $X_CFLAGS
+ X_PRE_LIBS = $X_PRE_LIBS
+ X_LIBS = $X_LIBS
+ X_EXTRA_LIBS = $X_EXTRA_LIBS
++D3D_CFLAGS = $D3D_CFLAGS
++D3D_LIBS = $D3D_LIBS
+ XML2_CFLAGS = $XML2_CFLAGS
+ XML2_LIBS = $XML2_LIBS
+ XSLT_CFLAGS = $XSLT_CFLAGS
+@@ -18017,6 +18670,7 @@ wine_fn_config_dll d3d8 enable_d3d8 implib
+ wine_fn_config_test dlls/d3d8/tests d3d8_test
+ wine_fn_config_dll d3d9 enable_d3d9 implib
+ wine_fn_config_test dlls/d3d9/tests d3d9_test
++wine_fn_config_dll d3d9-nine enable_d3d9_nine implib
+ wine_fn_config_dll d3dcompiler_33 enable_d3dcompiler_33
+ wine_fn_config_dll d3dcompiler_34 enable_d3dcompiler_34
+ wine_fn_config_dll d3dcompiler_35 enable_d3dcompiler_35
 diff --git a/configure.ac b/configure.ac
-index 8a90202..75994d4 100644
+index d487c75..9098d8d 100644
 --- a/configure.ac
 +++ b/configure.ac
-@@ -65,6 +65,8 @@ AC_ARG_WITH(openal,    AS_HELP_STRING([--without-openal],[do not use OpenAL]),
+@@ -67,6 +67,8 @@ AC_ARG_WITH(openal,    AS_HELP_STRING([--without-openal],[do not use OpenAL]),
  AC_ARG_WITH(opencl,    AS_HELP_STRING([--without-opencl],[do not use OpenCL]),
              [if test "x$withval" = "xno"; then ac_cv_header_CL_cl_h=no; ac_cv_header_OpenCL_opencl_h=no; fi])
  AC_ARG_WITH(opengl,    AS_HELP_STRING([--without-opengl],[do not use OpenGL]))
@@ -11,212 +746,62 @@ index 8a90202..75994d4 100644
  AC_ARG_WITH(osmesa,     AS_HELP_STRING([--without-osmesa],[do not use the OSMesa library]))
  AC_ARG_WITH(oss,       AS_HELP_STRING([--without-oss],[do not use the OSS sound support]))
  AC_ARG_WITH(pcap,      AS_HELP_STRING([--without-pcap],[do not use the Packet Capture library]),
-@@ -381,6 +383,8 @@ AC_CHECK_LIB(ossaudio,_oss_ioctl)
- 
+@@ -399,6 +401,8 @@ AC_CHECK_LIB(ossaudio,_oss_ioctl)
+
  AC_SUBST(OPENGL_LIBS,"")
- 
+
 +AC_SUBST(D3DADAPTER9_LIBS,"")
 +
  dnl **** Check for header files ****
- 
+
  AC_SYS_LARGEFILE()
-@@ -1158,6 +1162,195 @@ This probably prevents linking to OpenGL. Try deleting the file and restarting c
-     WINE_WARNING_WITH(opengl,[test -n "$opengl_msg"],[$opengl_msg
- OpenGL and Direct3D won't be supported.])
- 
+@@ -1205,6 +1209,45 @@ OpenGL and Direct3D won't be supported.])
+     WINE_NOTICE_WITH(va,[test "x$ac_cv_lib_soname_va" = "x" -o "x$ac_cv_lib_soname_va_x11" = "x" -o "x$ac_cv_lib_soname_va_drm" = "x"],
+                      [libva ${notice_platform}development files not found, GPU video acceleration won't be supported.])
+
++
++
 +    dnl Check for d3dadapter
 +    if test "x$with_d3dadapter" != "xno"
 +    then
-+         AC_DEFINE(SONAME_D3DADAPTER9, ["d3dadapter9.so.1"], ["temporary hack"])
-+         D3D_MODULE_DIR=`pkg-config --variable=moduledir d3d`
-+         CPPFLAGSBAK=$CPPFLAGS
-+         # link against libdl
-+         CPPFLAGS="$CPPFLAGS -Wl,--no-as-needed -ldl"
-+       
-+         ac_cv_c_dlopen_d3dadapter=""
-+         AC_RUN_IFELSE([AC_LANG_PROGRAM([[#include <dlfcn.h>
-+#include <stdlib.h>]],[[void *handle = dlopen("${D3D_MODULE_DIR}" "/" SONAME_D3DADAPTER9, RTLD_GLOBAL | RTLD_NOW);
-+exit((handle && dlsym(handle, "D3DAdapter9GetProc")) ? 0 : 1)]])],
-+             [ac_cv_c_dlopen_d3dadapter=yes],[ac_cv_c_dlopen_d3dadapter=no])
-+         if test "x$ac_cv_c_dlopen_d3dadapter" != "xyes"
-+         then
-+             echo "d3dadapter9.so.1 not found in '$D3D_MODULE_DIR'";
-+             # workaround for pkg-config cross-compilation
-+             # search for module in known folders
-+             for D3D_MODULE_DIR in `$CC -Xlinker --verbose 2>/dev/null | grep SEARCH`
-+             do
-+                 D3D_MODULE_DIR="`echo \"$D3D_MODULE_DIR\" | sed 's/SEARCH_DIR("//g;s/\/");/\/d3d/g;s/");/\/d3d/g'`"
-+                 ac_cv_c_dlopen_d3dadapter=""
-+                 AC_RUN_IFELSE([AC_LANG_PROGRAM([[#include <dlfcn.h>
-+#include <stdlib.h>]],[[void *handle = dlopen("${D3D_MODULE_DIR}" "/" SONAME_D3DADAPTER9, RTLD_GLOBAL | RTLD_NOW);
-+exit((handle && dlsym(handle, "D3DAdapter9GetProc")) ? 0 : 1)]])],
-+                     [echo "d3dadapter9.so.1 found in '$D3D_MODULE_DIR'";ac_cv_c_dlopen_d3dadapter=yes],
-+                     [echo "d3dadapter9.so.1 not found in '$D3D_MODULE_DIR'";ac_cv_c_dlopen_d3dadapter=no])
-+                 if test "x$ac_cv_c_dlopen_d3dadapter" = xyes
-+                 then
-+                     break
-+                 fi
-+             done
-+         fi
-+         AC_DEFINE_UNQUOTED(D3D_MODULE_DIR, ["`echo ${D3D_MODULE_DIR}`"], ["module dir"])
-+         WINE_NOTICE_WITH(d3dadapter,[test "x$ac_cv_c_dlopen_d3dadapter" = xno],
-+                 [d3dadapter9.so.1 module not found, Gallium Nine won't be supported.])
-+
-+         CPPFLAGS=$CPPFLAGSBAK
-+         D3D_CFLAGS="`pkg-config --cflags d3d`"
-+         # d3dadapter9.h includes D3D9.h, that relies on non existant headers
-+         # the headers are generated by widl after running this script...
-+         # hack around by using forward declarations
-+         CPPFLAGS="$CPPFLAGS $D3D_CFLAGS -DWINAPI= -D_D3DADAPTER_PRESENT_H_"
-+         AC_CHECK_HEADERS([d3dadapter9.h],[],[],[[
-+typedef int DWORD;
-+typedef int HWND;
-+typedef int BOOL;
-+typedef int UINT;
-+typedef int HRESULT;
-+typedef int ULONG;
-+typedef struct ID3DPresent ID3DPresent;
-+typedef struct ID3DPresentGroup ID3DPresentGroup;
-+typedef struct ID3DAdapter9 ID3DAdapter9;
-+typedef struct D3DWindowBuffer D3DWindowBuffer;
-+typedef struct D3DADAPTER_IDENTIFIER9 D3DADAPTER_IDENTIFIER9;
-+typedef struct D3DDEVTYPE D3DDEVTYPE;
-+typedef struct D3DRESOURCETYPE D3DRESOURCETYPE;
-+typedef struct D3DMULTISAMPLE_TYPE D3DMULTISAMPLE_TYPE;
-+typedef struct D3DFORMAT D3DFORMAT;
-+typedef struct D3DCAPS9 D3DCAPS9;
-+typedef struct IDirect3DDevice9 IDirect3DDevice9;
-+typedef struct IDirect3DDevice9Ex IDirect3DDevice9Ex;
-+typedef struct IDirect3D9 IDirect3D9;
-+typedef struct D3DPRESENT_PARAMETERS D3DPRESENT_PARAMETERS;
-+typedef struct D3DDISPLAYMODEEX D3DDISPLAYMODEEX;
-+typedef struct IDirect3D9Ex IDirect3D9Ex;
-+typedef struct REFIID REFIID;
-+]])
-+         CPPFLAGS=$CPPFLAGSBAK
-+         # pkg-config doesn't support cross-compilation. remove once fixed.
-+         if test "x$ac_cv_header_d3dadapter9_h" != xyes
-+         then
-+             # hardcode path if header isn't found
-+             # TODO: use environment var here ?
-+             D3D_CFLAGS="-I/usr/include/d3dadapter/"
-+             CPPFLAGS="$CPPFLAGS $D3D_CFLAGS -DWINAPI= -D_D3DADAPTER_PRESENT_H_"
-+             # clear autoconf cache
-+             AS_UNSET([ac_cv_header_d3dadapter9_h])
-+         fi
++         D3D_CFLAGS=`pkg-config --cflags d3d`
++         D3D_LIBS=`pkg-config --libs d3d`
 +         AC_SUBST(D3D_CFLAGS)
-+
++         AC_SUBST(D3D_LIBS)
++         AC_DEFINE(SONAME_D3DADAPTER9, ["d3dadapter9.so.1"], ["temporary hack"])
++         AC_DEFINE_UNQUOTED(D3D_MODULE_DIR, ["`pkg-config --variable=moduledir d3d`"], ["module dir"])
 +         D3DADAPTER9_LIBS=""
-+         D3DADAPTER9_LIBS_NOT_FOUND=""
-+         D3DADAPTER9_HEADER_NOT_FOUND=""
-+
-+         AC_CHECK_HEADERS([d3dadapter9.h],[],[],[[
-+typedef int DWORD;
-+typedef int HWND;
-+typedef int BOOL;
-+typedef int UINT;
-+typedef int HRESULT;
-+typedef int ULONG;
-+typedef struct ID3DPresent ID3DPresent;
-+typedef struct ID3DPresentGroup ID3DPresentGroup;
-+typedef struct ID3DAdapter9 ID3DAdapter9;
-+typedef struct D3DWindowBuffer D3DWindowBuffer;
-+typedef struct D3DADAPTER_IDENTIFIER9 D3DADAPTER_IDENTIFIER9;
-+typedef struct D3DDEVTYPE D3DDEVTYPE;
-+typedef struct D3DRESOURCETYPE D3DRESOURCETYPE;
-+typedef struct D3DMULTISAMPLE_TYPE D3DMULTISAMPLE_TYPE;
-+typedef struct D3DFORMAT D3DFORMAT;
-+typedef struct D3DCAPS9 D3DCAPS9;
-+typedef struct IDirect3DDevice9 IDirect3DDevice9;
-+typedef struct IDirect3DDevice9Ex IDirect3DDevice9Ex;
-+typedef struct IDirect3D9 IDirect3D9;
-+typedef struct D3DPRESENT_PARAMETERS D3DPRESENT_PARAMETERS;
-+typedef struct D3DDISPLAYMODEEX D3DDISPLAYMODEEX;
-+typedef struct IDirect3D9Ex IDirect3D9Ex;
-+typedef struct REFIID REFIID;
-+]])
-+         CPPFLAGS=$CPPFLAGSBAK
-+         AC_CHECK_HEADERS([X11/Xlib-xcb.h xcb/dri3.h xcb/present.h X11/Xutil.h X11/Xlib.h pthread.h])
-+         test "x$ac_cv_header_d3dadapter9_h" != xyes && D3DADAPTER9_HEADER_NOT_FOUND="d3dadapter9.h "
-+         test "x$ac_cv_header_X11_Xlib_xcb_h" != xyes && D3DADAPTER9_HEADER_NOT_FOUND="${D3DADAPTER9_HEADER_NOT_FOUND}X11/Xlib-xcb.h "
-+         test "x$ac_cv_header_xcb_dri3_h" != xyes && D3DADAPTER9_HEADER_NOT_FOUND="${D3DADAPTER9_HEADER_NOT_FOUND}xcb/dri3.h "
-+         test "x$ac_cv_header_xcb_present_h" != xyes && D3DADAPTER9_HEADER_NOT_FOUND="${D3DADAPTER9_HEADER_NOT_FOUND}xcb/present.h "
-+         test "x$ac_cv_header_X11_Xutil_h" != xyes && D3DADAPTER9_HEADER_NOT_FOUND="${D3DADAPTER9_HEADER_NOT_FOUND}X11/Xutil.h "
-+         test "x$ac_cv_header_X11_Xlib_h" != xyes && D3DADAPTER9_HEADER_NOT_FOUND="${D3DADAPTER9_HEADER_NOT_FOUND}X11/Xlib.h "
-+         test "x$ac_cv_header_pthread_h" != xyes && D3DADAPTER9_HEADER_NOT_FOUND="${D3DADAPTER9_HEADER_NOT_FOUND}pthread.h "
-+         WINE_NOTICE_WITH(d3dadapter,[test "x$D3DADAPTER9_HEADER_NOT_FOUND" != x],
-+                 [$D3DADAPTER9_HEADER_NOT_FOUND header not found, Gallium Nine won't be supported.])
-+
-+         AC_CHECK_LIB(xcb,xcb_request_check,[AC_SUBST(D3DADAPTER9_LIBS,["$D3DADAPTER9_LIBS -lxcb"])])
-+         test "x$ac_cv_lib_xcb_xcb_request_check" != xyes && D3DADAPTER9_LIBS_NOT_FOUND="libxcb "
-+         AC_CHECK_LIB(xcb-dri3,xcb_dri3_open,[AC_SUBST(D3DADAPTER9_LIBS,["$D3DADAPTER9_LIBS -lxcb-dri3"])])
-+         test "x$ac_cv_lib_xcb_dri3_xcb_dri3_open" != xyes && D3DADAPTER9_LIBS_NOT_FOUND="${D3DADAPTER9_LIBS_NOT_FOUND}libxcb-dri3 "
-+         AC_CHECK_LIB(xcb-present,xcb_present_notify_msc,[AC_SUBST(D3DADAPTER9_LIBS,["$D3DADAPTER9_LIBS -lxcb-present"])])
-+         test "x$ac_cv_lib_xcb_present_xcb_present_notify_msc" != xyes && D3DADAPTER9_LIBS_NOT_FOUND="${D3DADAPTER9_LIBS_NOT_FOUND}libxcb-present "
-+         AC_CHECK_LIB(xcb-xfixes,xcb_xfixes_create_region,[AC_SUBST(D3DADAPTER9_LIBS,["$D3DADAPTER9_LIBS -lxcb-xfixes"])])
-+         test "x$ac_cv_lib_xcb_xfixes_xcb_xfixes_create_region" != xyes && D3DADAPTER9_LIBS_NOT_FOUND="${D3DADAPTER9_LIBS_NOT_FOUND}libxcb-xfixes "
-+         AC_CHECK_LIB(X11-xcb,XGetXCBConnection,[AC_SUBST(D3DADAPTER9_LIBS,["$D3DADAPTER9_LIBS -lX11-xcb"])])
-+         test "x$ac_cv_lib_X11_xcb_XGetXCBConnection" != xyes && D3DADAPTER9_LIBS_NOT_FOUND="${D3DADAPTER9_LIBS_NOT_FOUND}libX11-xcb "
-+         AC_CHECK_LIB(X11,XOpenDisplay,[AC_SUBST(D3DADAPTER9_LIBS,["$D3DADAPTER9_LIBS -lX11"])])
-+         test "x$ac_cv_lib_X11_XOpenDisplay" != xyes && D3DADAPTER9_LIBS_NOT_FOUND="${D3DADAPTER9_LIBS_NOT_FOUND}libX11 "
-+         AC_CHECK_LIB(Xext,XextRemoveDisplay,[AC_SUBST(D3DADAPTER9_LIBS,["$D3DADAPTER9_LIBS -lXext"])])
-+         test "x$ac_cv_lib_Xext_XextRemoveDisplay" != xyes && D3DADAPTER9_LIBS_NOT_FOUND="${D3DADAPTER9_LIBS_NOT_FOUND}libXext "
-+         AC_CHECK_LIB(pthread,pthread_mutex_lock,[AC_SUBST(D3DADAPTER9_LIBS,["$D3DADAPTER9_LIBS -lpthread"])])
-+         test "x$ac_cv_lib_pthread_pthread_mutex_lock" != xyes && D3DADAPTER9_LIBS_NOT_FOUND="${D3DADAPTER9_LIBS_NOT_FOUND}libpthread "
++         WINE_CHECK_SONAME(xcb,xcb_request_check, [D3DADAPTER9_LIBS="-lxcb $D3DADAPTER9_LIBS"])
++         WINE_ERROR_WITH(d3dadapter,[test "x$D3DADAPTER9_LIBS" != "x-lxcb "],[D3Dadapter9 requires libxcb])
++         WINE_CHECK_SONAME(xcb-dri3,xcb_dri3_open, [D3DADAPTER9_LIBS="-lxcb-dri3 $D3DADAPTER9_LIBS"])
++         WINE_ERROR_WITH(d3dadapter,[test "x$D3DADAPTER9_LIBS" != "x-lxcb-dri3 -lxcb "],[D3Dadapter9 requires libxcb-dri3])
++         WINE_CHECK_SONAME(xcb-present,xcb_present_notify_msc, [D3DADAPTER9_LIBS="-lxcb-present $D3DADAPTER9_LIBS"])
++         WINE_ERROR_WITH(d3dadapter,[test "x$D3DADAPTER9_LIBS" != "x-lxcb-present -lxcb-dri3 -lxcb "],[D3Dadapter9 requires libxcb-present])
++         WINE_CHECK_SONAME(X11-xcb,XGetXCBConnection, [D3DADAPTER9_LIBS="-lX11-xcb $D3DADAPTER9_LIBS"])
++         WINE_ERROR_WITH(d3dadapter,[test "x$D3DADAPTER9_LIBS" != "x-lX11-xcb -lxcb-present -lxcb-dri3 -lxcb "],[D3Dadapter9 requires libX11-xcb])
++         WINE_CHECK_SONAME(xcb-xfixes,xcb_xfixes_create_region, [D3DADAPTER9_LIBS="-lxcb-xfixes $D3DADAPTER9_LIBS"])
++         WINE_ERROR_WITH(d3dadapter,[test "x$D3DADAPTER9_LIBS" != "x-lxcb-xfixes -lX11-xcb -lxcb-present -lxcb-dri3 -lxcb "],[D3Dadapter9 requires libxcb-xfixes])
++         WINE_CHECK_SONAME(X11,XOpenDisplay, [D3DADAPTER9_LIBS="-lX11 $D3DADAPTER9_LIBS"])
++         WINE_ERROR_WITH(d3dadapter,[test "x$D3DADAPTER9_LIBS" != "x-lX11 -lxcb-xfixes -lX11-xcb -lxcb-present -lxcb-dri3 -lxcb "],[D3Dadapter9 requires libX11])
++         WINE_CHECK_SONAME(Xext,XextRemoveDisplay, [D3DADAPTER9_LIBS="-lXext $D3DADAPTER9_LIBS"])
++         WINE_ERROR_WITH(d3dadapter,[test "x$D3DADAPTER9_LIBS" != "x-lXext -lX11 -lxcb-xfixes -lX11-xcb -lxcb-present -lxcb-dri3 -lxcb "],[D3Dadapter9 requires libXext])
++         WINE_CHECK_SONAME(pthread,pthread_mutex_lock, [D3DADAPTER9_LIBS="-lpthread $D3DADAPTER9_LIBS"])
++         WINE_ERROR_WITH(d3dadapter,[test "x$D3DADAPTER9_LIBS" != "x-lpthread -lXext -lX11 -lxcb-xfixes -lX11-xcb -lxcb-present -lxcb-dri3 -lxcb "],[D3Dadapter9 requires libpthread])
 +
 +         if test "x$with_d3dadapter_dri2_fallback" != "xno"
 +         then
-+             D3DADAPTER9_FALLBACK_LIBS_NOT_FOUND=""
-+             D3DADAPTER9_FALLBACK_HEADERS_NOT_FOUND=""
-+             AC_CHECK_LIB(GL,glGenFramebuffers,[AC_SUBST(D3DADAPTER9_LIBS,["$D3DADAPTER9_LIBS -lGL"])])
-+             test "x$ac_cv_lib_GL_glGenFramebuffers" != xyes && D3DADAPTER9_FALLBACK_LIBS_NOT_FOUND="libGL "
-+             AC_CHECK_LIB(EGL,eglCreateContext,[AC_SUBST(D3DADAPTER9_LIBS,["$D3DADAPTER9_LIBS -lEGL"])])
-+             test "x$ac_cv_lib_EGL_eglCreateContext" != xyes && D3DADAPTER9_FALLBACK_LIBS_NOT_FOUND="${D3DADAPTER9_FALLBACK_LIBS_NOT_FOUND}libEGL"
-+
-+             AC_CHECK_HEADERS([X11/Xmd.h X11/Xlibint.h X11/extensions/dri2tokens.h X11/extensions/dri2proto.h X11/extensions/extutil.h GL/gl.h GL/glext.h EGL/egl.h EGL/eglext.h libdrm/drm_fourcc.h libdrm/drm.h],
-+                     [],[],[[
-+#include <X11/Xlibint.h>
-+#include <X11/extensions/dri2tokens.h>
-+#include <GL/gl.h>
-+#include <EGL/egl.h>
-+]])
-+             test "x$ac_cv_header_X11_Xmd_h" != xyes && D3DADAPTER9_FALLBACK_HEADERS_NOT_FOUND="${D3DADAPTER9_FALLBACK_HEADERS_NOT_FOUND}X11/Xmd.h "
-+             test "x$ac_cv_header_X11_Xlibint_h" != xyes && D3DADAPTER9_FALLBACK_HEADERS_NOT_FOUND="${D3DADAPTER9_FALLBACK_HEADERS_NOT_FOUND}X11/Xlibint.h "
-+             test "x$ac_cv_header_X11_extensions_dri2tokens_h" != xyes && D3DADAPTER9_FALLBACK_HEADERS_NOT_FOUND="${D3DADAPTER9_FALLBACK_HEADERS_NOT_FOUND}X11/extensions/dri2tokens.h "
-+             test "x$ac_cv_header_X11_extensions_dri2proto_h" != xyes && D3DADAPTER9_FALLBACK_HEADERS_NOT_FOUND="${D3DADAPTER9_FALLBACK_HEADERS_NOT_FOUND}X11/extensions/dri2proto.h "
-+             test "x$ac_cv_header_X11_extensions_extutil_h" != xyes && D3DADAPTER9_FALLBACK_HEADERS_NOT_FOUND="${D3DADAPTER9_FALLBACK_HEADERS_NOT_FOUND}X11/extensions/extutil.h "
-+             test "x$ac_cv_header_GL_gl_h" != xyes && D3DADAPTER9_FALLBACK_HEADERS_NOT_FOUND="${D3DADAPTER9_FALLBACK_HEADERS_NOT_FOUND}GL/gl.h "
-+             test "x$ac_cv_header_GL_glext_h" != xyes && D3DADAPTER9_FALLBACK_HEADERS_NOT_FOUND="${D3DADAPTER9_FALLBACK_HEADERS_NOT_FOUND}GL/glext.h "
-+             test "x$ac_cv_header_EGL_egl_h" != xyes && D3DADAPTER9_FALLBACK_HEADERS_NOT_FOUND="${D3DADAPTER9_FALLBACK_HEADERS_NOT_FOUND}EGL/egl.h "
-+             test "x$ac_cv_header_EGL_eglext_h" != xyes && D3DADAPTER9_FALLBACK_HEADERS_NOT_FOUND="${D3DADAPTER9_FALLBACK_HEADERS_NOT_FOUND}EGL/eglext.h "
-+             test "x$ac_cv_header_libdrm_drm_fourcc_h" != xyes && D3DADAPTER9_FALLBACK_HEADERS_NOT_FOUND="${D3DADAPTER9_FALLBACK_HEADERS_NOT_FOUND}libdrm/drm_fourcc.h "
-+             test "x$ac_cv_header_libdrm_drm_h" != xyes && D3DADAPTER9_FALLBACK_HEADERS_NOT_FOUND="${D3DADAPTER9_FALLBACK_HEADERS_NOT_FOUND}libdrm/drm.h "
-+
-+             if test "x$D3DADAPTER9_FALLBACK_LIBS_NOT_FOUND" = x -a "x$D3DADAPTER9_FALLBACK_HEADERS_NOT_FOUND" = x
-+             then
-+                 AC_DEFINE(D3DADAPTER9_DRI2, 1, [Whether d3dadapter9 DRI2 fallback is compiled])
-+             fi
-+             WINE_NOTICE_WITH(d3dadapter_dri2_fallback,[test "x$D3DADAPTER9_FALLBACK_LIBS_NOT_FOUND" != x],
-+                     [$D3DADAPTER9_FALLBACK_LIBS_NOT_FOUND ${notice_platform}development files not found, Gallium Nine DRI2 fallback won't be supported.])
-+             WINE_NOTICE_WITH(d3dadapter_dri2_fallback,[test "x$D3DADAPTER9_FALLBACK_HEADERS_NOT_FOUND" != x],
-+                     [$D3DADAPTER9_FALLBACK_HEADERS_NOT_FOUND headers not found, Gallium Nine DRI2 fallback won't be supported.])
++             AC_DEFINE(D3DADAPTER9_DRI2, 1, [Whether d3dadapter9 DRI2 fallback is compiled])
++             WINE_CHECK_SONAME(GL,glGenFramebuffers, [D3DADAPTER9_LIBS="-lGL $D3DADAPTER9_LIBS"])
++             WINE_ERROR_WITH(d3dadapter,[test "x$D3DADAPTER9_LIBS" != "x-lGL -lpthread -lXext -lX11 -lxcb-xfixes -lX11-xcb -lxcb-present -lxcb-dri3 -lxcb "],[D3Dadapter9 DRI2 fallback requires libGL])
++             WINE_CHECK_SONAME(EGL,eglCreateContext, [D3DADAPTER9_LIBS="-lEGL $D3DADAPTER9_LIBS"])
++             WINE_ERROR_WITH(d3dadapter,[test "x$D3DADAPTER9_LIBS" != "x-lEGL -lGL -lpthread -lXext -lX11 -lxcb-xfixes -lX11-xcb -lxcb-present -lxcb-dri3 -lxcb "],[D3Dadapter9 DRI2 fallback requires libEGL])
 +         fi
-+
-+         test "x$D3DADAPTER9_LIBS_NOT_FOUND" != "x" && \
-+             "x$D3DADAPTER9_HEADER_NOT_FOUND" != x && \
-+             "x$ac_cv_c_dlopen_d3dadapter" != xyes && \
-+             enable_d3d9_nine=${enable_d3d9_nine:-no}
-+         WINE_NOTICE_WITH(d3dadapter,[test "x$D3DADAPTER9_LIBS_NOT_FOUND" != "x"],
-+                 [$D3DADAPTER9_LIBS_NOT_FOUND ${notice_platform}development files not found, Gallium Nine won't be supported.])
-+    else
-+        enable_d3d9_nine=${enable_d3d9_nine:-no}
-+        D3D_CFLAGS=""
 +    fi
 +
      CPPFLAGS="$ac_save_CPPFLAGS"
  else
      X_CFLAGS=""
-@@ -2811,6 +3004,7 @@ WINE_CONFIG_DLL(d3d8,,[implib])
+@@ -2839,6 +2882,7 @@ WINE_CONFIG_DLL(d3d8,,[implib])
  WINE_CONFIG_TEST(dlls/d3d8/tests)
  WINE_CONFIG_DLL(d3d9,,[implib])
  WINE_CONFIG_TEST(dlls/d3d9/tests)
@@ -224,15 +809,27 @@ index 8a90202..75994d4 100644
  WINE_CONFIG_DLL(d3dcompiler_33)
  WINE_CONFIG_DLL(d3dcompiler_34)
  WINE_CONFIG_DLL(d3dcompiler_35)
+diff --git a/dlls/d3d9/Makefile.in b/dlls/d3d9/Makefile.in
+index 1c05f5a..dc06d68 100644
+--- a/dlls/d3d9/Makefile.in
++++ b/dlls/d3d9/Makefile.in
+@@ -1,6 +1,6 @@
+ MODULE    = d3d9.dll
+ IMPORTLIB = d3d9
+-IMPORTS   = dxguid uuid wined3d
++IMPORTS   = dxguid uuid advapi32 wined3d
+
+ C_SRCS = \
+ 	buffer.c \
 diff --git a/dlls/d3d9-nine/Makefile.in b/dlls/d3d9-nine/Makefile.in
 new file mode 100644
-index 0000000..ba8896c
+index 0000000..a761cd7
 --- /dev/null
 +++ b/dlls/d3d9-nine/Makefile.in
 @@ -0,0 +1,12 @@
 +MODULE    = d3d9-nine.dll
 +IMPORTS   = dxguid uuid advapi32 gdi32 user32
-+EXTRAINCL = $(X_CFLAGS) $(D3D_CFLAGS)
++EXTRAINCL = $(X_CFLAGS)
 +EXTRALIBS = $(D3DADAPTER9_LIBS)
 +
 +C_SRCS = \
@@ -264,10 +861,10 @@ index 0000000..a33cba5
 +@ stdcall Direct3DCreate9Ex(long ptr)
 diff --git a/dlls/d3d9-nine/d3d9_main.c b/dlls/d3d9-nine/d3d9_main.c
 new file mode 100644
-index 0000000..f5b86c3
+index 0000000..de20475
 --- /dev/null
 +++ b/dlls/d3d9-nine/d3d9_main.c
-@@ -0,0 +1,157 @@
+@@ -0,0 +1,163 @@
 +/*
 + * Direct3D 9
 + *
@@ -296,11 +893,17 @@ index 0000000..f5b86c3
 +#include "initguid.h"
 +#include "wine/debug.h"
 +
++#include <dlfcn.h>
 +#include <fcntl.h>
++#include <stdarg.h>
++#include <stdio.h>
++#include <stdlib.h>
 +
 +#include <d3dadapter/d3dadapter9.h>
 +
 +#include "d3dadapter9.h"
++
++#include "wine/library.h"
 +
 +WINE_DEFAULT_DEBUG_CHANNEL(d3dadapter);
 +
@@ -1334,10 +1937,10 @@ index 0000000..2fafdf2
 +#endif /* __WINE_D3D9ADAPTER_H */
 diff --git a/dlls/d3d9-nine/dri3.c b/dlls/d3d9-nine/dri3.c
 new file mode 100644
-index 0000000..b0ae553
+index 0000000..d147b23
 --- /dev/null
 +++ b/dlls/d3d9-nine/dri3.c
-@@ -0,0 +1,1345 @@
+@@ -0,0 +1,1344 @@
 +/*
 + * Wine DRI3 interface
 + *
@@ -1366,20 +1969,18 @@ index 0000000..b0ae553
 +WINE_DEFAULT_DEBUG_CHANNEL(d3dadapter);
 +
 +#include <d3dadapter/d3dadapter9.h>
++#include <stdlib.h>
 +#include <fcntl.h>
-+#include <unistd.h>
 +#include <pthread.h>
 +
 +#include "dri3.h"
-+
-+#include <X11/Xlib-xcb.h>
-+#include <xcb/dri3.h>
-+#include <xcb/present.h>
-+
 +#include "winbase.h" /* for Sleep */
 +
 +#ifdef D3DADAPTER9_DRI2
++#include <unistd.h>
 +#include <sys/ioctl.h>
++#include <stdio.h>
++#include <string.h>
 +
 +#define BOOL X_BOOL
 +#define BYTE X_BYTE
@@ -1388,6 +1989,7 @@ index 0000000..b0ae553
 +#define INT32 X_INT32
 +#define INT64 X_INT64
 +#include <X11/Xmd.h>
++#include <X11/Xproto.h>
 +#undef BOOL
 +#undef BYTE
 +#undef INT8
@@ -2289,7 +2891,7 @@ index 0000000..b0ae553
 +        EGL_DMA_BUF_PLANE0_PITCH_EXT, 0,
 +        EGL_NONE
 +    };
-+    EGLenum current_api = 0;
++    EGLenum current_api;
 +    int status;
 +
 +    pthread_mutex_lock(&present_priv->mutex_present);
@@ -2475,7 +3077,7 @@ index 0000000..b0ae553
 +    PRESENTpriv *present_priv = present_pixmap_priv->present_priv;
 +#ifdef D3DADAPTER9_DRI2
 +    struct DRI2priv *dri2_priv = present_pixmap_priv->dri2_info.dri2_priv;
-+    EGLenum current_api = 0;
++    EGLenum current_api;
 +#endif
 +    xcb_void_cookie_t cookie;
 +    xcb_generic_error_t *error;
@@ -2685,10 +3287,10 @@ index 0000000..b0ae553
 +}
 diff --git a/dlls/d3d9-nine/dri3.h b/dlls/d3d9-nine/dri3.h
 new file mode 100644
-index 0000000..8f73c39
+index 0000000..795c3c7
 --- /dev/null
 +++ b/dlls/d3d9-nine/dri3.h
-@@ -0,0 +1,101 @@
+@@ -0,0 +1,106 @@
 +/*
 + * Wine X11DRV DRI3 interface
 + *
@@ -2717,6 +3319,11 @@ index 0000000..8f73c39
 +#endif
 +
 +#include <X11/Xlib.h>
++#include <X11/Xutil.h>
++#include <X11/Xlib-xcb.h>
++#include <xcb/xcb.h>
++#include <xcb/dri3.h>
++#include <xcb/present.h>
 +
 +BOOL
 +DRI3CheckExtension(Display *dpy, int major, int minor);
@@ -2790,34 +3397,12 @@ index 0000000..8f73c39
 +PRESENTWaitPixmapReleased(PRESENTPixmapPriv *present_pixmap_priv);
 +
 +#endif /* __WINE_DRI3_H */
-diff --git a/dlls/d3d9-nine/libd3d9-nine.def b/dlls/d3d9-nine/libd3d9-nine.def
-new file mode 100644
-index 0000000..4f41fcb
---- /dev/null
-+++ b/dlls/d3d9-nine/libd3d9-nine.def
-@@ -0,0 +1,16 @@
-+; File generated automatically from ./dlls/d3d9-nine/d3d9-nine.spec; do not edit!
-+
-+LIBRARY d3d9-nine.dll
-+
-+EXPORTS
-+  Direct3DShaderValidatorCreate9@0 @1
-+  D3DPERF_BeginEvent@8 @4
-+  D3DPERF_EndEvent@0 @5
-+  D3DPERF_GetStatus@0 @6
-+  D3DPERF_QueryRepeatFrame@0 @7
-+  D3DPERF_SetMarker@8 @8
-+  D3DPERF_SetOptions@4 @9
-+  D3DPERF_SetRegion@8 @10
-+  DebugSetMute@0 @12
-+  Direct3DCreate9@4 @13
-+  Direct3DCreate9Ex@8 @14
 diff --git a/dlls/d3d9-nine/present.c b/dlls/d3d9-nine/present.c
 new file mode 100644
-index 0000000..7867296
+index 0000000..2f8e4d2
 --- /dev/null
 +++ b/dlls/d3d9-nine/present.c
-@@ -0,0 +1,1332 @@
+@@ -0,0 +1,1335 @@
 +/*
 + * Wine ID3DAdapter9 support functions
 + *
@@ -2851,12 +3436,13 @@ index 0000000..7867296
 +
 +#include <d3dadapter/d3dadapter9.h>
 +#include <d3dadapter/drm.h>
-+#include <X11/Xutil.h>
++#include <libdrm/drm.h>
++#include <errno.h>
++#include <fcntl.h>
 +
 +#include "dri3.h"
-+
-+#include "wine/library.h" // for wine_dl*
-+#include "wine/unicode.h" // for strcpyW
++#include "wine/library.h"
++#include "wine/unicode.h"
 +
 +#ifndef D3DPRESENT_DONOTWAIT
 +#define D3DPRESENT_DONOTWAIT      0x00000001
@@ -3170,8 +3756,10 @@ index 0000000..7867296
 +    /* the pixmap is managed by the PRESENT backend.
 +     * But if it can delete it right away, we may have
 +     * better performance */
-+    PRESENTTryFreePixmap(This->gdi_display, buffer->present_pixmap_priv);
-+    HeapFree(GetProcessHeap(), 0, buffer);
++    if (buffer) {
++        PRESENTTryFreePixmap(This->gdi_display, buffer->present_pixmap_priv);
++        HeapFree(GetProcessHeap(), 0, buffer);
++    }
 +    return D3D_OK;
 +}
 +
@@ -4224,636 +4812,8 @@ index 0000000..bfafc2f
 +#define WINE_PRODUCTVERSION_STR "5.3.1.904"
 +
 +#include "wine/wine_common_ver.rc"
-diff --git a/dlls/d3d9/Makefile.in b/dlls/d3d9/Makefile.in
-index 1c05f5a..dc06d68 100644
---- a/dlls/d3d9/Makefile.in
-+++ b/dlls/d3d9/Makefile.in
-@@ -1,6 +1,6 @@
- MODULE    = d3d9.dll
- IMPORTLIB = d3d9
--IMPORTS   = dxguid uuid wined3d
-+IMPORTS   = dxguid uuid advapi32 wined3d
- 
- C_SRCS = \
- 	buffer.c \
-diff --git a/dlls/ntdll/loader.c b/dlls/ntdll/loader.c
-index a0049fe..000b108 100644
---- a/dlls/ntdll/loader.c
-+++ b/dlls/ntdll/loader.c
-@@ -92,6 +92,7 @@ struct builtin_load_info
- {
-     const WCHAR *load_path;
-     const WCHAR *filename;
-+    const WCHAR *fakemodule;
-     NTSTATUS     status;
-     WINE_MODREF *wm;
- };
-@@ -117,7 +118,8 @@ static WINE_MODREF *cached_modref;
- static WINE_MODREF *current_modref;
- static WINE_MODREF *last_failed_modref;
- 
--static NTSTATUS load_dll( LPCWSTR load_path, LPCWSTR libname, DWORD flags, WINE_MODREF** pwm );
-+static NTSTATUS load_dll( LPCWSTR load_path, LPCWSTR libname, LPCWSTR fakemodule,
-+                          DWORD flags, WINE_MODREF** pwm );
- static NTSTATUS process_attach( WINE_MODREF *wm, LPVOID lpReserved );
- static FARPROC find_ordinal_export( HMODULE module, const IMAGE_EXPORT_DIRECTORY *exports,
-                                     DWORD exp_size, DWORD ordinal, LPCWSTR load_path );
-@@ -443,7 +445,7 @@ static FARPROC find_forwarded_export( HMODULE module, const char *forward, LPCWS
-     if (!(wm = find_basename_module( mod_name )))
-     {
-         TRACE( "delay loading %s for '%s'\n", debugstr_w(mod_name), forward );
--        if (load_dll( load_path, mod_name, 0, &wm ) == STATUS_SUCCESS &&
-+        if (load_dll( load_path, mod_name, NULL, 0, &wm ) == STATUS_SUCCESS &&
-             !(wm->ldr.Flags & LDR_DONT_RESOLVE_REFS))
-         {
-             if (process_attach( wm, NULL ) != STATUS_SUCCESS)
-@@ -599,7 +601,7 @@ static BOOL import_dll( HMODULE module, const IMAGE_IMPORT_DESCRIPTOR *descr, LP
-     {
-         ascii_to_unicode( buffer, name, len );
-         buffer[len] = 0;
--        status = load_dll( load_path, buffer, 0, &wmImp );
-+        status = load_dll( load_path, buffer, NULL, 0, &wmImp );
-     }
-     else  /* need to allocate a larger buffer */
-     {
-@@ -607,7 +609,7 @@ static BOOL import_dll( HMODULE module, const IMAGE_IMPORT_DESCRIPTOR *descr, LP
-         if (!ptr) return FALSE;
-         ascii_to_unicode( ptr, name, len );
-         ptr[len] = 0;
--        status = load_dll( load_path, ptr, 0, &wmImp );
-+        status = load_dll( load_path, ptr, NULL, 0, &wmImp );
-         RtlFreeHeap( GetProcessHeap(), 0, ptr );
-     }
- 
-@@ -927,7 +929,7 @@ static NTSTATUS fixup_imports( WINE_MODREF *wm, LPCWSTR load_path )
-  * Allocate a WINE_MODREF structure and add it to the process list
-  * The loader_section must be locked while calling this function.
-  */
--static WINE_MODREF *alloc_module( HMODULE hModule, LPCWSTR filename )
-+static WINE_MODREF *alloc_module( HMODULE hModule, LPCWSTR filename, LPCWSTR fakemodule )
- {
-     WINE_MODREF *wm;
-     const WCHAR *p;
-@@ -950,7 +952,7 @@ static WINE_MODREF *alloc_module( HMODULE hModule, LPCWSTR filename )
-     wm->ldr.TimeDateStamp = 0;
-     wm->ldr.ActivationContext = 0;
- 
--    RtlCreateUnicodeString( &wm->ldr.FullDllName, filename );
-+    RtlCreateUnicodeString( &wm->ldr.FullDllName, fakemodule ? fakemodule : filename );
-     if ((p = strrchrW( wm->ldr.FullDllName.Buffer, '\\' ))) p++;
-     else p = wm->ldr.FullDllName.Buffer;
-     RtlInitUnicodeString( &wm->ldr.BaseDllName, p );
-@@ -1589,7 +1591,7 @@ static void load_builtin_callback( void *module, const char *filename )
-         return;
-     }
- 
--    wm = alloc_module( module, fullname );
-+    wm = alloc_module( module, fullname, builtin_load_info->fakemodule );
-     RtlFreeHeap( GetProcessHeap(), 0, fullname );
-     if (!wm)
-     {
-@@ -1771,8 +1773,8 @@ static NTSTATUS perform_relocations( void *module, SIZE_T len )
- /******************************************************************************
-  *	load_native_dll  (internal)
-  */
--static NTSTATUS load_native_dll( LPCWSTR load_path, LPCWSTR name, HANDLE file,
--                                 DWORD flags, WINE_MODREF** pwm )
-+static NTSTATUS load_native_dll( LPCWSTR load_path, LPCWSTR name, LPCWSTR fakemodule,
-+                                 HANDLE file, DWORD flags, WINE_MODREF** pwm )
- {
-     void *module;
-     HANDLE mapping;
-@@ -1806,7 +1808,7 @@ static NTSTATUS load_native_dll( LPCWSTR load_path, LPCWSTR name, HANDLE file,
- 
-     /* create the MODREF */
- 
--    if (!(wm = alloc_module( module, name )))
-+    if (!(wm = alloc_module( module, name, fakemodule )))
-     {
-         status = STATUS_NO_MEMORY;
-         goto done;
-@@ -1870,8 +1872,8 @@ done:
- /***********************************************************************
-  *           load_builtin_dll
-  */
--static NTSTATUS load_builtin_dll( LPCWSTR load_path, LPCWSTR path, HANDLE file,
--                                  DWORD flags, WINE_MODREF** pwm )
-+static NTSTATUS load_builtin_dll( LPCWSTR load_path, LPCWSTR path, LPCWSTR fakemodule,
-+                                  HANDLE file, DWORD flags, WINE_MODREF** pwm )
- {
-     char error[256], dllname[MAX_PATH];
-     const WCHAR *name, *p;
-@@ -1891,6 +1893,7 @@ static NTSTATUS load_builtin_dll( LPCWSTR load_path, LPCWSTR path, HANDLE file,
-      */
-     info.load_path = load_path;
-     info.filename  = NULL;
-+    info.fakemodule = fakemodule;
-     info.status    = STATUS_SUCCESS;
-     info.wm        = NULL;
- 
-@@ -2209,14 +2212,14 @@ overflow:
-     return STATUS_BUFFER_TOO_SMALL;
- }
- 
--
- /***********************************************************************
-  *	load_dll  (internal)
-  *
-  * Load a PE style module according to the load order.
-  * The loader_section must be locked while calling this function.
-  */
--static NTSTATUS load_dll( LPCWSTR load_path, LPCWSTR libname, DWORD flags, WINE_MODREF** pwm )
-+static NTSTATUS load_dll( LPCWSTR load_path, LPCWSTR libname, LPCWSTR fakemodule,
-+                          DWORD flags, WINE_MODREF** pwm )
- {
-     enum loadorder loadorder;
-     WCHAR buffer[64];
-@@ -2253,6 +2256,25 @@ static NTSTATUS load_dll( LPCWSTR load_path, LPCWSTR libname, DWORD flags, WINE_
-     }
- 
-     main_exe = get_modref( NtCurrentTeb()->Peb->ImageBaseAddress );
-+
-+    /* handle dll redirection */
-+    if (!fakemodule)
-+    {
-+        BYTE buffer2[sizeof(KEY_VALUE_PARTIAL_INFORMATION) + MAX_PATH * sizeof(WCHAR)];
-+        WCHAR *redirect = get_redirect( main_exe ? main_exe->ldr.BaseDllName.Buffer : NULL,
-+                                        filename, buffer2, sizeof(buffer2) );
-+        if (redirect)
-+        {
-+            FIXME("Loader redirect from %s to %s\n", debugstr_w(libname), debugstr_w(redirect));
-+
-+            nts = load_dll( load_path, redirect, filename, flags, pwm );
-+
-+            if (handle) NtClose( handle );
-+            if (filename != buffer) RtlFreeHeap( GetProcessHeap(), 0, filename );
-+            return nts;
-+        }
-+    }
-+
-     loadorder = get_load_order( main_exe ? main_exe->ldr.BaseDllName.Buffer : NULL, filename );
- 
-     if (handle && is_fake_dll( handle ))
-@@ -2275,22 +2297,22 @@ static NTSTATUS load_dll( LPCWSTR load_path, LPCWSTR libname, DWORD flags, WINE_
-         if (!handle) nts = STATUS_DLL_NOT_FOUND;
-         else
-         {
--            nts = load_native_dll( load_path, filename, handle, flags, pwm );
-+            nts = load_native_dll( load_path, filename, fakemodule, handle, flags, pwm );
-             if (nts == STATUS_INVALID_IMAGE_NOT_MZ)
-                 /* not in PE format, maybe it's a builtin */
--                nts = load_builtin_dll( load_path, filename, handle, flags, pwm );
-+                nts = load_builtin_dll( load_path, filename, fakemodule, handle, flags, pwm );
-         }
-         if (nts == STATUS_DLL_NOT_FOUND && loadorder == LO_NATIVE_BUILTIN)
--            nts = load_builtin_dll( load_path, filename, 0, flags, pwm );
-+            nts = load_builtin_dll( load_path, filename, fakemodule, 0, flags, pwm );
-         break;
-     case LO_BUILTIN:
-     case LO_BUILTIN_NATIVE:
-     case LO_DEFAULT:  /* default is builtin,native */
--        nts = load_builtin_dll( load_path, filename, handle, flags, pwm );
-+        nts = load_builtin_dll( load_path, filename, fakemodule, handle, flags, pwm );
-         if (!handle) break;  /* nothing else we can try */
-         /* file is not a builtin library, try without using the specified file */
-         if (nts != STATUS_SUCCESS)
--            nts = load_builtin_dll( load_path, filename, 0, flags, pwm );
-+            nts = load_builtin_dll( load_path, filename, fakemodule, 0, flags, pwm );
-         if (nts == STATUS_SUCCESS && loadorder == LO_DEFAULT &&
-             (MODULE_InitDLL( *pwm, DLL_WINE_PREATTACH, NULL ) != STATUS_SUCCESS))
-         {
-@@ -2300,7 +2322,7 @@ static NTSTATUS load_dll( LPCWSTR load_path, LPCWSTR libname, DWORD flags, WINE_
-             nts = STATUS_DLL_NOT_FOUND;
-         }
-         if (nts == STATUS_DLL_NOT_FOUND && loadorder != LO_BUILTIN)
--            nts = load_native_dll( load_path, filename, handle, flags, pwm );
-+            nts = load_native_dll( load_path, filename, fakemodule, handle, flags, pwm );
-         break;
-     }
- 
-@@ -2333,7 +2355,7 @@ NTSTATUS WINAPI DECLSPEC_HOTPATCH LdrLoadDll(LPCWSTR path_name, DWORD flags,
-     RtlEnterCriticalSection( &loader_section );
- 
-     if (!path_name) path_name = NtCurrentTeb()->Peb->ProcessParameters->DllPath.Buffer;
--    nts = load_dll( path_name, libname->Buffer, flags, &wm );
-+    nts = load_dll( path_name, libname->Buffer, NULL, flags, &wm );
- 
-     if (nts == STATUS_SUCCESS && !(wm->ldr.Flags & LDR_DONT_RESOLVE_REFS))
-     {
-@@ -3296,7 +3318,7 @@ void __wine_process_init(void)
-     /* setup the load callback and create ntdll modref */
-     wine_dll_set_callback( load_builtin_callback );
- 
--    if ((status = load_builtin_dll( NULL, kernel32W, 0, 0, &wm )) != STATUS_SUCCESS)
-+    if ((status = load_builtin_dll( NULL, kernel32W, NULL, 0, 0, &wm )) != STATUS_SUCCESS)
-     {
-         MESSAGE( "wine: could not load kernel32.dll, status %x\n", status );
-         exit(1);
-diff --git a/dlls/ntdll/loadorder.c b/dlls/ntdll/loadorder.c
-index 401d256..ec13e75 100644
---- a/dlls/ntdll/loadorder.c
-+++ b/dlls/ntdll/loadorder.c
-@@ -290,102 +290,165 @@ static inline enum loadorder get_env_load_order( const WCHAR *module )
- 
- 
- /***************************************************************************
-- *	get_standard_key
-+ *	open_user_reg_key
-+ *
-+ * Return a handle to a registry key under HKCU.
-+ */
-+static HANDLE open_user_reg_key(const WCHAR *key_name)
-+{
-+    HANDLE hkey, root;
-+    OBJECT_ATTRIBUTES attr;
-+    UNICODE_STRING nameW;
-+
-+    RtlOpenCurrentUser( KEY_ALL_ACCESS, &root );
-+    attr.Length = sizeof(attr);
-+    attr.RootDirectory = root;
-+    attr.ObjectName = &nameW;
-+    attr.Attributes = 0;
-+    attr.SecurityDescriptor = NULL;
-+    attr.SecurityQualityOfService = NULL;
-+    RtlInitUnicodeString( &nameW, key_name );
-+
-+    if (NtOpenKey( &hkey, KEY_ALL_ACCESS, &attr )) hkey = 0;
-+    NtClose( root );
-+
-+    return hkey;
-+}
-+
-+
-+/***************************************************************************
-+ *	open_app_reg_key
-+ *
-+ * Return a handle to an app-specific registry key.
-+ */
-+static HANDLE open_app_reg_key( const WCHAR *sub_key, const WCHAR *app_name )
-+{
-+    static const WCHAR AppDefaultsW[] = {'S','o','f','t','w','a','r','e','\\','W','i','n','e','\\',
-+                                         'A','p','p','D','e','f','a','u','l','t','s','\\',0};
-+    WCHAR *str;
-+    HANDLE hkey;
-+
-+    str = RtlAllocateHeap( GetProcessHeap(), 0,
-+                           sizeof(AppDefaultsW) +
-+                           strlenW(sub_key) * sizeof(WCHAR) +
-+                           strlenW(app_name) * sizeof(WCHAR) );
-+    if (!str) return 0;
-+    strcpyW( str, AppDefaultsW );
-+    strcatW( str, app_name );
-+    strcatW( str, sub_key );
-+
-+    hkey = open_user_reg_key( str );
-+    RtlFreeHeap( GetProcessHeap(), 0, str );
-+    return hkey;
-+}
-+
-+
-+/***************************************************************************
-+ *	get_override_standard_key
-  *
-  * Return a handle to the standard DllOverrides registry section.
-  */
--static HANDLE get_standard_key(void)
-+static HANDLE get_override_standard_key(void)
- {
-     static const WCHAR DllOverridesW[] = {'S','o','f','t','w','a','r','e','\\','W','i','n','e','\\',
-                                           'D','l','l','O','v','e','r','r','i','d','e','s',0};
-     static HANDLE std_key = (HANDLE)-1;
- 
-     if (std_key == (HANDLE)-1)
--    {
--        OBJECT_ATTRIBUTES attr;
--        UNICODE_STRING nameW;
--        HANDLE root;
--
--        RtlOpenCurrentUser( KEY_ALL_ACCESS, &root );
--        attr.Length = sizeof(attr);
--        attr.RootDirectory = root;
--        attr.ObjectName = &nameW;
--        attr.Attributes = 0;
--        attr.SecurityDescriptor = NULL;
--        attr.SecurityQualityOfService = NULL;
--        RtlInitUnicodeString( &nameW, DllOverridesW );
--
--        /* @@ Wine registry key: HKCU\Software\Wine\DllOverrides */
--        if (NtOpenKey( &std_key, KEY_ALL_ACCESS, &attr )) std_key = 0;
--        NtClose( root );
--    }
-+        std_key = open_user_reg_key( DllOverridesW );
-+
-     return std_key;
- }
- 
- 
- /***************************************************************************
-- *	get_app_key
-+ *	get_override_app_key
-  *
-  * Get the registry key for the app-specific DllOverrides list.
-  */
--static HANDLE get_app_key( const WCHAR *app_name )
-+static HANDLE get_override_app_key( const WCHAR *app_name )
- {
--    OBJECT_ATTRIBUTES attr;
--    UNICODE_STRING nameW;
--    HANDLE root;
--    WCHAR *str;
--    static const WCHAR AppDefaultsW[] = {'S','o','f','t','w','a','r','e','\\','W','i','n','e','\\',
--                                         'A','p','p','D','e','f','a','u','l','t','s','\\',0};
-     static const WCHAR DllOverridesW[] = {'\\','D','l','l','O','v','e','r','r','i','d','e','s',0};
-     static HANDLE app_key = (HANDLE)-1;
- 
--    if (app_key != (HANDLE)-1) return app_key;
-+    if (app_key == (HANDLE)-1)
-+        app_key = open_app_reg_key( DllOverridesW, app_name );
- 
--    str = RtlAllocateHeap( GetProcessHeap(), 0,
--                           sizeof(AppDefaultsW) + sizeof(DllOverridesW) +
--                           strlenW(app_name) * sizeof(WCHAR) );
--    if (!str) return 0;
--    strcpyW( str, AppDefaultsW );
--    strcatW( str, app_name );
--    strcatW( str, DllOverridesW );
-+    return app_key;
-+}
- 
--    RtlOpenCurrentUser( KEY_ALL_ACCESS, &root );
--    attr.Length = sizeof(attr);
--    attr.RootDirectory = root;
--    attr.ObjectName = &nameW;
--    attr.Attributes = 0;
--    attr.SecurityDescriptor = NULL;
--    attr.SecurityQualityOfService = NULL;
--    RtlInitUnicodeString( &nameW, str );
- 
--    /* @@ Wine registry key: HKCU\Software\Wine\AppDefaults\app.exe\DllOverrides */
--    if (NtOpenKey( &app_key, KEY_ALL_ACCESS, &attr )) app_key = 0;
--    NtClose( root );
--    RtlFreeHeap( GetProcessHeap(), 0, str );
-+/***************************************************************************
-+ *	get_redirect_standard_key
-+ *
-+ * Return a handle to the standard DllRedirects registry section.
-+ */
-+static HANDLE get_redirect_standard_key(void)
-+{
-+    static const WCHAR DllRedirectsW[] = {'S','o','f','t','w','a','r','e','\\','W','i','n','e','\\',
-+                                          'D','l','l','R','e','d','i','r','e','c','t','s',0};
-+    static HANDLE std_key = (HANDLE)-1;
-+
-+    if (std_key == (HANDLE)-1)
-+        std_key = open_user_reg_key( DllRedirectsW );
-+
-+    return std_key;
-+}
-+
-+
-+/***************************************************************************
-+ *	get_redirect_app_key
-+ *
-+ * Get the registry key for the app-specific DllRedirects list.
-+ */
-+static HANDLE get_redirect_app_key( const WCHAR *app_name )
-+{
-+    static const WCHAR DllRedirectsW[] = {'\\','D','l','l','R','e','d','i','r','e','c','t','s',0};
-+    static HANDLE app_key = (HANDLE)-1;
-+
-+    if (app_key == (HANDLE)-1)
-+        app_key = open_app_reg_key( DllRedirectsW, app_name );
-+
-     return app_key;
- }
- 
- 
- /***************************************************************************
-- *	get_registry_value
-+ *	get_registry_string
-  *
-- * Load the registry loadorder value for a given module.
-+ * Load a registry string for a given module.
-  */
--static enum loadorder get_registry_value( HANDLE hkey, const WCHAR *module )
-+static WCHAR* get_registry_string( HANDLE hkey, const WCHAR *module, BYTE *buffer,
-+                                   ULONG size )
- {
-     UNICODE_STRING valueW;
--    char buffer[80];
-     DWORD count;
-+    WCHAR *ret = NULL;
- 
-     RtlInitUnicodeString( &valueW, module );
--
--    if (!NtQueryValueKey( hkey, &valueW, KeyValuePartialInformation,
--                                 buffer, sizeof(buffer), &count ))
-+    if (size >= sizeof(WCHAR) &&
-+        !NtQueryValueKey( hkey, &valueW, KeyValuePartialInformation,
-+                          buffer, size - sizeof(WCHAR), &count ))
-     {
--        WCHAR *str = (WCHAR *)((KEY_VALUE_PARTIAL_INFORMATION *)buffer)->Data;
--        return parse_load_order( str );
-+        KEY_VALUE_PARTIAL_INFORMATION *info = (void *)buffer;
-+        ret = (WCHAR *)info->Data;
-+        ret[info->DataLength / sizeof(WCHAR)] = 0;
-     }
--    return LO_INVALID;
-+
-+    return ret;
-+}
-+
-+
-+/***************************************************************************
-+ *	get_registry_load_order
-+ *
-+ * Load the registry loadorder value for a given module.
-+ */
-+static enum loadorder get_registry_load_order( HANDLE hkey, const WCHAR *module )
-+{
-+    BYTE buffer[81];
-+    WCHAR *str = get_registry_string( hkey, module, buffer, sizeof(buffer) );
-+    return str ? parse_load_order( str ) : LO_INVALID;
- }
- 
- 
-@@ -407,13 +470,13 @@ static enum loadorder get_load_order_value( HANDLE std_key, HANDLE app_key, cons
-         return ret;
-     }
- 
--    if (app_key && ((ret = get_registry_value( app_key, module )) != LO_INVALID))
-+    if (app_key && ((ret = get_registry_load_order( app_key, module )) != LO_INVALID))
-     {
-         TRACE( "got app defaults %s for %s\n", debugstr_loadorder(ret), debugstr_w(module) );
-         return ret;
-     }
- 
--    if (std_key && ((ret = get_registry_value( std_key, module )) != LO_INVALID))
-+    if (std_key && ((ret = get_registry_load_order( std_key, module )) != LO_INVALID))
-     {
-         TRACE( "got standard key %s for %s\n", debugstr_loadorder(ret), debugstr_w(module) );
-         return ret;
-@@ -424,24 +487,44 @@ static enum loadorder get_load_order_value( HANDLE std_key, HANDLE app_key, cons
- 
- 
- /***************************************************************************
-- *	get_load_order   (internal)
-+ *	get_redirect_value
-  *
-- * Return the loadorder of a module.
-- * The system directory and '.dll' extension is stripped from the path.
-+ * Get the redirect value for the exact specified module string, looking in:
-+ * 1. The per-application DllRedirects key
-+ * 2. The standard DllRedirects key
-  */
--enum loadorder get_load_order( const WCHAR *app_name, const WCHAR *path )
-+static WCHAR* get_redirect_value( HANDLE std_key, HANDLE app_key, const WCHAR *module,
-+                                  BYTE *buffer, ULONG size )
- {
--    enum loadorder ret = LO_INVALID;
--    HANDLE std_key, app_key = 0;
--    WCHAR *module, *basename;
--    UNICODE_STRING path_str;
--    int len;
-+    WCHAR *ret = NULL;
- 
--    if (!init_done) init_load_order();
--    std_key = get_standard_key();
--    if (app_name) app_key = get_app_key( app_name );
-+    if (app_key && (ret = get_registry_string( app_key, module, buffer, size )))
-+    {
-+        TRACE( "got app defaults %s for %s\n", debugstr_w(ret), debugstr_w(module) );
-+        return ret;
-+    }
- 
--    TRACE("looking for %s\n", debugstr_w(path));
-+    if (std_key && (ret = get_registry_string( std_key, module, buffer, size )))
-+    {
-+        TRACE( "got standard key %s for %s\n", debugstr_w(ret), debugstr_w(module) );
-+        return ret;
-+    }
-+
-+    return ret;
-+}
-+
-+
-+/***************************************************************************
-+ *	get_module_basename
-+ *
-+ * Determine the module basename. The caller is responsible for releasing
-+ * the memory.
-+ */
-+static WCHAR* get_module_basename( const WCHAR *path, WCHAR **basename )
-+{
-+    UNICODE_STRING path_str;
-+    WCHAR *module;
-+    int len;
- 
-     /* Strip path information if the module resides in the system directory
-      */
-@@ -453,12 +536,36 @@ enum loadorder get_load_order( const WCHAR *app_name, const WCHAR *path )
-         if (!strchrW( p, '\\' ) && !strchrW( p, '/' )) path = p;
-     }
- 
--    if (!(len = strlenW(path))) return ret;
--    if (!(module = RtlAllocateHeap( GetProcessHeap(), 0, (len + 2) * sizeof(WCHAR) ))) return ret;
-+    if (!(len = strlenW(path))) return NULL;
-+    if (!(module = RtlAllocateHeap( GetProcessHeap(), 0, (len + 2) * sizeof(WCHAR) ))) return NULL;
-     strcpyW( module+1, path );  /* reserve module[0] for the wildcard char */
--    basename = (WCHAR *)get_basename( module+1 );
-+    *basename = (WCHAR *)get_basename( module+1 );
- 
-     if (len >= 4) remove_dll_ext( module + 1 + len - 4 );
-+    return module;
-+}
-+
-+
-+/***************************************************************************
-+ *	get_load_order   (internal)
-+ *
-+ * Return the loadorder of a module.
-+ * The system directory and '.dll' extension is stripped from the path.
-+ */
-+enum loadorder get_load_order( const WCHAR *app_name, const WCHAR *path )
-+{
-+    enum loadorder ret = LO_INVALID;
-+    HANDLE std_key, app_key = 0;
-+    WCHAR *module, *basename;
-+
-+    if (!init_done) init_load_order();
-+    std_key = get_override_standard_key();
-+    if (app_name) app_key = get_override_app_key( app_name );
-+
-+    TRACE("looking up loadorder for %s\n", debugstr_w(path));
-+
-+    if (!(module = get_module_basename(path, &basename)))
-+        return ret;
- 
-     /* first explicit module name */
-     if ((ret = get_load_order_value( std_key, app_key, module+1 )) != LO_INVALID)
-@@ -489,3 +596,48 @@ enum loadorder get_load_order( const WCHAR *app_name, const WCHAR *path )
-     RtlFreeHeap( GetProcessHeap(), 0, module );
-     return ret;
- }
-+
-+
-+/***************************************************************************
-+ *  get_redirect   (internal)
-+ *
-+ * Return the redirect value of a module.
-+ * The system directory and '.dll' extension is stripped from the path.
-+ */
-+WCHAR* get_redirect( const WCHAR *app_name, const WCHAR *path, BYTE *buffer, ULONG size )
-+{
-+    WCHAR *ret = NULL;
-+    HANDLE std_key, app_key = 0;
-+    WCHAR *module, *basename;
-+
-+    std_key = get_redirect_standard_key();
-+    if (app_name) app_key = get_redirect_app_key( app_name );
-+
-+    TRACE("looking up redirection for %s\n", debugstr_w(path));
-+
-+    if (!(module = get_module_basename(path, &basename)))
-+        return ret;
-+
-+    /* first explicit module name */
-+    if ((ret = get_redirect_value( std_key, app_key, module+1, buffer, size )))
-+        goto done;
-+
-+    /* then module basename preceded by '*' */
-+    basename[-1] = '*';
-+    if ((ret = get_redirect_value( std_key, app_key, basename-1, buffer, size )))
-+        goto done;
-+
-+    /* then module basename without '*' (only if explicit path) */
-+    /*
-+    if (basename != module+1 && (ret = get_redirect_value( std_key, app_key, basename, buffer, size )))
-+        goto done;
-+    */
-+
-+    /* and last the hard-coded default */
-+    ret = NULL;
-+    TRACE( "no redirection found for %s\n", debugstr_w(path) );
-+
-+ done:
-+    RtlFreeHeap( GetProcessHeap(), 0, module );
-+    return ret;
-+}
-diff --git a/dlls/ntdll/ntdll_misc.h b/dlls/ntdll/ntdll_misc.h
-index 5e4c39e..921f58e 100644
---- a/dlls/ntdll/ntdll_misc.h
-+++ b/dlls/ntdll/ntdll_misc.h
-@@ -203,6 +203,7 @@ enum loadorder
- };
- 
- extern enum loadorder get_load_order( const WCHAR *app_name, const WCHAR *path ) DECLSPEC_HIDDEN;
-+extern WCHAR* get_redirect( const WCHAR *app_name, const WCHAR *path, BYTE *buffer, ULONG size ) DECLSPEC_HIDDEN;
- 
- struct debug_info
- {
 diff --git a/dlls/winex11.drv/init.c b/dlls/winex11.drv/init.c
-index 6bc4fb3..b0024a0 100644
+index b543b31..b875477 100644
 --- a/dlls/winex11.drv/init.c
 +++ b/dlls/winex11.drv/init.c
 @@ -365,6 +365,7 @@ static INT X11DRV_ExtEscape( PHYSDEV dev, INT escape, INT in_count, LPCVOID in_d
@@ -4865,128 +4825,111 @@ index 6bc4fb3..b0024a0 100644
                  }
                  break;
 diff --git a/dlls/winex11.drv/x11drv.h b/dlls/winex11.drv/x11drv.h
-index 2694d23..3e94b64 100644
+index 098cf46..11a7065 100644
 --- a/dlls/winex11.drv/x11drv.h
 +++ b/dlls/winex11.drv/x11drv.h
-@@ -292,6 +292,7 @@ struct x11drv_escape_get_drawable
+@@ -293,6 +293,7 @@ struct x11drv_escape_get_drawable
      Drawable                 drawable;     /* X drawable */
      Drawable                 gl_drawable;  /* GL drawable */
      int                      pixel_format; /* internal GL pixel format */
 +    RECT                     dc_rect;      /* DC rectangle relative to drawable */
  };
- 
+
  struct x11drv_escape_flush_gl_drawable
-diff --git a/programs/winecfg/Makefile.in b/programs/winecfg/Makefile.in
-index 7b52a69..c86fdd0 100644
---- a/programs/winecfg/Makefile.in
-+++ b/programs/winecfg/Makefile.in
-@@ -11,6 +11,7 @@ C_SRCS = \
- 	driveui.c \
- 	libraries.c \
- 	main.c \
-+	staging.c \
- 	theme.c \
- 	winecfg.c \
- 	x11drvdlg.c
-diff --git a/programs/winecfg/main.c b/programs/winecfg/main.c
-index b8a85fe..de209a9 100644
---- a/programs/winecfg/main.c
-+++ b/programs/winecfg/main.c
-@@ -58,7 +58,7 @@ PropSheetCallback (HWND hWnd, UINT uMsg, LPARAM lParam)
-     return 0;
- }
- 
--#define NUM_PROPERTY_PAGES 7
-+#define NUM_PROPERTY_PAGES 8
- 
- static INT_PTR
- doPropertySheet (HINSTANCE hInstance, HWND hOwner)
-@@ -139,6 +139,16 @@ doPropertySheet (HINSTANCE hInstance, HWND hOwner)
-     psp[pg].lParam = 0;
-     pg++;
- 
-+    psp[pg].dwSize = sizeof (PROPSHEETPAGEW);
-+    psp[pg].dwFlags = PSP_USETITLE;
-+    psp[pg].hInstance = hInstance;
-+    psp[pg].u.pszTemplate = MAKEINTRESOURCEW (IDD_STAGING);
-+    psp[pg].u2.pszIcon = NULL;
-+    psp[pg].pfnDlgProc = StagingDlgProc;
-+    psp[pg].pszTitle =  load_string (IDS_TAB_STAGING);
-+    psp[pg].lParam = 0;
-+    pg++;
+diff --git a/include/config.h.in b/include/config.h.in
+index 8ac8388..3626e84 100644
+--- a/include/config.h.in
++++ b/include/config.h.in
+@@ -4,6 +4,12 @@
+ #define __WINE_CONFIG_H
+ #ifndef WINE_CROSSTEST
+
++/* Whether d3dadapter9 DRI2 fallback is compiled */
++#undef D3DADAPTER9_DRI2
 +
-     /*
-      * Fill out the (General) PROPSHEETPAGE data structure 
-      * for the property sheet
++/* "module dir" */
++#undef D3D_MODULE_DIR
++
+ /* Define to a function attribute for Microsoft hotpatch assembly prefix. */
+ #undef DECLSPEC_HOTPATCH
+
+@@ -1359,6 +1365,9 @@
+ /* Define to the version of this package. */
+ #undef PACKAGE_VERSION
+
++/* "temporary hack" */
++#undef SONAME_D3DADAPTER9
++
+ /* Define to the soname of the libcairo library. */
+ #undef SONAME_LIBCAIRO
+
+@@ -1374,6 +1383,9 @@
+ /* Define to the soname of the libdbus-1 library. */
+ #undef SONAME_LIBDBUS_1
+
++/* Define to the soname of the libEGL library. */
++#undef SONAME_LIBEGL
++
+ /* Define to the soname of the libfontconfig library. */
+ #undef SONAME_LIBFONTCONFIG
+
+@@ -1422,6 +1434,9 @@
+ /* Define to the soname of the libpng library. */
+ #undef SONAME_LIBPNG
+
++/* Define to the soname of the libpthread library. */
++#undef SONAME_LIBPTHREAD
++
+ /* Define to the soname of the libsane library. */
+ #undef SONAME_LIBSANE
+
+@@ -1446,6 +1461,21 @@
+ /* Define to the soname of the libX11 library. */
+ #undef SONAME_LIBX11
+
++/* Define to the soname of the libX11-xcb library. */
++#undef SONAME_LIBX11_XCB
++
++/* Define to the soname of the libxcb library. */
++#undef SONAME_LIBXCB
++
++/* Define to the soname of the libxcb-dri3 library. */
++#undef SONAME_LIBXCB_DRI3
++
++/* Define to the soname of the libxcb-present library. */
++#undef SONAME_LIBXCB_PRESENT
++
++/* Define to the soname of the libxcb-xfixes library. */
++#undef SONAME_LIBXCB_XFIXES
++
+ /* Define to the soname of the libXcomposite library. */
+ #undef SONAME_LIBXCOMPOSITE
+
 diff --git a/programs/winecfg/resource.h b/programs/winecfg/resource.h
-index 8604fb4..201e5c3 100644
+index bf3b884..60f1d47 100644
 --- a/programs/winecfg/resource.h
 +++ b/programs/winecfg/resource.h
-@@ -45,6 +45,7 @@
- #define IDS_SHELL_FOLDER                16
- #define IDS_LINKS_TO                    17
- #define IDS_WINECFG_TITLE_APP           18   /* App specific title */
-+#define IDS_TAB_STAGING                 19
- #define IDI_WINECFG                     100
- #define IDI_LOGO                        102
- #define IDD_ABOUTCFG                    107
-@@ -54,6 +55,7 @@
- #define IDD_DLLCFG                      111
- #define IDD_DRIVECFG                    112
- #define IDD_DESKTOP_INTEGRATION         115
-+#define IDD_STAGING                     116
- #define IDC_WINVER                      1012
- #define IDC_DESKTOP_WIDTH               1023
- #define IDC_DESKTOP_HEIGHT              1024
-@@ -218,3 +220,6 @@
+@@ -218,6 +218,7 @@
+ #define IDC_ENABLE_EAX                  9003
+ #define IDC_ENABLE_HIDEWINE             9004
+ #define IDC_ENABLE_GTK3                 9005
++#define IDC_ENABLE_NATIVE_D3D9          9006
+
+ /* About tab */
+ #define IDC_ABT_OWNER                8432
+@@ -227,3 +228,4 @@
  #define IDC_ABT_TITLE_TEXT           8436
  #define IDC_ABT_WEB_LINK             8437
  #define IDC_ABT_LICENSE_TEXT         8438
 +
-+/* Staging tab */
-+#define IDC_ENABLE_NATIVE_D3D9       9001
 diff --git a/programs/winecfg/staging.c b/programs/winecfg/staging.c
-new file mode 100644
-index 0000000..4a53815
---- /dev/null
+index 81a4e24..9b27163 100644
+--- a/programs/winecfg/staging.c
 +++ b/programs/winecfg/staging.c
-@@ -0,0 +1,93 @@
-+/*
-+ * WineCfg Staging panel
-+ *
-+ * Copyright 2014 Michael Müller
-+ * Copyright 2015 Sebastian Lackner
-+ *
-+ * This library is free software; you can redistribute it and/or
-+ * modify it under the terms of the GNU Lesser General Public
-+ * License as published by the Free Software Foundation; either
-+ * version 2.1 of the License, or (at your option) any later version.
-+ *
-+ * This library is distributed in the hope that it will be useful,
-+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
-+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-+ * Lesser General Public License for more details.
-+ *
-+ * You should have received a copy of the GNU Lesser General Public
-+ * License along with this library; if not, write to the Free Software
-+ * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301, USA
-+ *
-+ */
-+
-+#define COBJMACROS
-+
-+#include "config.h"
-+
-+#include <windows.h>
-+#include <wine/unicode.h>
-+#include <wine/debug.h>
-+
-+#include "resource.h"
-+#include "winecfg.h"
-+
-+WINE_DEFAULT_DEBUG_CHANNEL(winecfg);
-+
-+/*
+@@ -50,6 +50,23 @@ static void csmt_set(BOOL status)
+ }
+
+ /*
 + * Gallium nine
 + */
 +static BOOL nine_get(void)
@@ -5003,84 +4946,52 @@ index 0000000..4a53815
 +    set_reg_key(config_key, keypath("DllRedirects"), "d3d9", status ? "d3d9-nine.dll" : NULL);
 +}
 +
-+
-+static void load_staging_settings(HWND dialog)
-+{
++/*
+  * DXVA2
+  */
+ static BOOL vaapi_get(void)
+@@ -132,6 +149,7 @@ static void load_staging_settings(HWND dialog)
+     CheckDlgButton(dialog, IDC_ENABLE_EAX, eax_get() ? BST_CHECKED : BST_UNCHECKED);
+     CheckDlgButton(dialog, IDC_ENABLE_HIDEWINE, hidewine_get() ? BST_CHECKED : BST_UNCHECKED);
+     CheckDlgButton(dialog, IDC_ENABLE_GTK3, gtk3_get() ? BST_CHECKED : BST_UNCHECKED);
 +    CheckDlgButton(dialog, IDC_ENABLE_NATIVE_D3D9, nine_get() ? BST_CHECKED : BST_UNCHECKED);
+
+ #ifndef HAVE_VAAPI
+     disable(IDC_ENABLE_VAAPI);
+@@ -139,6 +157,9 @@ static void load_staging_settings(HWND dialog)
+ #ifndef HAVE_GTK3
+     disable(IDC_ENABLE_GTK3);
+ #endif
 +#if !defined(SONAME_D3DADAPTER9)
 +    disable(IDC_ENABLE_NATIVE_D3D9);
 +#endif
-+}
-+
-+INT_PTR CALLBACK StagingDlgProc(HWND hDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
-+{
-+    switch (uMsg)
-+    {
-+    case WM_INITDIALOG:
-+        break;
-+
-+    case WM_NOTIFY:
-+        if (((LPNMHDR)lParam)->code == PSN_SETACTIVE)
-+            load_staging_settings(hDlg);
-+        break;
-+
-+    case WM_SHOWWINDOW:
-+        set_window_title(hDlg);
-+        break;
-+
-+    case WM_DESTROY:
-+        break;
-+
-+    case WM_COMMAND:
-+        if (HIWORD(wParam) != BN_CLICKED) break;
-+        switch (LOWORD(wParam))
-+        {
+ }
+
+ INT_PTR CALLBACK StagingDlgProc(HWND hDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
+@@ -184,6 +205,10 @@ INT_PTR CALLBACK StagingDlgProc(HWND hDlg, UINT uMsg, WPARAM wParam, LPARAM lPar
+             gtk3_set(IsDlgButtonChecked(hDlg, IDC_ENABLE_GTK3) == BST_CHECKED);
+             SendMessageW(GetParent(hDlg), PSM_CHANGED, 0, 0);
+             return TRUE;
 +        case IDC_ENABLE_NATIVE_D3D9:
 +            nine_set(IsDlgButtonChecked(hDlg, IDC_ENABLE_NATIVE_D3D9) == BST_CHECKED);
 +            SendMessageW(GetParent(hDlg), PSM_CHANGED, 0, 0);
 +            return TRUE;
-+        }
-+        break;
-+    }
-+    return FALSE;
-+}
-diff --git a/programs/winecfg/winecfg.h b/programs/winecfg/winecfg.h
-index 110856a..a949474 100644
---- a/programs/winecfg/winecfg.h
-+++ b/programs/winecfg/winecfg.h
-@@ -87,6 +87,7 @@ INT_PTR CALLBACK AppDlgProc (HWND hDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
- INT_PTR CALLBACK LibrariesDlgProc (HWND hDlg, UINT uMsg, WPARAM wParam, LPARAM lParam);
- INT_PTR CALLBACK AudioDlgProc (HWND hDlg, UINT uMsg, WPARAM wParam, LPARAM lParam);
- INT_PTR CALLBACK ThemeDlgProc (HWND hDlg, UINT uMsg, WPARAM wParam, LPARAM lParam);
-+INT_PTR CALLBACK StagingDlgProc (HWND hDlg, UINT uMsg, WPARAM wParam, LPARAM lParam);
- INT_PTR CALLBACK AboutDlgProc (HWND hDlg, UINT uMsg, WPARAM wParam, LPARAM lParam);
- 
- /* Drive management  */
+         }
+         break;
+     }
 diff --git a/programs/winecfg/winecfg.rc b/programs/winecfg/winecfg.rc
-index 64d37ed..96eb830 100644
+index e2b35a2..e9741df 100644
 --- a/programs/winecfg/winecfg.rc
 +++ b/programs/winecfg/winecfg.rc
-@@ -39,6 +39,7 @@ BEGIN
-     IDS_TAB_GRAPHICS        "Graphics"
-     IDS_TAB_DESKTOP_INTEGRATION "Desktop Integration"
-     IDS_TAB_AUDIO           "Audio"
-+    IDS_TAB_STAGING         "Staging"
-     IDS_TAB_ABOUT           "About"
-     IDS_WINECFG_TITLE       "Wine configuration"
-     IDS_WINECFG_TITLE_APP   "Wine configuration for %s"
-@@ -308,6 +309,15 @@ BEGIN
-     PUSHBUTTON      "B&rowse...",IDC_BROWSE_SFPATH,195,195,50,13,WS_DISABLED
+@@ -320,8 +320,11 @@ BEGIN
+     CONTROL     "Enable Environmental Audio E&xtensions (EAX)",IDC_ENABLE_EAX,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,16,70,230,8
+     CONTROL     "&Hide Wine version from applications",IDC_ENABLE_HIDEWINE,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,16,85,230,8
+     CONTROL     "Enable &GTK3 Theming",IDC_ENABLE_GTK3,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,16,100,230,8
++    CONTROL     "Enable &Gallium Nine for better D3D9 graphic performance.",IDC_ENABLE_NATIVE_D3D9,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,16,115,230,8
++    LTEXT       "Gallium Nine requires MESA graphic drivers and AMD/Nvidia GPU",IDC_STATIC,16,130,230,16
  END
- 
-+IDD_STAGING DIALOG  0, 0, 260, 220
-+STYLE WS_CHILD | WS_DISABLED
-+FONT 8, "MS Shell Dlg"
-+BEGIN
-+    GROUPBOX    "Staging settings",IDC_STATIC,8,4,244,210
-+    LTEXT       "The following settings are experimental and may break stuff!\nMake sure to reset them again in case of a problem.\nGallium Nine requires MESA graphic drivers and AMD/Nvidia GPU.\n",IDC_STATIC,16,16,230,24
-+    CONTROL     "Enable &Gallium Nine for better D3D9 graphic performance.",IDC_ENABLE_NATIVE_D3D9,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,16,40,230,8
-+END
+
 +
  LANGUAGE LANG_NEUTRAL, SUBLANG_NEUTRAL
- 
+
  /* @makedep: winecfg.ico */
