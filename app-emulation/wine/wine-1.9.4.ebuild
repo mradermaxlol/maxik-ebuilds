@@ -21,15 +21,12 @@ inherit autotools-utils eutils fdo-mime flag-o-matic gnome2-utils l10n multilib 
 		KEYWORDS="-* amd64 x86 x86-fbsd"
 	fi
 	MY_P="${PN}-${MY_PV}"
-	SRC_URI="https://dl.winehq.org/wine/source/${MAJOR_V}/${MY_P}.tar.bz2 -> ${P}.tar.bz2"
-	SRC_URI="${SRC_URI}
-		https://github.com/wine-compholio/wine-staging/archive/v${PV}.tar.gz -> v${PV}.tar.gz"
-	# TODO: make staging optional
+	SRC_URI="https://github.com/wine-compholio/wine-patched/archive/staging-${PV}.tar.gz -> ${P}.tar.bz2" # Staging-patched wine
 
 GV="2.44" # Gecko version
 MV="4.5.6" # Mono version
-STAGING_P="wine-staging-${MY_PV}"
-STAGING_DIR="${WORKDIR}/${STAGING_P}"
+# STAGING_P="wine-staging-${MY_PV}"
+# STAGING_DIR="${WORKDIR}/${STAGING_P}"
 WINE_GENTOO="wine-gentoo-2015.03.07"
 DESCRIPTION="Free implementation of Windows(tm) on Unix"
 HOMEPAGE="http://www.winehq.org/"
@@ -199,10 +196,9 @@ pkg_setup() {
 }
 
 src_unpack() {
-	git clone https://aur.archlinux.org/wine-gaming-nine.git
+	git clone https://aur.archlinux.org/wine-gaming-nine.git # Extra patches
 	unpack ${P}.tar.bz2
-	unpack v${PV}.tar.gz
-	# use staging && unpack "${STAGING_P}.tar.gz" # We have fetched staging-patched Wine already => not needed
+	# unpack v${PV}.tar.gz # We have fetched staging-patched Wine already => not needed
 	unpack ${WINE_GENTOO}.tar.bz2
 	l10n_find_plocales_changes "${S}/po" "" ".po"
 }
@@ -212,23 +208,7 @@ src_prepare() {
 	if [[ $(gcc-major-version) = 5 && $(gcc-minor-version) -ge 3 ]]; then
 		local PATCHES=( "${FILESDIR}"/${PN}-1.9.3-gcc-5_3_0-disable-force-alignment.patch ) #574044
 	fi
-	patch -p1 < ${FILESDIR}/${PN}-d3d9.patch # It's here to test if new patchorder works
-	if use staging; then
-		ewarn "Applying the Wine-Staging patchset. Any bug reports to the"
-		ewarn "Wine bugzilla should explicitly state that staging was used."
-
-		local STAGING_EXCLUDE=""
-		use pipelight || STAGING_EXCLUDE="${STAGING_EXCLUDE} -W Pipelight"
-
-		# Launch wine-staging patcher in a subshell, using epatch as a backend, and gitapply.sh as a backend for binary patches
-		ebegin "Running Wine-Staging patch installer"
-		(
-			set -- DESTDIR="${S}" --backend=epatch --no-autoconf --all ${STAGING_EXCLUDE}
-			cd "${STAGING_DIR}/patches"
-			source "${STAGING_DIR}/patches/patchinstall.sh" || die "Failed to apply Wine-Staging patches."
-		)
-		eend $?
-	fi
+	patch -p1 < ${FILESDIR}/${PN}-d3d9.patch # Nine patch
 	# patch -p1 < ../wine-gaming-nine/nine-1.9.1.patch # Replaced by NP-Hardass' patch (freshly generated, of course)
 	patch -p1 < ../wine-gaming-nine/steam.patch
 	patch -p1 < ../wine-gaming-nine/mipmap.patch
@@ -236,13 +216,13 @@ src_prepare() {
 	patch -p1 < ../wine-gaming-nine/wbemprox_query_v2.patch
 	patch -p1 -R < wine-gaming-nine/keybindings.patch
 	if use staging; then
-		ewarn "Applying the Wine-Staging patchset. Any bug reports to the"
+		ewarn "You are using staging-patched Wine. Any bug reports to the"
 		ewarn "Wine bugzilla should explicitly state that staging was used."
 		ewarn "Gallium Nine is enabled. If you encounter bugs using it,"
 		ewarn "report to IXiT bugtracked on freenode or github."
 	fi
-	sed 's|OpenCL/opencl.h|CL/opencl.h|g' -i configure*
-	autoreconf -f
+	sed 's|OpenCL/opencl.h|CL/opencl.h|g' -i configure* # Requiered by Nine
+	autoreconf -f # Just in case...
 	autotools-utils_src_prepare
 
 	# Modification of the server protocol requires regenerating the server requests
@@ -284,7 +264,7 @@ multilib_src_configure() {
 		$(use_with gsm)
 		$(use_with gstreamer)
 		--without-hal \
-		--with-d3dadapter
+		--with-d3dadapter \
 		$(use_with jpeg)
 		$(use_with ldap)
 		$(use_enable mono mscoree)
