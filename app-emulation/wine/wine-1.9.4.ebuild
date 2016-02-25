@@ -21,7 +21,7 @@ inherit autotools-utils eutils fdo-mime flag-o-matic gnome2-utils l10n multilib 
 		KEYWORDS="-* amd64 x86 x86-fbsd"
 	fi
 	MY_P="${PN}-${MY_PV}"
-	SRC_URI="https://github.com/mradermaxlol/pontostroy-wine/archive/v${PV}.tar.gz -> ${P}.tar.bz2" # Staging-and-nine-patched Wine
+	SRC_URI="https://github.com/mradermaxlol/pontostroy-wine/archive/v${PV}.tar.gz -> ${P}.tar.gz" # Staging-and-nine-patched Wine
 
 GV="2.44" # Gecko version
 MV="4.5.6" # Mono version
