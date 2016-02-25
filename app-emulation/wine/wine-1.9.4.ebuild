@@ -195,7 +195,7 @@ pkg_setup() {
 
 src_unpack() {
 	# git clone https://aur.archlinux.org/wine-gaming-nine.git # Extra patches
-	unpack ${P}.tar.bz2
+	unpack ${P}.tar.gz
 	# unpack v${PV}.tar.gz # We have fetched staging-patched Wine already => not needed
 	unpack ${WINE_GENTOO}.tar.bz2
 	l10n_find_plocales_changes "${S}/po" "" ".po"
