@@ -206,7 +206,7 @@ src_unpack() {
 src_prepare() {
 	local md5="$(md5sum server/protocol.def)"
 	if [[ $(gcc-major-version) = 5 && $(gcc-minor-version) -ge 3 ]]; then
-		local PATCHES=( "${FILESDIR}"/${PN}-1.9.3-gcc-5_3_0-disable-force-alignment.patch ) #574044
+		patch -p1 < ${FILESDIR}/${PN}-gcc5-3-0-fix.patch # Fix for GCC's #69140
 	fi
 	patch -p1 < ${FILESDIR}/${PN}-d3d9.patch # Nine patch
 	# patch -p1 < ../wine-gaming-nine/nine-1.9.1.patch # Replaced by NP-Hardass' patch (freshly generated, of course)
