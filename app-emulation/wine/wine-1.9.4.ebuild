@@ -150,7 +150,7 @@ usr/share/applications/wine-notepad.desktop
 usr/share/applications/wine-uninstaller.desktop
 usr/share/applications/wine-winecfg.desktop"
 
-S="${WORKDIR}/${MY_P}"
+S="${WORKDIR}/pontostroy-wine-${PV}"
 
 wine_build_environment_check() {
 	[[ ${MERGE_TYPE} = "binary" ]] && return 0
