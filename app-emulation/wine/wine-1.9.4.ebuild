@@ -21,12 +21,10 @@ inherit autotools-utils eutils fdo-mime flag-o-matic gnome2-utils l10n multilib 
 		KEYWORDS="-* amd64 x86 x86-fbsd"
 	fi
 	MY_P="${PN}-${MY_PV}"
-	SRC_URI="https://github.com/wine-compholio/wine-patched/archive/staging-${PV}.tar.gz -> ${P}.tar.bz2" # Staging-patched wine
+	SRC_URI="https://github.com/mradermaxlol/pontostroy-wine/archive/v${PV}.tar.gz -> ${P}.tar.bz2" # Staging-and-nine-patched Wine
 
 GV="2.44" # Gecko version
 MV="4.5.6" # Mono version
-# STAGING_P="wine-staging-${MY_PV}"
-# STAGING_DIR="${WORKDIR}/${STAGING_P}"
 WINE_GENTOO="wine-gentoo-2015.03.07"
 DESCRIPTION="Free implementation of Windows(tm) on Unix"
 HOMEPAGE="http://www.winehq.org/"
@@ -196,7 +194,7 @@ pkg_setup() {
 }
 
 src_unpack() {
-	git clone https://aur.archlinux.org/wine-gaming-nine.git # Extra patches
+	# git clone https://aur.archlinux.org/wine-gaming-nine.git # Extra patches
 	unpack ${P}.tar.bz2
 	# unpack v${PV}.tar.gz # We have fetched staging-patched Wine already => not needed
 	unpack ${WINE_GENTOO}.tar.bz2
@@ -208,20 +206,19 @@ src_prepare() {
 	if [[ $(gcc-major-version) = 5 && $(gcc-minor-version) -ge 3 ]]; then
 		patch -p1 < ${FILESDIR}/${PN}-gcc5-3-0-fix.patch # Fix for GCC's #69140
 	fi
-	patch -p1 < ${FILESDIR}/${PN}-d3d9.patch # Nine patch
-	# patch -p1 < ../wine-gaming-nine/nine-1.9.1.patch # Replaced by NP-Hardass' patch (freshly generated, of course)
-	patch -p1 < ../wine-gaming-nine/steam.patch
-	patch -p1 < ../wine-gaming-nine/mipmap.patch
-	patch -p1 < ../wine-gaming-nine/heap_perf.patch
-	patch -p1 < ../wine-gaming-nine/wbemprox_query_v2.patch
-	patch -p1 -R < wine-gaming-nine/keybindings.patch
+	# patch -p1 < ${FILESDIR}/${PN}-d3d9.patch # Nine patch # Not needed now - our Wine is already patched
+	# patch -p1 < ../wine-gaming-nine/steam.patch
+	# patch -p1 < ../wine-gaming-nine/mipmap.patch
+	# patch -p1 < ../wine-gaming-nine/heap_perf.patch
+	# patch -p1 < ../wine-gaming-nine/wbemprox_query_v2.patch
+	# patch -p1 -R < wine-gaming-nine/keybindings.patch
+	
 	if use staging; then
 		ewarn "You are using staging-patched Wine. Any bug reports to the"
 		ewarn "Wine bugzilla should explicitly state that staging was used."
 		ewarn "Gallium Nine is enabled. If you encounter bugs using it,"
-		ewarn "report to IXiT bugtracked on freenode or github."
+		ewarn "report to IXiT bugtracker on freenode or github."
 	fi
-	sed 's|OpenCL/opencl.h|CL/opencl.h|g' -i configure* # Requiered by Nine
 	autoreconf -f # Just in case...
 	autotools-utils_src_prepare
 
