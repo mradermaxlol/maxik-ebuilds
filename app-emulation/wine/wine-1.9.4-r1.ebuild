@@ -165,7 +165,7 @@ usr/share/applications/wine-notepad.desktop
 usr/share/applications/wine-uninstaller.desktop
 usr/share/applications/wine-winecfg.desktop"
 
-if [ "$WINETYPE" -eq "stnine" ]; then
+if [ "$WINETYPE" == "stnine" ]; then
 	S="${WORKDIR}/pontostroy-wine-${PV}"
 else
 	S="${WORKDIR}/${MY_P}"
@@ -213,11 +213,11 @@ pkg_setup() {
 }
 
 src_unpack() {
-	if [ "$WINETYPE" -eq "staging" ]; then	
+	if [ "$WINETYPE" == "staging" ]; then	
 		unpack ${P}-staging.tar.gz
-	elif [ "$WINETYPE" -eq "stnine" ]; then
+	elif [ "$WINETYPE" == "stnine" ]; then
 		unpack ${P}-stnine.tar.gz
-	elif [ "$WINETYPE" -eq "vanilla" ] || [ "$WINETYPE" -eq "nine" ]; then
+	elif [ "$WINETYPE" == "vanilla" ] || [ "$WINETYPE" == "nine" ]; then
 		unpack ${P}-vanilla.tar.bz2
 	fi
 	unpack ${WINE_GENTOO}.tar.bz2
@@ -230,7 +230,7 @@ src_prepare() {
 		patch -p1 < ${FILESDIR}/${PN}-gcc5-3-0-fix.patch # Fix for GCC's #69140
 	fi
 
-	if [ "$WINETYPE" -eq "nine" ]; then
+	if [ "$WINETYPE" == "nine" ]; then
 		patch -p1 < ${FILESDIR}/${PN}-d3d9.patch # Nine patch for vanilla Wine
 	fi
 	
@@ -241,7 +241,7 @@ src_prepare() {
 		ewarn "report to IXiT bugtracker on freenode or github."
 	fi
 
-	if [ "$WINETYPE" -ne "vanilla" ]; then
+	if [ "$WINETYPE" != "vanilla" ]; then
 		autoreconf -f # Just in case...
 	fi
 	autotools-utils_src_prepare
@@ -311,14 +311,14 @@ multilib_src_configure() {
 		$(use_with xml xslt)
 	)
 
-	if [ "$WINETYPE" -eq "staging" ] || [ "$WINETYPE" -eq "stnine" ]; then
+	if [ "$WINETYPE" == "staging" ] || [ "$WINETYPE" == "stnine" ]; then
 		myconf+=(
 			--with-xattr \
 			$(use_with vaapi va)
 		)
 	fi
 
-	if [ "$WINETYPE" -eq "stnine" ] || [ "$WINETYPE" -eq "nine" ]; then
+	if [ "$WINETYPE" == "stnine" ] || [ "$WINETYPE" == "nine" ]; then
 		myconf+=(
 			--with-d3dadapter \
 		)
