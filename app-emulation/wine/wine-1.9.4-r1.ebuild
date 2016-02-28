@@ -165,7 +165,11 @@ usr/share/applications/wine-notepad.desktop
 usr/share/applications/wine-uninstaller.desktop
 usr/share/applications/wine-winecfg.desktop"
 
-S="${WORKDIR}/pontostroy-wine-${PV}"
+if WINETYPE == "stnine"; then
+	S="${WORKDIR}/pontostroy-wine-${PV}"
+else
+	S="${WORKDIR}/${MY_P}"
+fi
 
 wine_build_environment_check() {
 	[[ ${MERGE_TYPE} = "binary" ]] && return 0
