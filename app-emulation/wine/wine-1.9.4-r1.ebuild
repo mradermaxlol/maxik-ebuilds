@@ -23,7 +23,7 @@ inherit autotools-utils eutils fdo-mime flag-o-matic gnome2-utils l10n multilib 
 	MY_P="${PN}-${MY_PV}"
 
 	if use staging && use d3d9; then
-		SRC_URI="https://github.com/mradermaxlol/pontostroy-wine/archive/v${PV}.tar.gz -> ${P}-stnine.tar.gz" # Staging-and-Nine-patched Wine
+		SRC_URI="https://github.com/mradermaxlol/pontostroy-wine/archive/v${PV}.tar.gz" # Staging-and-Nine-patched Wine
 		WINETYPE="stnine"
 	elif !(use staging) && !(use d3d9); then
 		SRC_URI="https://github.com/wine-compholio/wine-staging/archive/v${PV}.tar.gz -> ${P}-staging.tar.gz" # Wine with Staging patchset
@@ -218,7 +218,7 @@ src_unpack() {
 	if [ "$WINETYPE" == "staging" ]; then	
 		unpack "${P}-staging.tar.gz"
 	elif [ "$WINETYPE" == "stnine" ]; then
-		unpack "${P}-stnine.tar.gz"
+		unpack "pontostroy-${PN}-${PV}.tar.gz"
 	elif [ "$WINETYPE" == "vanilla" ] || [ "$WINETYPE" == "nine" ]; then
 		"unpack ${P}-vanilla.tar.bz2"
 	fi
