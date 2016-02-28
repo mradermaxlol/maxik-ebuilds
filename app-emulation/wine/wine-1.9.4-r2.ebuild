@@ -10,36 +10,36 @@ PLOCALE_BACKUP="en"
 
 inherit autotools-utils eutils fdo-mime flag-o-matic gnome2-utils l10n multilib multilib-minimal pax-utils toolchain-funcs virtualx versionator
 
-	MAJOR_V=$(get_version_component_range 1-2)
-	let "MINOR_V_ODD=$(get_version_component_range 2) % 2"
-	MY_PV="${PV}"
-	if [[ "$(get_version_component_range 3)" =~ ^rc ]]; then
-		MY_PV=$(replace_version_separator 2 '-')
-	elif [[ ${MINOR_V_ODD} == 1 ]]; then
-		KEYWORDS="-* ~amd64 ~x86 ~x86-fbsd"
-	else
-		KEYWORDS="-* amd64 x86 x86-fbsd"
-	fi
-	MY_P="${PN}-${MY_PV}"
+MAJOR_V=$(get_version_component_range 1-2)
+let "MINOR_V_ODD=$(get_version_component_range 2) % 2"
+MY_PV="${PV}"
+if [[ "$(get_version_component_range 3)" =~ ^rc ]]; then
+	MY_PV=$(replace_version_separator 2 '-')
+elif [[ ${MINOR_V_ODD} == 1 ]]; then
+	KEYWORDS="-* ~amd64 ~x86 ~x86-fbsd"
+else
+	KEYWORDS="-* amd64 x86 x86-fbsd"
+fi
+MY_P="${PN}-${MY_PV}"
 
-	if (!(use staging) && !(use d3d9)) || (!(use staging) && use d3d9); then
-		if use d3d9; then
-			WINETYPE="nine"
-		else
-			WINETYPE="vanilla"
-		fi
-		SRC_URI="https://dl.winehq.org/wine/source/${MAJOR_V}/${MY_P}.tar.bz2 -> ${WINETYPE}.tar.bz2" # Vanilla Wine with/without Nine
-		
-	elif use staging && !(use d3d9); then
-		WINETYPE="staging"
-		SRC_URI="https://github.com/wine-compholio/wine-staging/archive/v${PV} -> ${WINETYPE}.tar.gz" # Wine with Staging patchset
-		
-	elif use staging && use d3d9; then
-		WINETYPE="stnine"
-		SRC_URI="https://github.com/mradermaxlol/pontostroy-wine/archive/v${PV}.tar.gz -> ${WINETYPE}.tar.gz" # Staging-and-Nine-patched Wine
+if use !staging && (use d3d9 || use !d3d9); then # Determine which version of Wine we want
+	if use d3d9; then
+		WINETYPE="nine" # Vanilla + Nine-patched Wine
+	else
+		WINETYPE="vanilla" # Vanilla Wine
 	fi
-# We use WINETYPE var to determine what will our Wine look like:
-# Vanilla, Staging, Staging + Nine, Nine
+		
+elif use staging && use !d3d9; then
+	WINETYPE="staging" # Wine with Staging patchset
+		
+elif use staging && use d3d9; then
+	WINETYPE="stnine" # Staging-and-Nine-patched Wine
+fi
+
+SRC_URI="
+	https://dl.winehq.org/wine/source/${MAJOR_V}/${MY_P}.tar.bz2 -> vanilla.tar.bz2
+	https://github.com/wine-compholio/wine-staging/archive/v${PV}.tar.gz -> staging.tar.gz
+	https://github.com/mradermaxlol/pontostroy-wine/archive/v${PV}.tar.gz -> stnine.tar.gz" 
 
 GV="2.44" # Gecko version, latest stable
 MV="4.6.0" # Mono version, latest stable
@@ -121,6 +121,7 @@ COMMON_DEPEND="
 	vaapi? ( x11-libs/libva[X,${MULTILIB_USEDEP}] )
 	xcomposite? ( x11-libs/libXcomposite[${MULTILIB_USEDEP}] )
 	abi_x86_32? (
+		d3d9? ( media-libs/mesa[d3d9, abi_x86_32] )
 		!app-emulation/emul-linux-x86-baselibs[-abi_x86_32(-)]
 		!<app-emulation/emul-linux-x86-baselibs-20140508-r14
 		!app-emulation/emul-linux-x86-db[-abi_x86_32(-)]
@@ -219,11 +220,11 @@ pkg_setup() {
 
 src_unpack() {
 	if [ "$WINETYPE" == "staging" ]; then	
-		unpack "staging.tar.gz"
+		unpack "${WINETYPE}.tar.gz"
 	elif [ "$WINETYPE" == "stnine" ]; then
-		unpack "stnine.tar.gz"
+		unpack "${WINETYPE}.tar.gz"
 	elif [ "$WINETYPE" == "vanilla" ] || [ "$WINETYPE" == "nine" ]; then
-		unpack "vanilla.tar.bz2"
+		unpack "${WINETYPE}.tar.bz2"
 	fi
 	unpack "${WINE_GENTOO}.tar.bz2"
 	l10n_find_plocales_changes "${S}/po" "" ".po"
