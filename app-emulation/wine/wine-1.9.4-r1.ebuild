@@ -23,16 +23,16 @@ inherit autotools-utils eutils fdo-mime flag-o-matic gnome2-utils l10n multilib 
 	MY_P="${PN}-${MY_PV}"
 
 	if use staging && use d3d9; then
-		SRC_URI="https://github.com/mradermaxlol/pontostroy-wine/archive/v${PV}.tar.gz -> ${P}.tar.gz" # Staging-and-Nine-patched Wine
+		SRC_URI="https://github.com/mradermaxlol/pontostroy-wine/archive/v${PV}.tar.gz -> ${P}-stnine.tar.gz" # Staging-and-Nine-patched Wine
 		WINETYPE="stnine"
 	elif use staging && ! use d3d9; then
-		SRC_URI="https://github.com/wine-compholio/wine-staging/archive/v${PV}.tar.gz -> ${P}.tar.gz" # Wine with Staging patchset
+		SRC_URI="https://github.com/wine-compholio/wine-staging/archive/v${PV}.tar.gz -> ${P}-staging.tar.gz" # Wine with Staging patchset
 		WINETYPE="staging"
 	elif ! use staging && use d3d9; then
-		SRC_URI="https://dl.winehq.org/wine/source/${MAJOR_V}/${MY_P}.tar.bz2 -> ${P}.tar.bz2" # Vanilla Wine + Nine
+		SRC_URI="https://dl.winehq.org/wine/source/${MAJOR_V}/${MY_P}.tar.bz2 -> ${P}-vanilla.tar.bz2" # Vanilla Wine + Nine
 		WINETYPE="nine"
 	elif ! use staging && ! use d3d9; then
-		SRC_URI="https://dl.winehq.org/wine/source/${MAJOR_V}/${MY_P}.tar.bz2 -> ${P}.tar.bz2" # Vanilla Wine
+		SRC_URI="https://dl.winehq.org/wine/source/${MAJOR_V}/${MY_P}.tar.bz2 -> ${P}-vanilla.tar.bz2" # Vanilla Wine
 		WINETYPE="vanilla"
 	fi
 # We use WINETYPE var to determine what will our Wine look like:
@@ -213,10 +213,12 @@ pkg_setup() {
 }
 
 src_unpack() {
-	if [ "$WINETYPE" -eq "staging" ] || [ "$WINETYPE" -eq "stnine" ]; then	
-		unpack ${P}.tar.gz
-	else
-		unpack ${P}.tar.bz2
+	if [ "$WINETYPE" -eq "staging" ]; then	
+		unpack ${P}-staging.tar.gz
+	elif [ "$WINETYPE" -eq "stnine" ]; then
+		unpack ${P}-stnine.tar.gz
+	elif [ "$WINETYPE" -eq "vanilla" ] || [ "$WINETYPE" -eq "nine" ]; then
+		unpack ${P}-vanilla.tar.bz2
 	fi
 	unpack ${WINE_GENTOO}.tar.bz2
 	l10n_find_plocales_changes "${S}/po" "" ".po"
