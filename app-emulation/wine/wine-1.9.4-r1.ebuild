@@ -216,13 +216,13 @@ pkg_setup() {
 
 src_unpack() {
 	if [ "$WINETYPE" == "staging" ]; then	
-		unpack ${P}-staging.tar.gz
+		unpack "${P}-staging.tar.gz"
 	elif [ "$WINETYPE" == "stnine" ]; then
-		unpack ${P}-stnine.tar.gz
+		unpack "${P}-stnine.tar.gz"
 	elif [ "$WINETYPE" == "vanilla" ] || [ "$WINETYPE" == "nine" ]; then
-		unpack ${P}-vanilla.tar.bz2
+		"unpack ${P}-vanilla.tar.bz2"
 	fi
-	unpack ${WINE_GENTOO}.tar.bz2
+	unpack "${WINE_GENTOO}.tar.bz2"
 	l10n_find_plocales_changes "${S}/po" "" ".po"
 }
 
