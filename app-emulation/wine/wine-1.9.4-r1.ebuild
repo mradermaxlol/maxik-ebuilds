@@ -167,8 +167,10 @@ usr/share/applications/wine-winecfg.desktop"
 
 if [ "$WINETYPE" == "stnine" ]; then
 	S="${WORKDIR}/pontostroy-wine-${PV}"
-else
-	S="${WORKDIR}/${MY_P}"
+elif [ "$WINETYPE" == "vanilla" ] || [ "$WINETYPE" == "nine" ]; then
+	S="${WORKDIR}/${PN}-${PV}"
+elif [ "$WINETYPE" == "staging" ]; then
+	S="${WORKDIR}/${PN}-staging-${PV}"
 fi
 
 wine_build_environment_check() {
