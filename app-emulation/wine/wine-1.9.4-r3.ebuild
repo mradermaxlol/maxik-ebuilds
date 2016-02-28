@@ -121,7 +121,6 @@ COMMON_DEPEND="
 	vaapi? ( x11-libs/libva[X,${MULTILIB_USEDEP}] )
 	xcomposite? ( x11-libs/libXcomposite[${MULTILIB_USEDEP}] )
 	abi_x86_32? (
-		d3d9? ( media-libs/mesa[d3d9, abi_x86_32] )
 		!app-emulation/emul-linux-x86-baselibs[-abi_x86_32(-)]
 		!<app-emulation/emul-linux-x86-baselibs-20140508-r14
 		!app-emulation/emul-linux-x86-db[-abi_x86_32(-)]
