@@ -25,13 +25,13 @@ inherit autotools-utils eutils fdo-mime flag-o-matic gnome2-utils l10n multilib 
 	if use staging && use d3d9; then
 		SRC_URI="https://github.com/mradermaxlol/pontostroy-wine/archive/v${PV}.tar.gz -> ${P}.tar.gz" # Staging-and-Nine-patched Wine
 		WINETYPE="stnine"
-	elif use staging && !(use d3d9); then
+	elif use staging && ! use d3d9; then
 		SRC_URI="https://github.com/wine-compholio/wine-staging/archive/v${PV}.tar.gz -> ${P}.tar.gz" # Wine with Staging patchset
 		WINETYPE="staging"
-	elif !(use staging) && use d3d9; then
+	elif ! use staging && use d3d9; then
 		SRC_URI="https://dl.winehq.org/wine/source/${MAJOR_V}/${MY_P}.tar.bz2 -> ${P}.tar.bz2" # Vanilla Wine + Nine
 		WINETYPE="nine"
-	elif !(use staging) && !(use d3d9); then
+	elif ! use staging && ! use d3d9; then
 		SRC_URI="https://dl.winehq.org/wine/source/${MAJOR_V}/${MY_P}.tar.bz2 -> ${P}.tar.bz2" # Vanilla Wine
 		WINETYPE="vanilla"
 	fi
@@ -209,9 +209,11 @@ pkg_setup() {
 }
 
 src_unpack() {
-	# git clone https://aur.archlinux.org/wine-gaming-nine.git # Extra patches
-	unpack ${P}.tar.gz
-	# unpack v${PV}.tar.gz # We have fetched staging-patched Wine already => not needed
+	if WINETYPE == "staging" || WINETYPE == "stnine"; then	
+		unpack ${P}.tar.gz
+	elif WINETYPE == "nine" || WINETYPE == "vanilla"; then
+		unpack ${P}.tar.bz2
+	fi
 	unpack ${WINE_GENTOO}.tar.bz2
 	l10n_find_plocales_changes "${S}/po" "" ".po"
 }
@@ -221,12 +223,10 @@ src_prepare() {
 	if [[ $(gcc-major-version) = 5 && $(gcc-minor-version) -ge 3 ]]; then
 		patch -p1 < ${FILESDIR}/${PN}-gcc5-3-0-fix.patch # Fix for GCC's #69140
 	fi
-	# patch -p1 < ${FILESDIR}/${PN}-d3d9.patch # Nine patch # Not needed now - our Wine is already patched
-	# patch -p1 < ../wine-gaming-nine/steam.patch
-	# patch -p1 < ../wine-gaming-nine/mipmap.patch
-	# patch -p1 < ../wine-gaming-nine/heap_perf.patch
-	# patch -p1 < ../wine-gaming-nine/wbemprox_query_v2.patch
-	# patch -p1 -R < wine-gaming-nine/keybindings.patch
+
+	if WINETYPE == "nine"; then
+		patch -p1 < ${FILESDIR}/${PN}-d3d9.patch # Nine patch for vanilla Wine
+	fi
 	
 	if use staging; then
 		ewarn "You are using staging-patched Wine. Any bug reports to the"
@@ -234,7 +234,10 @@ src_prepare() {
 		ewarn "Gallium Nine is enabled. If you encounter bugs using it,"
 		ewarn "report to IXiT bugtracker on freenode or github."
 	fi
-	autoreconf -f # Just in case...
+
+	if WINETYPE != "vanilla"; then
+		autoreconf -f # Just in case...
+	fi
 	autotools-utils_src_prepare
 
 	# Modification of the server protocol requires regenerating the server requests
@@ -276,7 +279,6 @@ multilib_src_configure() {
 		$(use_with gsm)
 		$(use_with gstreamer)
 		--without-hal \
-		--with-d3dadapter \
 		$(use_with jpeg)
 		$(use_with ldap)
 		$(use_enable mono mscoree)
@@ -303,10 +305,18 @@ multilib_src_configure() {
 		$(use_with xml xslt)
 	)
 
-	use staging && myconf+=(
-		--with-xattr
-		$(use_with vaapi va)
-	)
+	if WINETYPE == "staging" || WINETYPE == "stnine"; then
+		myconf+=(
+			--with-xattr \
+			$(use_with vaapi va)
+		)
+	fi
+
+	if WINETYPE == "stnine" || WINETYPE == "nine"; then
+		myconf+=(
+			--with-d3dadapter \
+		)
+	fi
 
 	local PKG_CONFIG AR RANLIB
 	# Avoid crossdev's i686-pc-linux-gnu-pkg-config if building wine32 on amd64; #472038
