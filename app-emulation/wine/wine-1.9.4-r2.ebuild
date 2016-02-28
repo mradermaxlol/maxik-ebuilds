@@ -22,18 +22,21 @@ inherit autotools-utils eutils fdo-mime flag-o-matic gnome2-utils l10n multilib 
 	fi
 	MY_P="${PN}-${MY_PV}"
 
-	if use staging && use d3d9; then
-		SRC_URI="https://github.com/mradermaxlol/pontostroy-wine/archive/v${PV}.tar.gz" # Staging-and-Nine-patched Wine
-		WINETYPE="stnine"
-	elif !(use staging) && !(use d3d9); then
-		SRC_URI="https://github.com/wine-compholio/wine-staging/archive/v${PV}.tar.gz -> ${P}-staging.tar.gz" # Wine with Staging patchset
+	if (!(use staging) && !(use d3d9)) || (!(use staging) && use d3d9); then
+		if use d3d9; then
+			WINETYPE="nine"
+		else
+			WINETYPE="vanilla"
+		fi
+		SRC_URI="https://dl.winehq.org/wine/source/${MAJOR_V}/${MY_P}.tar.bz2 -> ${WINETYPE}.tar.bz2" # Vanilla Wine with/without Nine
+		
+	elif use staging && !(use d3d9); then
 		WINETYPE="staging"
-	elif !(use staging) && use d3d9; then
-		SRC_URI="https://dl.winehq.org/wine/source/${MAJOR_V}/${MY_P}.tar.bz2 -> ${P}-vanilla.tar.bz2" # Vanilla Wine + Nine
-		WINETYPE="nine"
-	elif !(use staging) && !(use d3d9); then
-		SRC_URI="https://dl.winehq.org/wine/source/${MAJOR_V}/${MY_P}.tar.bz2 -> ${P}-vanilla.tar.bz2" # Vanilla Wine
-		WINETYPE="vanilla"
+		SRC_URI="https://github.com/wine-compholio/wine-staging/archive/v${PV} -> ${WINETYPE}.tar.gz" # Wine with Staging patchset
+		
+	elif use staging && use d3d9; then
+		WINETYPE="stnine"
+		SRC_URI="https://github.com/mradermaxlol/pontostroy-wine/archive/v${PV}.tar.gz -> ${WINETYPE}.tar.gz" # Staging-and-Nine-patched Wine
 	fi
 # We use WINETYPE var to determine what will our Wine look like:
 # Vanilla, Staging, Staging + Nine, Nine
@@ -53,7 +56,7 @@ SRC_URI="${SRC_URI}
 
 LICENSE="LGPL-2.1"
 SLOT="0"
-IUSE="+abi_x86_32 +abi_x86_64 +alsa capi cups custom-cflags dos elibc_glibc +fontconfig +gecko gphoto2 gsm +gstreamer +jpeg +lcms ldap +mono mp3 ncurses netapi nls odbc +openal +opencl +opengl +osmesa oss +perl pcap pipelight +png prelink pulseaudio +realtime +run-exes +s3tc samba scanner selinux +ssl +staging +d3d9 test +threads +truetype +udisks v4l +vaapi +X +xcomposite xinerama +xml" # Staging is default here, like Nine
+IUSE="+abi_x86_32 +abi_x86_64 +alsa capi cups custom-cflags dos elibc_glibc +fontconfig +gecko gphoto2 gsm +gstreamer +jpeg +lcms ldap +mono mp3 ncurses netapi nls odbc +openal +opencl +opengl +osmesa oss +perl pcap pipelight +png prelink pulseaudio +realtime +run-exes +s3tc samba scanner selinux +ssl staging d3d9 test +threads +truetype +udisks v4l +vaapi +X +xcomposite xinerama +xml" # Staging is default here, like Nine
 # Some other things have also been enabled
 REQUIRED_USE="|| ( abi_x86_32 abi_x86_64 )
 	test? ( abi_x86_32 )
@@ -216,11 +219,11 @@ pkg_setup() {
 
 src_unpack() {
 	if [ "$WINETYPE" == "staging" ]; then	
-		unpack "${P}-staging.tar.gz"
+		unpack "staging.tar.gz"
 	elif [ "$WINETYPE" == "stnine" ]; then
-		unpack "pontostroy-${PN}-${PV}.tar.gz"
+		unpack "stnine.tar.gz"
 	elif [ "$WINETYPE" == "vanilla" ] || [ "$WINETYPE" == "nine" ]; then
-		"unpack ${P}-vanilla.tar.bz2"
+		unpack "vanilla.tar.bz2"
 	fi
 	unpack "${WINE_GENTOO}.tar.bz2"
 	l10n_find_plocales_changes "${S}/po" "" ".po"

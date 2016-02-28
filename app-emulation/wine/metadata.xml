@@ -56,7 +56,8 @@ Think of Wine as a compatibility layer for running Windows programs. Wine does n
 		http://wiki.winehq.org/NtlmAuthSetupGuide and
 		http://wiki.winehq.org/NtlmSigningAndSealing</flag>
 		<flag name="staging">Apply Wine-Staging patches for advanced feature support that haven't made it into upstream Wine yet
-			For versions less than wine-1.8, this patchset is unofficial.</flag>
+			For versions less than wine-1.8, this patchset is unofficial</flag>
+		<flag name="d3d9">Use Gallium Nine from iXit</flag>
 	</use>
 	<upstream>
 		<remote-id type="github">wine-compholio/wine-staging</remote-id>
