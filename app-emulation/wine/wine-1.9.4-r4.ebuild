@@ -37,9 +37,13 @@ elif use staging && use d3d9; then
 fi
 
 SRC_URI="
-	https://dl.winehq.org/wine/source/${MAJOR_V}/${MY_P}.tar.bz2 -> vanilla.tar.bz2
-	https://github.com/wine-compholio/wine-staging/archive/v${PV}.tar.gz -> staging.tar.gz
-	https://github.com/mradermaxlol/pontostroy-wine/archive/v${PV}.tar.gz -> stnine.tar.gz" 
+   !staging? (
+      !d3d9? ( https://dl.winehq.org/wine/source/${MAJOR_V}/${MY_P}.tar.bz2 -> vanilla.tar.bz2 )
+       d3d9? ( https://dl.winehq.org/wine/source/${MAJOR_V}/${MY_P}.tar.bz2 -> vanilla.tar.bz2 ) )
+    staging? (
+      !d3d9? ( https://github.com/wine-compholio/wine-staging/archive/v${PV}.tar.gz -> staging.tar.gz )
+       d3d9? ( https://github.com/mradermaxlol/pontostroy-wine/archive/v${PV}.tar.gz -> stnine.tar.gz ) )
+"
 
 GV="2.44" # Gecko version, latest stable
 MV="4.6.0" # Mono version, latest stable
