@@ -34,6 +34,8 @@ RDEPEND="ffmpeg? ( media-video/ffmpeg )
 DEPEND="${RDEPEND}
 	sys-apps/fakeroot"
 
+S="${WORKDIR}/unity-editor-${PV_F}"
+
 src_unpack() {
 	echo "Extracting archive... Please wait."
 	yes | fakeroot sh "${DISTDIR}/${PN}.sh" > /dev/null || die "Failed unpacking archive!"
@@ -41,10 +43,10 @@ src_unpack() {
 	rm "${DISTDIR}/${PN}.sh"
 }
 
-src_install() {
-	ln -s /usr/bin/python2 ${WORKDIR}/unity-editor-${PV_F}/Editor/python # Fix WebGL building
-	sed -i "/^Exec=/c\Exec=/usr/bin/unity-editor" "${WORKDIR}/unity-editor-${PV_F}/unity-editor.desktop"
-	sed -i "/^Exec=/c\Exec=/usr/bin/monodevelop-unity" "${WORKDIR}/unity-editor-${PV_F}/unity-monodevelop.desktop"
+src_prepare() {
+	ln -s /usr/bin/python2 ${S}/Editor/python # Fix WebGL building
+	sed -i "/^Exec=/c\Exec=/usr/bin/unity-editor" "${S}/unity-editor.desktop"
+	sed -i "/^Exec=/c\Exec=/usr/bin/monodevelop-unity" "${S}/unity-monodevelop.desktop"
 }
 
 pkg_postinst () {
