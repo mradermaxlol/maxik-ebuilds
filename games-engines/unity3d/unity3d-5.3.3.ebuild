@@ -36,7 +36,7 @@ DEPEND="${RDEPEND}
 
 src_unpack() {
 	echo "Extracting archive... Please wait."
-	yes | fakeroot sh "unity-editor-installer-${pkgver}.sh" > /dev/null || die
+	yes | fakeroot sh "unity-editor-installer-${PV_F}+${BUILDTAG}.sh" > /dev/null || die
 	echo "Done extracting archive!"
 	rm "unity-editor-installer-${pkgver}.sh"
 }
