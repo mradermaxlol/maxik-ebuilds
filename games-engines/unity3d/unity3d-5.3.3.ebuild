@@ -48,7 +48,7 @@ src_prepare() {
 
 src_install() {
 	mkdir -p "${D}/opt/"
-	# mv "${S}" "${D}/opt/Unity" || die "Installation failed"
+	mv "${S}" "${D}/opt/Unity" || die "Installation failed"
 	ln -s /usr/bin/python2 ${D}/Editor/python # Fix WebGL building
 	install -Dm644 -t "${D}/usr/share/applications" "${D}/unity-editor.desktop" \
 		"${D}/opt/Unity/unity-monodevelop.desktop"
