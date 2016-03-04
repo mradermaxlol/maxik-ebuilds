@@ -31,11 +31,12 @@ RDEPEND="ffmpeg? ( media-video/ffmpeg )
 	dev-libs/libpqxx
 	dev-util/monodevelop
 	net-libs/nodejs[npm]"
-DEPEND="${RDEPEND}"
+DEPEND="${RDEPEND}
+	sys-apps/fakeroot"
 
 src_unpack() {
 	echo "Extracting archive... Please wait."
-	yes | fakeroot sh "unity-editor-installer-${pkgver}.sh" > /dev/null
+	yes | fakeroot sh "unity-editor-installer-${pkgver}.sh" > /dev/null || die
 	echo "Done extracting archive!"
 	rm "unity-editor-installer-${pkgver}.sh"
 }
