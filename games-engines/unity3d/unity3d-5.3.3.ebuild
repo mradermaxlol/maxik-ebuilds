@@ -9,7 +9,7 @@ PV_F=${PV}f1 # Workaround for that ugly f-revision
 IUSE="ffmpeg nodejs java gzip android"
 DESCRIPTION="The world's most popular development platform for creating 2D and 3D multiplatform games and interactive experiences."
 HOMEPAGE="https://unity3d.com/"
-SRC_URI="http://download.unity3d.com/download_unity/linux/unity-editor-installer-${PV_F}+${BUILDTAG}.sh"
+SRC_URI="http://download.unity3d.com/download_unity/linux/unity-editor-installer-${PV_F}+${BUILDTAG}.sh -> unity.sh"
 
 LICENSE="custom"
 SLOT="5"
@@ -36,7 +36,7 @@ DEPEND="${RDEPEND}
 
 src_unpack() {
 	echo "Extracting archive... Please wait."
-	yes | fakeroot sh "unity-editor-installer-${PV_F}+${BUILDTAG}.sh" > /dev/null || die
+	yes | fakeroot sh "unity.sh" > /dev/null || die "Failed unpacking archive!"
 	echo "Done extracting archive!"
 	rm "unity-editor-installer-${pkgver}.sh"
 }
