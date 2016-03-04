@@ -48,17 +48,15 @@ src_prepare() {
 
 src_install() {
 	mkdir -p "${D}/opt/"
-	cp -R "${S}/" "${D}/opt/Unity" || die "Installation failed"
-	ln -s /usr/bin/python2 ${S}/Editor/python # Fix WebGL building
-	# install -Dm644 -t "${D}/usr/share/applications" "${D}/unity-editor.desktop" \
-		# "${D}/opt/Unity/unity-monodevelop.desktop"
-
-	# install -Dm644 -t "${D}/usr/share/icons/hicolor/256x256/apps" "${D}/opt/Unity/unity-editor-icon.png"
-	# install -Dm644 -t "${D}/usr/share/icons/hicolor/48x48/apps" "${D}/unity-monodevelop.png"
-
-	# install -Dm755 -t "${D}/usr/bin" "${D}/unity-editor"
-	# install -Dm755 -t "${D}/usr/bin" "${D}/monodevelop-unity"
-	# install -Dm644 "${D}/EULA" "${D}/usr/share/licenses/${D}/EULA"
+	# mv "${S}" "${D}/opt/Unity" || die "Installation failed"
+	ln -s /usr/bin/python2 ${D}/Editor/python # Fix WebGL building
+	install -Dm644 -t "${D}/usr/share/applications" "${D}/unity-editor.desktop" \
+		"${D}/opt/Unity/unity-monodevelop.desktop"
+	install -Dm644 -t "${D}/usr/share/icons/hicolor/256x256/apps" "${D}/opt/Unity/unity-editor-icon.png"
+	install -Dm644 -t "${D}/usr/share/icons/hicolor/48x48/apps" "${D}/unity-monodevelop.png"
+	install -Dm755 -t "${D}/usr/bin" "${D}/unity-editor"
+	install -Dm755 -t "${D}/usr/bin" "${D}/monodevelop-unity"
+	install -Dm644 "${D}/EULA" "${D}/usr/share/licenses/${D}/EULA"
 }
 
 pkg_preinst() {
