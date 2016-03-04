@@ -42,10 +42,15 @@ src_unpack() {
 }
 
 src_install() {
-	local EXT_DIR="${WORKDIR}/unity-editor-${PV_F}${BUILDTAG}"
-	mv ${EXT_DIR} ${D}/opt/Unity
-	ln -s /usr/bin/python2 ${D}/opt/Unity/Editor/python # Fix WebGL building
-	sed -i "/^Exec=/c\Exec=/usr/bin/unity-editor" "${D}/opt/Unity/unity-editor.desktop"
-	sed -i "/^Exec=/c\Exec=/usr/bin/monodevelop-unity" "${D}/opt/Unity/unity-monodevelop.desktop"
+	ln -s /usr/bin/python2 ${WORKDIR}/unity-editor-${PV_F}/Editor/python # Fix WebGL building
+	sed -i "/^Exec=/c\Exec=/usr/bin/unity-editor" "${WORKDIR}/unity-editor-${PV_F}/unity-editor.desktop"
+	sed -i "/^Exec=/c\Exec=/usr/bin/monodevelop-unity" "${WORKDIR}/unity-editor-${PV_F}/unity-monodevelop.desktop"
+}
+
+pkg_postinst () {
+	gnome2_icon_cache_update
+}
+
+pkg_postrm () {
 	gnome2_icon_cache_update
 }
