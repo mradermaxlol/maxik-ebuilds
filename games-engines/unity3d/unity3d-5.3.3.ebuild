@@ -37,16 +37,32 @@ DEPEND="${RDEPEND}
 S="${WORKDIR}/unity-editor-${PV_F}"
 
 src_unpack() {
-	echo "Extracting archive... Please wait."
 	yes | fakeroot sh "${DISTDIR}/${PN}.sh" > /dev/null || die "Failed unpacking archive!"
-	echo "Done extracting archive!"
 	rm "${DISTDIR}/${PN}.sh"
 }
 
 src_prepare() {
-	ln -s /usr/bin/python2 ${S}/Editor/python # Fix WebGL building
 	sed -i "/^Exec=/c\Exec=/usr/bin/unity-editor" "${S}/unity-editor.desktop"
 	sed -i "/^Exec=/c\Exec=/usr/bin/monodevelop-unity" "${S}/unity-monodevelop.desktop"
+}
+
+src_install() {
+	mkdir -p "${D}/opt/"
+	cp -R "${S}/" "${D}/opt/Unity" || die "Installation failed"
+	ln -s /usr/bin/python2 ${S}/Editor/python # Fix WebGL building
+	# install -Dm644 -t "${D}/usr/share/applications" "${D}/unity-editor.desktop" \
+		# "${D}/opt/Unity/unity-monodevelop.desktop"
+
+	# install -Dm644 -t "${D}/usr/share/icons/hicolor/256x256/apps" "${D}/opt/Unity/unity-editor-icon.png"
+	# install -Dm644 -t "${D}/usr/share/icons/hicolor/48x48/apps" "${D}/unity-monodevelop.png"
+
+	# install -Dm755 -t "${D}/usr/bin" "${D}/unity-editor"
+	# install -Dm755 -t "${D}/usr/bin" "${D}/monodevelop-unity"
+	# install -Dm644 "${D}/EULA" "${D}/usr/share/licenses/${D}/EULA"
+}
+
+pkg_preinst() {
+	gnome2_icon_savelist
 }
 
 pkg_postinst () {
