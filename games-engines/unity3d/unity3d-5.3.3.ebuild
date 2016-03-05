@@ -55,7 +55,7 @@ src_compile() {
 
 src_install() {
 	dodir /opt/Unity
-	cp -R "${S}/*" "${D}/opt/Unity" || die "Installation failed"
+	cp -R "${S}/" "${D}/opt/Unity" || die "Installation failed"
 	# install -Dm644 -t "${D}/usr/share/applications" "${D}/unity-editor.desktop" \
 		# "${D}/opt/Unity/unity-monodevelop.desktop"
 	# install -Dm644 -t "${D}/usr/share/icons/hicolor/256x256/apps" "${D}/opt/Unity/unity-editor-icon.png"
