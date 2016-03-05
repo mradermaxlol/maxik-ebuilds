@@ -46,27 +46,19 @@ src_prepare() {
 	sed -i "/^Exec=/c\Exec=/usr/bin/monodevelop-unity" "${S}/unity-monodevelop.desktop"
 }
 
+src_compile() {
+	true; # Workaround for some portage issues
+}
+
 src_install() {
-	mkdir -p "${D}/opt/"
-	mv "${S}" "${D}/opt/Unity" || die "Installation failed"
+	dodir /opt/Unity
+	mv "${S}" "${D}/" || die "Installation failed"
 	ln -s /usr/bin/python2 ${D}/Editor/python # Fix WebGL building
-	install -Dm644 -t "${D}/usr/share/applications" "${D}/unity-editor.desktop" \
-		"${D}/opt/Unity/unity-monodevelop.desktop"
-	install -Dm644 -t "${D}/usr/share/icons/hicolor/256x256/apps" "${D}/opt/Unity/unity-editor-icon.png"
-	install -Dm644 -t "${D}/usr/share/icons/hicolor/48x48/apps" "${D}/unity-monodevelop.png"
-	install -Dm755 -t "${D}/usr/bin" "${D}/unity-editor"
-	install -Dm755 -t "${D}/usr/bin" "${D}/monodevelop-unity"
-	install -Dm644 "${D}/EULA" "${D}/usr/share/licenses/${D}/EULA"
-}
-
-pkg_preinst() {
-	gnome2_icon_savelist
-}
-
-pkg_postinst () {
-	gnome2_icon_cache_update
-}
-
-pkg_postrm () {
-	gnome2_icon_cache_update
+	# install -Dm644 -t "${D}/usr/share/applications" "${D}/unity-editor.desktop" \
+		# "${D}/opt/Unity/unity-monodevelop.desktop"
+	# install -Dm644 -t "${D}/usr/share/icons/hicolor/256x256/apps" "${D}/opt/Unity/unity-editor-icon.png"
+	# install -Dm644 -t "${D}/usr/share/icons/hicolor/48x48/apps" "${D}/unity-monodevelop.png"
+	# install -Dm755 -t "${D}/usr/bin" "${D}/unity-editor"
+	# install -Dm755 -t "${D}/usr/bin" "${D}/monodevelop-unity"
+	# install -Dm644 "${D}/EULA" "${D}/usr/share/licenses/${D}/EULA"
 }
