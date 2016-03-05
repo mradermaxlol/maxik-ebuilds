@@ -70,8 +70,8 @@ src_install() {
 	# install -Dm644 "${D}/EULA" "${D}/usr/share/licenses/${D}/EULA"
 	insopts "-Dm644 -t"
 	insinto "/usr/share/applications"
-	doins "${EXTRDIR}/Editor/unity-editor.desktop"
-	doins "${EXTRDIR}/Editor/unity-monodevelop.desktop"
+	doins "${EXTRDIR}/unity-editor.desktop"
+	doins "${EXTRDIR}/unity-monodevelop.desktop"
 
 	insinto "/usr/share/icons/hicolor/256x256/apps"
 	doins "${EXTRDIR}/Editor/icon.png"
