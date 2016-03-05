@@ -58,7 +58,7 @@ src_compile() {
 }
 
 src_install() {
-	local EXTRDIR="${S}/unity-editor-${PV_F}${BUILDTAG}"
+	local EXTRDIR="${S}"
 	# mkdir -p "${D}/opt/"
 	# mv ${extraction_dir} ${D}/opt/Unity
 	# install -Dm644 -t "${D}/usr/share/applications" "${D}/unity-editor.desktop" \
@@ -70,11 +70,11 @@ src_install() {
 	# install -Dm644 "${D}/EULA" "${D}/usr/share/licenses/${D}/EULA"
 	insopts "-Dm644 -t"
 	insinto "/usr/share/applications"
-	doins "${EXTRDIR}/Unity/unity-editor.desktop"
-	doins "${EXTRDIR}/Unity/unity-monodevelop.desktop"
+	doins "${EXTRDIR}/Editor/unity-editor.desktop"
+	doins "${EXTRDIR}/Editor/unity-monodevelop.desktop"
 
 	insinto "/usr/share/icons/hicolor/256x256/apps"
-	doins "${EXTRDIR}/unity-editor/icon.png"
+	doins "${EXTRDIR}/Editor/icon.png"
 	insinto "/usr/share/icons/hicolor/48x48/apps"
 	doins "${FILESDIR}/unity-monodevelop.png"
 	
