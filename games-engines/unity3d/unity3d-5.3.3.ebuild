@@ -39,13 +39,17 @@ S="${WORKDIR}/unity-editor-${PV_F}"
 src_unpack() {
 	yes | fakeroot sh "${DISTDIR}/${PN}.sh" > /dev/null || die "Failed unpacking archive!"
 	rm "${DISTDIR}/${PN}.sh"
+	cp "${FILESDIR}/EULA" "${S}/"
+	cp "${FILESDIR}/unity-editor" "${S}/"
+	cp "${FILESDIR}/monodevelop-unity" "${S}/"
+	cp "${FILESDIR}/unity-monodevelop.png" "${S}/"
 }
 
 src_prepare() {
 	sed -i "/^Exec=/c\Exec=/usr/bin/unity-editor" "${S}/unity-editor.desktop"
 	sed -i "/^Exec=/c\Exec=/usr/bin/monodevelop-unity" "${S}/unity-monodevelop.desktop"
 	ln -s /usr/bin/python2 ${S}/Editor/python # Fix WebGL building
-	chown root "${S}/Editor/chrome-sandbox"
+	# chown root "${S}/Editor/chrome-sandbox"
 	chmod 4755 "${S}/Editor/chrome-sandbox"
 }
 
@@ -54,8 +58,9 @@ src_compile() {
 }
 
 src_install() {
-	dodir /opt/Unity
-	cp -R "${S}/" "${D}/opt/Unity" || die "Installation failed"
+	# local extraction_dir="${S}/unity-editor-${PV_F}${BUILDTAG}"
+	# mkdir -p "${D}/opt/"
+	# mv ${extraction_dir} ${D}/opt/Unity
 	# install -Dm644 -t "${D}/usr/share/applications" "${D}/unity-editor.desktop" \
 		# "${D}/opt/Unity/unity-monodevelop.desktop"
 	# install -Dm644 -t "${D}/usr/share/icons/hicolor/256x256/apps" "${D}/opt/Unity/unity-editor-icon.png"
@@ -63,4 +68,7 @@ src_install() {
 	# install -Dm755 -t "${D}/usr/bin" "${D}/unity-editor"
 	# install -Dm755 -t "${D}/usr/bin" "${D}/monodevelop-unity"
 	# install -Dm644 "${D}/EULA" "${D}/usr/share/licenses/${D}/EULA"
+	into /opt
+	dobin ${FILESDIR}/unity-editor
+	dobin ${FILESDIR}/monodevelop-unity
 }
