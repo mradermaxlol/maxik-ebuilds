@@ -44,6 +44,8 @@ src_unpack() {
 src_prepare() {
 	sed -i "/^Exec=/c\Exec=/usr/bin/unity-editor" "${S}/unity-editor.desktop"
 	sed -i "/^Exec=/c\Exec=/usr/bin/monodevelop-unity" "${S}/unity-monodevelop.desktop"
+	chown root "${S}/Unity/chrome-sandbox"
+	chmod 4755 "${S}/Unity/chrome-sandbox"
 }
 
 src_compile() {
@@ -52,7 +54,7 @@ src_compile() {
 
 src_install() {
 	dodir /opt/Unity
-	mv "${S}" "${D}/" || die "Installation failed"
+	mv "${S}" "${D}/opt/Unity" || die "Installation failed"
 	ln -s /usr/bin/python2 ${D}/Editor/python # Fix WebGL building
 	# install -Dm644 -t "${D}/usr/share/applications" "${D}/unity-editor.desktop" \
 		# "${D}/opt/Unity/unity-monodevelop.desktop"
