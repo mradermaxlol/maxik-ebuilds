@@ -60,30 +60,19 @@ src_compile() {
 src_install() {
 	# local EXTRDIR="${S}"
 	# mkdir -p "${D}/opt/"
-	# mv ${extraction_dir} ${D}/opt/Unity
-	# install -Dm644 -t "${D}/usr/share/applications" "${D}/unity-editor.desktop" \
-		# "${D}/opt/Unity/unity-monodevelop.desktop"
-	# install -Dm644 -t "${D}/usr/share/icons/hicolor/256x256/apps" "${D}/opt/Unity/unity-editor-icon.png"
-	# install -Dm644 -t "${D}/usr/share/icons/hicolor/48x48/apps" "${D}/unity-monodevelop.png"
-	# install -Dm755 -t "${D}/usr/bin" "${D}/unity-editor"
-	# install -Dm755 -t "${D}/usr/bin" "${D}/monodevelop-unity"
-	# install -Dm644 "${D}/EULA" "${D}/usr/share/licenses/${D}/EULA"
-	insopts "-Dm644 -t"
-	insinto "/usr/share/applications"
-	doins "${FILESDIR}/unity-editor.desktop"
-	doins "${FILESDIR}/unity-monodevelop.desktop"
+	mv ${S}/ ${D}/opt/Unity
 
-	insinto "/usr/share/icons/hicolor/256x256/apps"
-	doins "${D}/unity-editor-icon.png"
-	insinto "/usr/share/icons/hicolor/48x48/apps"
-	doins "${FILESDIR}/unity-monodevelop.png"
+	insopts "-Dm644 -t"
+	newins "/usr/share/applications" "${FILESDIR}/unity-editor.desktop"
+	newins "/usr/share/applications" "${FILESDIR}/unity-monodevelop.desktop"
+
+	newins "/usr/share/icons/hicolor/256x256/apps" "${D}/unity-editor-icon.png"
+	newins "/usr/share/icons/hicolor/48x48/apps" "${FILESDIR}/unity-monodevelop.png"
 	
 	insopts "-Dm755 -t"
-	into "/usr/bin"
-	dobin "${FILESDIR}/unity-editor"
-	dobin "${FILESDIR}/monodevelop-unity"
+	newbin "/usr/bin" "${FILESDIR}/unity-editor"
+	newbin "/usr/bin" "${FILESDIR}/monodevelop-unity"
 
 	insopts "-Dm644"
-	insinto "/usr/share/licenses/${PN}"
-	doins "${FILESDIR}/EULA"
+	newins "/usr/share/licenses/${PN}" "${FILESDIR}/EULA"
 }
