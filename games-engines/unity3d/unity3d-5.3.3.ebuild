@@ -38,11 +38,10 @@ S="${WORKDIR}/unity-editor-${PV_F}"
 
 src_unpack() {
 	yes | fakeroot sh "${DISTDIR}/${PN}.sh" > /dev/null || die "Failed unpacking archive!"
-	rm "${DISTDIR}/${PN}.sh"
-	cp "${FILESDIR}/EULA" "${S}/"
+	cp "${FILESDIR}/*" "${S}/"
 	# cp "${FILESDIR}/unity-editor" "${S}/"
 	# cp "${FILESDIR}/monodevelop-unity" "${S}/"
-	cp "${FILESDIR}/unity-monodevelop.png" "${S}/"
+	# cp "${FILESDIR}/unity-monodevelop.png" "${S}/"
 }
 
 src_prepare() {
@@ -55,28 +54,28 @@ src_compile() {
 }
 
 src_install() {
-	# sed -i "/^Exec=/c\Exec=/usr/bin/unity-editor" "${S}/unity-editor.desktop"
-	# sed -i "/^Exec=/c\Exec=/usr/bin/monodevelop-unity" "${S}/unity-monodevelop.desktop"
+	sed -i "/^Exec=/c\Exec=/usr/bin/unity-editor" "${S}/unity-editor.desktop"
+	sed -i "/^Exec=/c\Exec=/usr/bin/monodevelop-unity" "${S}/unity-monodevelop.desktop"
 	
 	insinto /opt/Unity
 	doins -r *
 
 	insopts "-Dm644 -t"
 	insinto /usr/share/applications
-	doins "${FILESDIR}/unity-editor.desktop"
-	newins "${FILESDIR}/unity-monodevelop.desktop"
+	doins "${S}/unity-editor.desktop"
+	newins "${S}/unity-monodevelop.desktop"
 
 	insinto /usr/share/icons/hicolor/256x256/apps
 	doins "${S}/unity-editor-icon.png"
 	insinto /usr/share/icons/hicolor/48x48/apps
-	doins "${FILESDIR}/unity-monodevelop.png"
+	doins "${S}/unity-monodevelop.png"
 	
 	insopts "-Dm755 -t"
 	into /usr/bin
-	dobin "/usr/bin" "${FILESDIR}/unity-editor"
-	dobin "/usr/bin" "${FILESDIR}/monodevelop-unity"
+	dobin "/usr/bin" "${S}/unity-editor"
+	dobin "/usr/bin" "${S}/monodevelop-unity"
 
 	insopts "-Dm644"
 	insinto /usr/share/licenses/${PN}
-	doins "${FILESDIR}/EULA"
+	doins "${S}/EULA"
 }
