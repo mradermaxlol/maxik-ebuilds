@@ -53,7 +53,7 @@ src_compile() {
 
 src_install() {
 	insinto /opt/Unity
-	doins -r "${S}/*"
+	doins -r ${S}/*
 
 	insopts "-Dm644"
 	insinto /usr/share/applications
