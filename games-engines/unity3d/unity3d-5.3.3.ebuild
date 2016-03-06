@@ -38,14 +38,10 @@ S="${WORKDIR}/unity-editor-${PV_F}"
 
 src_unpack() {
 	yes | fakeroot sh "${DISTDIR}/${PN}.sh" > /dev/null || die "Failed unpacking archive!"
-	cp "${FILESDIR}/*" "${S}/"
-	# cp "${FILESDIR}/unity-editor" "${S}/"
-	# cp "${FILESDIR}/monodevelop-unity" "${S}/"
-	# cp "${FILESDIR}/unity-monodevelop.png" "${S}/"
 }
 
 src_prepare() {
-	
+	cp -R ${FILESDIR}/* ${S}/
 	ln -s /usr/bin/python2 ${S}/Editor/python # Fix WebGL building
 }
 
