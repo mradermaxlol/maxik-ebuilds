@@ -59,7 +59,7 @@ src_install() {
 	insopts "-Dm644 -t"
 	insinto /usr/share/applications
 	doins "${S}/unity-editor.desktop"
-	newins "${S}/unity-monodevelop.desktop"
+	doins "${S}/unity-monodevelop.desktop"
 
 	insinto /usr/share/icons/hicolor/256x256/apps
 	doins "${S}/unity-editor-icon.png"
