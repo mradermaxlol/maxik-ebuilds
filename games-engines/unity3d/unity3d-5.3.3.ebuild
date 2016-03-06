@@ -41,6 +41,8 @@ src_unpack() {
 }
 
 src_prepare() {
+	sed -i "/^Version=/c\Version=5.3.3f1" "${S}/unity-editor.desktop"
+	sed -i "/^Version=/c\Version=5.3.3f1" "${S}/unity-monodevelop.desktop"
 	cp -R ${FILESDIR}/* ${S}/
 	ln -s /usr/bin/python2 ${S}/Editor/python # Fix WebGL building
 }
@@ -50,11 +52,8 @@ src_compile() {
 }
 
 src_install() {
-	sed -i "/^Exec=/c\Exec=/usr/bin/unity-editor" "${S}/unity-editor.desktop"
-	sed -i "/^Exec=/c\Exec=/usr/bin/monodevelop-unity" "${S}/unity-monodevelop.desktop"
-	
 	insinto /opt/Unity
-	doins -r "${S}"
+	doins -r "${S}/*"
 
 	insopts "-Dm644"
 	insinto /usr/share/applications
@@ -67,9 +66,9 @@ src_install() {
 	doins "${S}/unity-monodevelop.png"
 	
 	insopts "-Dm755"
-	into /usr/bin
-	dobin "${S}/unity-editor"
-	dobin "${S}/monodevelop-unity"
+	insinto /usr/bin
+	doins "${S}/unity-editor"
+	doins "${S}/monodevelop-unity"
 
 	insopts "-Dm644"
 	insinto /usr/share/licenses/${PN}

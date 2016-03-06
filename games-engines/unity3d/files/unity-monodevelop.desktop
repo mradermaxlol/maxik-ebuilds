@@ -1,3 +1,4 @@
+#!/usr/bin/env xdg-open
 [Desktop Entry]
 Version=0.0.0f0
 Name=MonoDevelop
@@ -5,4 +6,4 @@ Exec=/usr/bin/monodevelop-unity
 Icon=unity-monodevelop
 Terminal=false
 Type=Application
-Categories=Utility;Application;
+Categories=Utility
