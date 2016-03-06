@@ -54,19 +54,19 @@ src_install() {
 	sed -i "/^Exec=/c\Exec=/usr/bin/monodevelop-unity" "${S}/unity-monodevelop.desktop"
 	
 	insinto /opt/Unity
-	doins -r *
+	doins -r "${S}"
 
-	insopts "-Dm644 -t"
+	insopts "-Dm644"
 	insinto /usr/share/applications
-	doins "${S}/unity-editor.desktop"
-	doins "${S}/unity-monodevelop.desktop"
+	doins ${S}/unity-editor.desktop
+	doins ${S}/unity-monodevelop.desktop
 
 	insinto /usr/share/icons/hicolor/256x256/apps
 	doins "${S}/unity-editor-icon.png"
 	insinto /usr/share/icons/hicolor/48x48/apps
 	doins "${S}/unity-monodevelop.png"
 	
-	insopts "-Dm755 -t"
+	insopts "-Dm755"
 	into /usr/bin
 	dobin "/usr/bin" "${S}/unity-editor"
 	dobin "/usr/bin" "${S}/monodevelop-unity"
