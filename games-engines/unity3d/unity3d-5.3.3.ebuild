@@ -40,17 +40,14 @@ src_unpack() {
 	yes | fakeroot sh "${DISTDIR}/${PN}.sh" > /dev/null || die "Failed unpacking archive!"
 	rm "${DISTDIR}/${PN}.sh"
 	cp "${FILESDIR}/EULA" "${S}/"
-	cp "${FILESDIR}/unity-editor" "${S}/"
-	cp "${FILESDIR}/monodevelop-unity" "${S}/"
+	# cp "${FILESDIR}/unity-editor" "${S}/"
+	# cp "${FILESDIR}/monodevelop-unity" "${S}/"
 	cp "${FILESDIR}/unity-monodevelop.png" "${S}/"
 }
 
 src_prepare() {
-	sed -i "/^Exec=/c\Exec=/usr/bin/unity-editor" "${S}/unity-editor.desktop"
-	sed -i "/^Exec=/c\Exec=/usr/bin/monodevelop-unity" "${S}/unity-monodevelop.desktop"
+	
 	ln -s /usr/bin/python2 ${S}/Editor/python # Fix WebGL building
-	# chown root "${S}/Editor/chrome-sandbox"
-	chmod 4755 "${S}/Editor/chrome-sandbox"
 }
 
 src_compile() {
@@ -58,21 +55,28 @@ src_compile() {
 }
 
 src_install() {
-	# local EXTRDIR="${S}"
-	# mkdir -p "${D}/opt/"
-	mv ${S}/ ${D}/opt/Unity
+	# sed -i "/^Exec=/c\Exec=/usr/bin/unity-editor" "${S}/unity-editor.desktop"
+	# sed -i "/^Exec=/c\Exec=/usr/bin/monodevelop-unity" "${S}/unity-monodevelop.desktop"
+	
+	insinto /opt/Unity
+	doins -r *
 
 	insopts "-Dm644 -t"
-	newins "/usr/share/applications" "${FILESDIR}/unity-editor.desktop"
-	newins "/usr/share/applications" "${FILESDIR}/unity-monodevelop.desktop"
+	insinto /usr/share/applications
+	doins "${FILESDIR}/unity-editor.desktop"
+	newins "${FILESDIR}/unity-monodevelop.desktop"
 
-	newins "/usr/share/icons/hicolor/256x256/apps" "${D}/unity-editor-icon.png"
-	newins "/usr/share/icons/hicolor/48x48/apps" "${FILESDIR}/unity-monodevelop.png"
+	insinto /usr/share/icons/hicolor/256x256/apps
+	doins "${S}/unity-editor-icon.png"
+	insinto /usr/share/icons/hicolor/48x48/apps
+	doins "${FILESDIR}/unity-monodevelop.png"
 	
 	insopts "-Dm755 -t"
-	newbin "/usr/bin" "${FILESDIR}/unity-editor"
-	newbin "/usr/bin" "${FILESDIR}/monodevelop-unity"
+	into /usr/bin
+	dobin "/usr/bin" "${FILESDIR}/unity-editor"
+	dobin "/usr/bin" "${FILESDIR}/monodevelop-unity"
 
 	insopts "-Dm644"
-	newins "/usr/share/licenses/${PN}" "${FILESDIR}/EULA"
+	insinto /usr/share/licenses/${PN}
+	doins "${FILESDIR}/EULA"
 }
