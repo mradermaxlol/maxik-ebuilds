@@ -35,15 +35,18 @@ DEPEND="${RDEPEND}
 	sys-apps/fakeroot"
 
 S="${WORKDIR}/unity-editor-${PV_F}"
+FILES="${S}/Files"
 
 src_unpack() {
 	yes | fakeroot sh "${DISTDIR}/${PN}.sh" > /dev/null || die "Failed unpacking archive!"
 }
 
 src_prepare() {
-	sed -i "/^Version=/c\Version=5.3.3" "${FILESDIR}/unity-editor.desktop"
-	sed -i "/^Version=/c\Version=5.3.3" "${FILESDIR}/unity-monodevelop.desktop"
 	ln -s /usr/bin/python2 ${S}/Editor/python # Fix WebGL building
+	mkdir -p ${FILES}
+	cp -R ${FILESDIR}/* ${FILES}/
+	sed -i "/^Version=/c\Version=5.3.3" "${FILES}/unity-editor.desktop"
+	sed -i "/^Version=/c\Version=5.3.3" "${FILES}/unity-monodevelop.desktop"
 }
 
 src_compile() {
@@ -58,20 +61,20 @@ src_install() {
 
 	insopts "-Dm644"
 	insinto /usr/share/applications
-	doins "${FILESDIR}/unity-editor.desktop"
-	doins "${FILESDIR}/unity-monodevelop.desktop"
+	doins "${FILES}/unity-editor.desktop"
+	doins "${FILES}/unity-monodevelop.desktop"
 
 	insinto /usr/share/icons/hicolor/256x256/apps
 	doins "${S}/unity-editor-icon.png"
 	insinto /usr/share/icons/hicolor/48x48/apps
-	doins "${FILESDIR}/unity-monodevelop.png"
+	doins "${FILES}/unity-monodevelop.png"
 	
 	insopts "-Dm755"
 	insinto /usr/bin
-	doins "${FILESDIR}/unity-editor"
-	doins "${FILESDIR}/monodevelop-unity"
+	doins "${FILES}/unity-editor"
+	doins "${FILES}/monodevelop-unity"
 
 	insopts "-Dm644"
 	insinto /usr/share/licenses/${PN}
-	doins "${S}/EULA"
+	doins "${FILES}/EULA"
 }
