@@ -47,6 +47,7 @@ src_prepare() {
 	cp -R ${FILESDIR}/* ${FILES}/
 	sed -i "/^Version=/c\Version=5.3.3" "${FILES}/unity-editor.desktop"
 	sed -i "/^Version=/c\Version=5.3.3" "${FILES}/unity-monodevelop.desktop"
+	fperms 4755 ${S}/Editor/chrome-sandbox
 }
 
 src_compile() {
@@ -56,8 +57,6 @@ src_compile() {
 src_install() {
 	insinto /opt/Unity
 	doins -r ${S}/*
-
-	fperms 4755 opt/Unity/Editor/chrome-sandbox
 
 	insopts "-Dm644"
 	insinto /usr/share/applications
