@@ -57,7 +57,7 @@ src_install() {
 	insinto /opt/Unity
 	doins -r ${S}/*
 
-	fperms 4755 ${D}/Editor/chrome-sandbox
+	fperms 4755 ${D}/opt/Unity/Editor/chrome-sandbox
 
 	insopts "-Dm644"
 	insinto /usr/share/applications
