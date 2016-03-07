@@ -47,7 +47,6 @@ src_prepare() {
 	cp -R ${FILESDIR}/* ${FILES}/
 	sed -i "/^Version=/c\Version=5.3.3" "${FILES}/unity-editor.desktop"
 	sed -i "/^Version=/c\Version=5.3.3" "${FILES}/unity-monodevelop.desktop"
-	chmod 4755 "${S}/Editor/chrome-sandbox"
 }
 
 src_compile() {
@@ -76,4 +75,9 @@ src_install() {
 	insopts "-Dm644"
 	insinto /usr/share/licenses/${PN}
 	doins "${FILES}/EULA"
+}
+
+pkg_postinst() {
+	chmod +x /opt/Unity/Editor/Unity /opt/Unity/Editor/UnityHelper
+	chmod 4755 /opt/Unity/Editor/chrome-sandbox
 }
