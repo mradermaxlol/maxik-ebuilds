@@ -4,6 +4,8 @@
 
 EAPI=5
 
+inherit gnome2-utils
+
 BUILDTAG=20160223
 PV_F=${PV}f1 # Workaround for that ugly f-revision
 IUSE="ffmpeg nodejs java gzip android"
@@ -82,8 +84,25 @@ src_install() {
 	doins "${FILES}/EULA"
 }
 
+pkg_preinst() {
+	gnome2_icon_savelist
+}
+
 pkg_postinst() {
+	gnome2_icon_cache_update
+	ewarn "Please note that Unity3D requires closed-source"
+	ewarn "graphics drivers to be used for now, as it makes"
+	ewarn "use of OpenGL Compatibility profile. Please do"
+	ewarn "not try to use the editor with Mesa3D - you will"
+	ewarn "encounter tons of bugs & issues. Hang tight and"
+	ewarn "hope that Unity3D guys will manage to add support"
+	ewarn "for open-source drivers!"
+
 	chmod +x /opt/Unity/Editor/Unity /opt/Unity/Editor/UnityHelper
 	chmod 4755 /opt/Unity/Editor/chrome-sandbox
 	# Fix chrome-sandbox issues
+}
+
+pkg_postrm() {
+	gnome2_icon_cache_update
 }
