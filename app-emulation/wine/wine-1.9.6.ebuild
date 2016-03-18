@@ -229,7 +229,7 @@ src_unpack() {
 	elif [ "$WINETYPE" == "stnine" ]; then
 		unpack "${WINETYPE}-${PV}.tar.gz"
 	elif [ "$WINETYPE" == "vanilla" ] || [ "$WINETYPE" == "nine" ]; then
-		unpack "${WINETYPE}-${PV}.tar.bz2"
+		unpack "vanilla-${PV}.tar.bz2"
 	fi
 	unpack "${WINE_GENTOO}.tar.bz2"
 	l10n_find_plocales_changes "${S}/po" "" ".po"
