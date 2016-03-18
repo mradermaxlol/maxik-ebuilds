@@ -6,7 +6,7 @@ EAPI=5
 
 inherit gnome2-utils
 
-BUILDTAG=20160223
+BUILDTAG=20160317
 PV_F=${PV}f1 # Workaround for that ugly f-revision
 IUSE="ffmpeg nodejs java gzip android"
 DESCRIPTION="The world's most popular development platform for creating 2D and 3D multiplatform games and interactive experiences."
