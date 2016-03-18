@@ -37,13 +37,15 @@ elif use staging && use d3d9; then
 fi
 
 SRC_URI="
-   !staging? (
-      !d3d9? ( https://dl.winehq.org/wine/source/${MAJOR_V}/${MY_P}.tar.bz2 -> vanilla-${PV}.tar.bz2 )
-       d3d9? ( https://dl.winehq.org/wine/source/${MAJOR_V}/${MY_P}.tar.bz2 -> vanilla-${PV}.tar.bz2 ) )
-    staging? (
-      !d3d9? ( https://github.com/wine-compholio/wine-staging/archive/v${PV}.tar.gz -> staging-${PV}.tar.gz )
-       d3d9? ( https://github.com/mradermaxlol/pontostroy-wine/archive/v${PV}.tar.gz -> stnine-${PV}.tar.gz ) )
+	!staging? (
+		!d3d9? ( https://dl.winehq.org/wine/source/${MAJOR_V}/${MY_P}.tar.bz2 -> vanilla-${PV}.tar.bz2 )
+		d3d9? ( https://dl.winehq.org/wine/source/${MAJOR_V}/${MY_P}.tar.bz2 -> vanilla-${PV}.tar.bz2 ) )
 "
+# SRC_URI="
+	# staging? (
+		# !d3d9? ( https://github.com/wine-compholio/wine-staging/archive/v${PV}.tar.gz -> staging-${PV}.tar.gz )
+		# d3d9? ( https://github.com/mradermaxlol/pontostroy-wine/archive/v#${PV}.tar.gz -> stnine-${PV}.tar.gz ) )
+# "
 
 GV="2.44" # Gecko version, latest stable
 MV="4.6.0" # Mono version, latest stable
@@ -60,7 +62,7 @@ SRC_URI="${SRC_URI}
 
 LICENSE="LGPL-2.1"
 SLOT="0"
-IUSE="+abi_x86_32 +abi_x86_64 +alsa capi cups custom-cflags dos elibc_glibc +fontconfig +gecko gphoto2 gsm +gstreamer +jpeg +lcms ldap +mono mp3 ncurses netapi nls odbc +openal +opencl +opengl +osmesa oss +perl pcap pipelight +png prelink pulseaudio +realtime +run-exes +s3tc samba scanner selinux +ssl staging d3d9 test +threads +truetype +udisks v4l +vaapi +X +xcomposite xinerama +xml" # Staging is default here, like Nine
+IUSE="+abi_x86_32 +abi_x86_64 +alsa capi cups custom-cflags dos elibc_glibc +fontconfig +gecko gphoto2 gsm +gstreamer +jpeg +lcms ldap +mono mp3 ncurses netapi nls odbc +openal +opencl +opengl +osmesa oss +perl pcap pipelight +png prelink pulseaudio +realtime +run-exes +s3tc samba scanner selinux staging d3d9 +ssl test +threads +truetype +udisks v4l +vaapi +X +xcomposite xinerama +xml"
 # Some other things have also been enabled
 REQUIRED_USE="|| ( abi_x86_32 abi_x86_64 )
 	test? ( abi_x86_32 )
