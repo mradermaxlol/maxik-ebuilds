@@ -179,7 +179,7 @@ if [ "$WINETYPE" == "stnine" ]; then
 elif [ "$WINETYPE" == "vanilla" ] || [ "$WINETYPE" == "nine" ]; then
 	S="${WORKDIR}/${PN}-${PV}"
 elif [ "$WINETYPE" == "staging" ]; then
-	S="${WORKDIR}/${PN}-staging-${PV}"
+	S="${WORKDIR}/${PN}-patched-staging-${PV}"
 fi
 
 wine_build_environment_check() {
