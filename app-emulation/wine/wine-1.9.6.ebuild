@@ -248,6 +248,9 @@ src_prepare() {
 	if use staging; then
 		ewarn "You are using staging-patched Wine. Any bug reports to the"
 		ewarn "Wine bugzilla should explicitly state that staging was used."
+	fi
+
+	if use d3d9; then
 		ewarn "Gallium Nine is enabled. If you encounter bugs using it,"
 		ewarn "report to IXiT bugtracker on freenode or github."
 	fi
