@@ -37,11 +37,9 @@ elif use staging && use d3d9; then
 fi
 
 SRC_URI="
-	!staging? (
-		!d3d9? ( https://dl.winehq.org/wine/source/${MAJOR_V}/${MY_P}.tar.bz2 -> vanilla-${PV}.tar.bz2 )
-		d3d9? ( https://dl.winehq.org/wine/source/${MAJOR_V}/${MY_P}.tar.bz2 -> vanilla-${PV}.tar.bz2 ) )
+	!staging? ( https://dl.winehq.org/wine/source/${MAJOR_V}/${MY_P}.tar.bz2 -> vanilla-${PV}.tar.bz2 )
 	staging? (
-		!d3d9? ( https://github.com/wine-compholio/wine-staging/archive/v${PV}.tar.gz -> staging-${PV}.tar.gz ) )
+		!d3d9? ( https://github.com/wine-compholio/wine-patched/archive/staging-${PV}.tar.gz ) )
 "
 
 GV="2.44" # Gecko version, latest stable
@@ -72,7 +70,7 @@ REQUIRED_USE="|| ( abi_x86_32 abi_x86_64 )
 
 # FIXME: the test suite is unsuitable for us; many tests require net access
 # or fail due to Xvfb's opengl limitations.
-RESTRICT="d3d9 test"
+RESTRICT="test"
 
 COMMON_DEPEND="
 	truetype? ( >=media-libs/freetype-2.0.0[${MULTILIB_USEDEP}] )
@@ -171,6 +169,10 @@ usr/share/applications/wine-notepad.desktop
 usr/share/applications/wine-uninstaller.desktop
 usr/share/applications/wine-winecfg.desktop"
 
+if use staging && use d3d9; then
+	die "Staging + Nine is not supported on ${PV} now!"
+fi
+
 if [ "$WINETYPE" == "stnine" ]; then
 	# S="${WORKDIR}/pontostroy-wine-${PV}"
 	die "Staging + Nine is not yet supported on ${PV}"
@@ -223,9 +225,9 @@ pkg_setup() {
 
 src_unpack() {
 	if [ "$WINETYPE" == "staging" ]; then	
-		unpack "${WINETYPE}-${PV}.tar.gz"
+		unpack "staging-${PV}.tar.gz"
 	elif [ "$WINETYPE" == "stnine" ]; then
-		unpack "${WINETYPE}-${PV}.tar.gz"
+		unpack "stnine-${PV}.tar.gz"
 	elif [ "$WINETYPE" == "vanilla" ] || [ "$WINETYPE" == "nine" ]; then
 		unpack "vanilla-${PV}.tar.bz2"
 	fi
