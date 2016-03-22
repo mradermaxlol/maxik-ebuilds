@@ -22,7 +22,7 @@ else
 fi
 MY_P="${PN}-${MY_PV}"
 
-if use !staging && (use d3d9 || use !d3d9); then # Determine which version of Wine we want
+if use !staging; then # Determine which version of Wine we want
 	if use d3d9; then
 		WINETYPE="nine" # Vanilla + Nine-patched Wine
 	else
@@ -39,7 +39,8 @@ fi
 SRC_URI="
 	!staging? ( https://dl.winehq.org/wine/source/${MAJOR_V}/${MY_P}.tar.bz2 -> vanilla-${PV}.tar.bz2 )
 	staging? (
-		!d3d9? ( https://github.com/wine-compholio/wine-patched/archive/staging-${PV}.tar.gz ) )
+		!d3d9? ( https://github.com/wine-compholio/wine-patched/archive/staging-${PV}.tar.gz )
+		d3d9? ( https://github.com/mradermaxlol/pontostroy-wine/archive/v${PV}.tar.gz -> stnine-${PV}.tar.gz ) )
 "
 
 GV="2.44" # Gecko version, latest stable
@@ -169,36 +170,21 @@ usr/share/applications/wine-notepad.desktop
 usr/share/applications/wine-uninstaller.desktop
 usr/share/applications/wine-winecfg.desktop"
 
-if use staging && use d3d9; then
-	die "Staging + Nine is not supported on ${PV} now!"
-fi
+# if use staging && use d3d9; then #Useful for updates
+	# die "Staging + Nine is not supported on ${PV} now!"
+# fi
 
 if [ "$WINETYPE" == "stnine" ]; then
-	# S="${WORKDIR}/pontostroy-wine-${PV}"
-	die "Staging + Nine is not yet supported on ${PV}"
+	S="${WORKDIR}/pontostroy-wine-${PV}"
+	# die "Staging + Nine is not yet supported on ${PV}"
 elif [ "$WINETYPE" == "vanilla" ] || [ "$WINETYPE" == "nine" ]; then
 	S="${WORKDIR}/${PN}-${PV}"
 elif [ "$WINETYPE" == "staging" ]; then
 	S="${WORKDIR}/${PN}-patched-staging-${PV}"
 fi
 
-wine_build_environment_check() {
+wine_build_environment_prechecks() {
 	[[ ${MERGE_TYPE} = "binary" ]] && return 0
-
-	# bug #549768
-	if use abi_x86_64 && [[ $(gcc-major-version) = 5 && $(gcc-minor-version) -le 2 ]]; then
-		einfo "Checking for gcc-5 ms_abi compiler bug ..."
-		$(tc-getCC) -O2 "${FILESDIR}"/pr66838.c -o "${T}"/pr66838 || die
-		# Run in subshell to prevent "Aborted" message
-		if ! ( "${T}"/pr66838 || false ) >/dev/null 2>&1; then
-			eerror "64-bit wine cannot be built with gcc-5.1 or initial patchset of 5.2.0"
-			eerror "due to compiler bugs; please re-emerge the latest gcc-5.2.x ebuild,"
-			eerror "or use gcc-config to select a different compiler version."
-			eerror "See https://bugs.gentoo.org/549768"
-			eerror
-			return 1
-		fi
-	fi
 
 	if use abi_x86_64 && [[ $(( $(gcc-major-version) * 100 + $(gcc-minor-version) )) -lt 404 ]]; then
 		eerror "You need gcc-4.4+ to build 64-bit wine"
@@ -214,13 +200,52 @@ wine_build_environment_check() {
 	fi
 }
 
+wine_build_environment_pretests() {
+	[[ ${MERGE_TYPE} = "binary" ]] && return 0
+
+	# bug #549768
+	if use abi_x86_64 && [[ $(gcc-major-version) = 5 && $(gcc-minor-version) -le 2 ]]; then
+		einfo "Checking for gcc-5.1/5.2 MS X86_64 ABI compiler bug ..."
+		$(tc-getCC) -O2 "${FILESDIR}/pr66838.c" -o "${T}/pr66838" || die "compilation failed: pr66838 test"
+		# Run in subshell to prevent "Aborted" message
+		if ! ( "${T}/pr66838" || false )&>/dev/null; then
+			eerror "gcc-5.1/5.2 MS X86_64 ABI compiler bug detected."
+			eerror "64-bit wine cannot be built with affected versions of gcc."
+			eerror "Please re-emerge wine using an unaffected version of gcc or apply"
+			eerror "Upstream (backport) patch to your current version of gcc-5.1/5.2."
+			eerror "See https://bugs.gentoo.org/549768"
+			eerror
+			return 1
+		fi
+	fi
+}
+
+wine_build_environment_setup_tests() {
+	[[ ${MERGE_TYPE} = "binary" ]] && return 0
+
+	# bug #574044
+	if use abi_x86_64 && [[ $(gcc-major-version) = 5 && $(gcc-minor-version) = 3 ]]; then
+		einfo "Checking for gcc-5.3.0 X86_64 misaligned stack compiler bug ..."
+		# Compile in subshell to prevent "Aborted" message
+		if ! ( $(tc-getCC) -O2 -mincoming-stack-boundary=3 "${FILESDIR}"/pr69140.c -o "${T}"/pr69140 || false )&>/dev/null; then
+			eerror "gcc-5.3.0 X86_64 misaligned stack compiler bug detected."
+			CFLAGS_X86_64="-fno-omit-frame-pointer"
+			test-flags-CC "${CFLAGS_X86_64}" &>/dev/null || die "CFLAGS+='${CFLAGS_X86_64}' not supported by selected gcc compiler"
+			ewarn "abi_x86_64.amd64 compilation phase (workaround automatically applied):"
+			ewarn "  CFLAGS+='${CFLAGS_X86_64}'"
+			ewarn "See https://bugs.gentoo.org/574044"
+			ewarn
+		fi
+	fi
+}
+
 pkg_pretend() {
-	wine_build_environment_check || die
+	wine_build_environment_prechecks || die
+	wine_build_environment_pretests || die
 }
 
 pkg_setup() {
-	
-	wine_build_environment_check || die
+	wine_build_environment_setup_tests || die
 }
 
 src_unpack() {
@@ -258,6 +283,9 @@ src_prepare() {
 	if [ "$WINETYPE" != "vanilla" ]; then
 		autoreconf -f # Just in case...
 	fi
+
+	patch -p1 < ${FILESDIR}/${PN}-1.9.5-multilib-portage.patch
+
 	autotools-utils_src_prepare
 
 	# Modification of the server protocol requires regenerating the server requests
@@ -345,6 +373,12 @@ multilib_src_configure() {
 
 	if use amd64; then
 		if [[ ${ABI} == amd64 ]]; then
+			# bug #574044
+			if [[ -n "${CFLAGS_X86_64}" ]]; then
+				append-cflags "${CFLAGS_X86_64}"
+				einfo "CFLAGS='${CFLAGS}'"
+				unset CFLAGS_X86_64
+			fi
 			myconf+=( --enable-win64 )
 		else
 			myconf+=( --disable-win64 )
