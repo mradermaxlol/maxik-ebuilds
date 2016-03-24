@@ -21,7 +21,7 @@ DEPEND="
 	>=dev-lang/vala-0.26
 	>=dev-libs/glib-2.42
 	>=x11-libs/gtk+-3.14
-	>=x11-libs/libnotify-0.76"
+	>=x11-libs/libnotify-0.7.6"
 RDEPEND="${DEPEND}"
 
 S="${WORKDIR}/${PN}-${PV}"
