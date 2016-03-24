@@ -10,7 +10,7 @@ MAJOR_V=$(get_version_component_range 1-2)
 
 DESCRIPTION="Haguichi provides a graphical frontend for Hamachi on Linux."
 HOMEPAGE="https://www.haguichi.net"
-SCR_URI="https://launchpad.net/haguichi/${MAJOR_V}/${PV}/+download/${PN}-${PV}.tar.xz"
+SRC_URI="https://launchpad.net/haguichi/${MAJOR_V}/${PV}/+download/${PN}-${PV}.tar.xz"
 LICENSE="GPL-3+"
 SLOT="1.3"
 KEYWORDS="-* ~amd64 ~x86"
