@@ -47,11 +47,11 @@ src_install() {
 
 pkg_preinst() {
 	gnome2_icon_savelist
+	cd ${S}/build
+	make install || die "'make install' failed!"
 }
 
 pkg_postinst() {
-	cd ${S}/build
-	make install || die "'make install' failed!"
 	gnome2_icon_cache_update
 }
 
