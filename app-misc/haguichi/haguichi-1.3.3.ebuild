@@ -42,13 +42,13 @@ src_compile() {
 }
 
 src_install() {
-	true;
+	cd ${S}/build
+	emake DESTDIR=${D} install || die "'make install' failed!"
+	#FIXME: there are errors
 }
 
 pkg_preinst() {
 	gnome2_icon_savelist
-	cd ${S}/build
-	make install || die "'make install' failed!"
 }
 
 pkg_postinst() {
