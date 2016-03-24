@@ -22,7 +22,8 @@ DEPEND="
 	>=dev-libs/glib-2.42
 	>=x11-libs/gtk+-3.14
 	>=x11-libs/libnotify-0.7.6"
-RDEPEND="${DEPEND}"
+RDEPEND="${DEPEND}
+	net-misc/logmein-hamachi"
 
 S="${WORKDIR}/${PN}-${PV}"
 
@@ -41,8 +42,7 @@ src_compile() {
 }
 
 src_install() {
-	cd ${S}/build
-	emake install || die "'make install' failed!"
+	true;
 }
 
 pkg_preinst() {
@@ -50,6 +50,8 @@ pkg_preinst() {
 }
 
 pkg_postinst() {
+	cd ${S}/build
+	make install || die "'make install' failed!"
 	gnome2_icon_cache_update
 }
 
