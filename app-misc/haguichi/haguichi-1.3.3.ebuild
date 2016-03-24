@@ -13,14 +13,15 @@ HOMEPAGE="https://www.haguichi.net"
 SCR_URI="https://launchpad.net/haguichi/${MAJOR_V}/${PV}/+download/${PN}-${PV}.tar.xz"
 LICENSE="GPL-3+"
 SLOT="1.3"
+KEYWORDS="-* ~amd64 ~x86"
 DEPEND="
 	sys-devel/gettext
-	dev-util/cmake >= 2.6
-	dev-libs/vala-common >= 0.28
-	dev-lang/vala >= 0.26
-	dev-libs/glib >= 2.42
-	x11-libs/gtk+ >= 3.14
-	x11-libs/libnotify  >= 0.76"
+	>= dev-util/cmake-2.6
+	>= dev-libs/vala-common-0.28
+	>= dev-lang/vala-0.26
+	>= dev-libs/glib-2.42
+	>= x11-libs/gtk+-3.14
+	>= x11-libs/libnotify-0.76"
 RDEPEND="${DEPEND}"
 
 S="${WORKDIR}/${PN}-${PV}"
