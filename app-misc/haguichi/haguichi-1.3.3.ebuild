@@ -36,14 +36,12 @@ src_prepare() {
 }
 
 src_compile() {
-	cd ${S}/build
-	cmake .. -DCMAKE_INSTALL_PREFIX=/usr
+	cmake .. -DCMAKE_INSTALL_PREFIX=/usr --build "${S}/build"
 	emake || die "Compilation failed!"
 }
 
 src_install() {
-	cd ${S}/build
-	emake DESTDIR=${D} install || die "'make install' failed!"
+	emake DESTDIR=${D} -C "${S}/build" install || die "'make install' failed!"
 	#FIXME: there are errors
 }
 
