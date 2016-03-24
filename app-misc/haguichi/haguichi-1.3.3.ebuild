@@ -36,8 +36,8 @@ src_prepare() {
 }
 
 src_compile() {
-	cmake .. -DCMAKE_INSTALL_PREFIX=/usr --build "${S}/build"
-	emake || die "Compilation failed!"
+	cmake .. -DCMAKE_INSTALL_PREFIX=/usr --build ${S}/build
+	emake -C "${S}/build" || die "Compilation failed!"
 }
 
 src_install() {
