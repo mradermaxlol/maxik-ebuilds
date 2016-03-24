@@ -42,7 +42,7 @@ src_compile() {
 
 src_install() {
 	cd ${S}/build
-	make DESTDIR=${D} install || die "'make install' failed!"
+	emake install || die "'make install' failed!"
 }
 
 pkg_preinst() {
