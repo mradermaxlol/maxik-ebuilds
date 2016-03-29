@@ -34,7 +34,7 @@ RDEPEND="${DEPEND}
 S="${WORKDIR}/${PN}-${PV}"
 
 src_unpack() {
-	unpack ${PN}-${PV}.tar.gz
+	unpack v${PV}.tar.gz
 }
 
 src_prepare() {
