@@ -36,8 +36,12 @@ src_prepare() {
 }
 
 src_compile() {
-	cmake .. -DCMAKE_INSTALL_PREFIX=/usr > ${S}/build
-	emake -C "${S}/build" || die "Compilation failed!"
+	OLDDIR=pwd
+	# cmake -DCMAKE_INSTALL_PREFIX=/usr > ${S}/build
+	cd build/
+	cmake .. -DCMAKE_INSTALL_PREFIX=/usr
+	emake || die "Compilation failed!"
+	cd ${OLDDIR}
 }
 
 src_install() {
