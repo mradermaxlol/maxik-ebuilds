@@ -38,11 +38,11 @@ src_unpack() {
 }
 
 src_prepare() {
-	./autogen.sh --prefix=/usr
+	true;
 }
 
 src_configure() {
-	true; # We don't wanna launch it
+	econf --prefix=/usr
 }
 
 src_compile() {
