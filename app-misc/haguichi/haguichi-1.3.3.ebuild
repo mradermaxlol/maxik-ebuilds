@@ -39,17 +39,14 @@ src_prepare() {
 }
 
 src_compile() {
-	OLDDIR=pwd
-	# cmake -DCMAKE_INSTALL_PREFIX=/usr > ${S}/build
 	cd build/
 	cmake .. -DCMAKE_INSTALL_PREFIX=/usr
 	emake || die "Compilation failed!"
-	cd ${OLDDIR}
 }
 
 src_install() {
 	emake DESTDIR=${D} -C "${S}/build" install || die "'make install' failed!"
-	#FIXME: there are errors
+	#FIXME: there are errors during installation, gotta fix it
 }
 
 pkg_preinst() {
