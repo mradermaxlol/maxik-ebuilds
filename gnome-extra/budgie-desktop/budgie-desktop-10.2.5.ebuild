@@ -38,11 +38,11 @@ src_unpack() {
 }
 
 src_prepare() {
-	true; # We don't wanna launch it
+	./autogen.sh --prefix=/usr
 }
 
 src_configure() {
-	./autogen.sh --prefix=/usr
+	true; # We don't wanna launch it
 }
 
 src_compile() {
