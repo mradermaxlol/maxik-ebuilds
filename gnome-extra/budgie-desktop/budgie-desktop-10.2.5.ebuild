@@ -8,7 +8,7 @@ inherit gnome2-utils
 
 DESCRIPTION="Flagship desktop of the Solus Project"
 HOMEPAGE="https://github.com/solus-project/budgie-desktop"
-SRC_URI="https://github.com/solus-project/budgie-desktop/archive/v${PV}.tar.gz"
+SRC_URI="https://github.com/solus-project/budgie-desktop/releases/download/v10.2.5/${PN}-${PV}.tar.xz"
 LICENSE="GPL-2"
 SLOT="10.2"
 KEYWORDS="-* ~amd64 ~x86"
@@ -34,10 +34,14 @@ RDEPEND="${DEPEND}
 S="${WORKDIR}/${PN}-${PV}"
 
 src_unpack() {
-	unpack v${PV}.tar.gz
+	unpack ${PN}-${PV}.tar.xz
 }
 
 src_prepare() {
+	true; # We don't wanna launch it
+}
+
+src_configure() {
 	./autogen.sh --prefix=/usr
 }
 
