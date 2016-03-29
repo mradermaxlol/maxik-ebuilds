@@ -33,6 +33,9 @@ src_unpack() {
 
 src_prepare() {
 	mkdir ${S}/build
+	if [ ! -f /usr/bin/valac ]; then
+		die "No symlink to /usr/bin/valac found!"
+	fi
 }
 
 src_compile() {
