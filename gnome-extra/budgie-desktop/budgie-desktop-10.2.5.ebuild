@@ -2,7 +2,7 @@
 # Distributed under the terms of the GNU General Public License v2
 # $Id$
 
-EAPI=5
+EAPI=6
 
 inherit gnome2-utils
 
@@ -38,7 +38,7 @@ src_unpack() {
 }
 
 src_prepare() {
-	true;
+	eapply_user # Add support for user patches
 }
 
 src_configure() {

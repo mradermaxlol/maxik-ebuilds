@@ -26,8 +26,8 @@ if use !staging; then # Determine which version of Wine we want
 	use d3d9 && WINETYPE="nine" # Vanilla + Nine-patched Wine
 	use d3d9 || WINETYPE="vanilla" # Vanilla Wine	
 else
-	use d3d9 || WINETYPE="staging" # Wine with Staging patchset
 	use d3d9 && WINETYPE="stnine" # Staging-and-Nine-patched Wine
+	use d3d9 || WINETYPE="staging" # Wine with Staging patchset
 fi
 
 SRC_URI="
