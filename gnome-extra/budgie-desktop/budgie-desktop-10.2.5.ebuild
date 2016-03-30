@@ -2,13 +2,13 @@
 # Distributed under the terms of the GNU General Public License v2
 # $Id$
 
-EAPI="5"
+EAPI=5
 
 inherit gnome2-utils
 
 DESCRIPTION="Flagship desktop of the Solus Project"
 HOMEPAGE="https://github.com/solus-project/budgie-desktop"
-SRC_URI="https://github.com/solus-project/budgie-desktop/releases/download/v10.2.5/${PN}-${PV}.tar.xz"
+SRC_URI="https://github.com/solus-project/budgie-desktop/releases/download/v${PV}/${PN}-${PV}.tar.xz"
 LICENSE="GPL-2"
 SLOT="10.2"
 KEYWORDS="-* ~amd64 ~x86"

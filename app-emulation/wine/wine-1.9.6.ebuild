@@ -2,7 +2,7 @@
 # Distributed under the terms of the GNU General Public License v2
 # $Id$
 
-EAPI="5"
+EAPI=5
 
 AUTOTOOLS_AUTORECONF=1
 PLOCALES="ar bg ca cs da de el en en_US eo es fa fi fr he hi hr hu it ja ko lt ml nb_NO nl or pa pl pt_BR pt_PT rm ro ru sk sl sr_RS@cyrillic sr_RS@latin sv te th tr uk wa zh_CN zh_TW"
@@ -23,17 +23,11 @@ fi
 MY_P="${PN}-${MY_PV}"
 
 if use !staging; then # Determine which version of Wine we want
-	if use d3d9; then
-		WINETYPE="nine" # Vanilla + Nine-patched Wine
-	else
-		WINETYPE="vanilla" # Vanilla Wine
-	fi
-		
-elif use staging && use !d3d9; then
-	WINETYPE="staging" # Wine with Staging patchset
-		
-elif use staging && use d3d9; then
-	WINETYPE="stnine" # Staging-and-Nine-patched Wine
+	use d3d9 && WINETYPE="nine" # Vanilla + Nine-patched Wine
+	use d3d9 || WINETYPE="vanilla" # Vanilla Wine	
+else
+	use d3d9 || WINETYPE="staging" # Wine with Staging patchset
+	use d3d9 && WINETYPE="stnine" # Staging-and-Nine-patched Wine
 fi
 
 SRC_URI="
@@ -57,7 +51,7 @@ SRC_URI="${SRC_URI}
 	https://dev.gentoo.org/~tetromino/distfiles/${PN}/${WINE_GENTOO}.tar.bz2"
 
 LICENSE="LGPL-2.1"
-SLOT="0"
+SLOT="1.9"
 IUSE="+abi_x86_32 +abi_x86_64 +alsa capi cups custom-cflags dos elibc_glibc +fontconfig +gecko gphoto2 gsm +gstreamer +jpeg +lcms ldap +mono mp3 ncurses netapi nls odbc +openal +opencl +opengl +osmesa oss +perl pcap pipelight +png prelink pulseaudio +realtime +run-exes +s3tc samba scanner selinux staging d3d9 +ssl test +threads +truetype +udisks v4l +vaapi +X +xcomposite xinerama +xml"
 # Some other things have also been enabled
 REQUIRED_USE="|| ( abi_x86_32 abi_x86_64 )
