@@ -2,9 +2,9 @@
 # Distributed under the terms of the GNU General Public License v2
 # $Id$
 
-EAPI="5"
+EAPI=6
 
-inherit gnome2-utils versionator
+inherit cmake-utils gnome2-utils vala versionator
 
 MAJOR_V=$(get_version_component_range 1-2)
 
@@ -18,7 +18,7 @@ DEPEND="
 	sys-devel/gettext
 	>=dev-util/cmake-2.6
 	>=dev-libs/vala-common-0.28
-	>=dev-lang/vala-0.26
+	$(vala_depend)
 	>=dev-libs/glib-2.42
 	>=x11-libs/gtk+-3.14
 	>=x11-libs/libnotify-0.7.6"
@@ -27,26 +27,27 @@ RDEPEND="${DEPEND}
 
 S="${WORKDIR}/${PN}-${PV}"
 
-src_unpack() {
-	unpack ${PN}-${PV}.tar.xz
-}
-
 src_prepare() {
-	mkdir ${S}/build
-	if [ ! -f /usr/bin/valac ]; then
-		die "No symlink to /usr/bin/valac found!"
-	fi
+	vala_src_prepare
+
+	# Find proper valac binary
+	sed -i \
+		-e "/find_program(VALA_EXECUTABLE/s/valac/$(basename ${VALAC})/" \
+		cmake/FindVala.cmake || die
+
+	# Do not update icon cache during installation, it breaks sandbox!
+	sed -i \
+		-e '/install (CODE "execute_process ( COMMAND ${GTK_UPDATE_ICON_CACHE}/d' \
+		data/icons/hicolor/*/CMakeLists.txt || die
+
+	cmake-utils_src_prepare
 }
 
-src_compile() {
-	cd build/
-	cmake .. -DCMAKE_INSTALL_PREFIX=/usr
-	emake || die "Compilation failed!"
-}
-
-src_install() {
-	emake DESTDIR=${D} -C "${S}/build" install || die "'make install' failed!"
-	#FIXME: there are errors during installation, gotta fix it
+src_configure() {
+	local mycmakeargs=(
+		-DGSETTINGS_LOCALINSTALL=OFF
+	)
+	cmake-utils_src_configure
 }
 
 pkg_preinst() {
