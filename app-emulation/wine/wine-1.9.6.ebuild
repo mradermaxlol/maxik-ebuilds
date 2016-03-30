@@ -168,12 +168,12 @@ usr/share/applications/wine-winecfg.desktop"
 	# die "Staging + Nine is not supported on ${PV} now!"
 # fi
 
-if [ "$WINETYPE" == "stnine" ]; then
+if [ $WINETYPE == "stnine" ]; then
 	S="${WORKDIR}/pontostroy-wine-${PV}"
 	# die "Staging + Nine is not yet supported on ${PV}"
-elif [ "$WINETYPE" == "vanilla" ] || [ "$WINETYPE" == "nine" ]; then
+elif [ $WINETYPE == "vanilla" ] || [ $WINETYPE == "nine" ]; then
 	S="${WORKDIR}/${PN}-${PV}"
-elif [ "$WINETYPE" == "staging" ]; then
+elif [ $WINETYPE == "staging" ]; then
 	S="${WORKDIR}/${PN}-patched-staging-${PV}"
 fi
 
@@ -243,25 +243,25 @@ pkg_setup() {
 }
 
 src_unpack() {
-	if [ "$WINETYPE" == "staging" ]; then	
-		unpack "staging-${PV}.tar.gz"
-	elif [ "$WINETYPE" == "stnine" ]; then
-		unpack "stnine-${PV}.tar.gz"
-	elif [ "$WINETYPE" == "vanilla" ] || [ "$WINETYPE" == "nine" ]; then
-		unpack "vanilla-${PV}.tar.bz2"
+	if [ ${WINETYPE} == "staging" ]; then	
+		unpack staging-${PV}.tar.gz
+	elif [ ${WINETYPE} == "stnine" ]; then
+		unpack stnine-${PV}.tar.gz
+	elif [ ${WINETYPE} == "vanilla" ] || [ ${WINETYPE} == "nine" ]; then
+		unpack vanilla-${PV}.tar.bz2
 	fi
-	unpack "${WINE_GENTOO}.tar.bz2"
+	unpack ${WINE_GENTOO}.tar.bz2
 	l10n_find_plocales_changes "${S}/po" "" ".po"
 }
 
 src_prepare() {
 	local md5="$(md5sum server/protocol.def)"
 	if [[ $(gcc-major-version) = 5 && $(gcc-minor-version) -ge 3 ]]; then
-		patch -p1 < ${FILESDIR}/${PN}-gcc5-3-0-fix.patch # Fix for GCC's #69140
+		eapply  "${FILESDIR}/${PN}-gcc5-3-0-fix.patch" # Fix for GCC's #69140
 	fi
 
-	if [ "$WINETYPE" == "nine" ]; then
-		patch -p1 < ${FILESDIR}/${PN}-d3d9.patch # Nine patch for vanilla Wine
+	if [ ${WINETYPE} == "nine" ]; then
+		eapply "${FILESDIR}/${PN}-d3d9.patch" # Nine patch for vanilla Wine
 	fi
 	
 	if use staging; then
@@ -274,13 +274,14 @@ src_prepare() {
 		ewarn "report to IXiT bugtracker on freenode or github."
 	fi
 
-	if [ "$WINETYPE" != "vanilla" ]; then
-		autoreconf -f # Just in case...
-	fi
+	eapply "${FILESDIR}/${PN}-1.9.5-multilib-portage.patch"
 
-	patch -p1 < ${FILESDIR}/${PN}-1.9.5-multilib-portage.patch
+	eapply_user
+
+	sed 's|OpenCL/opencl.h|CL/opencl.h|g' -i configure*
 
 	autotools-utils_src_prepare
+	autoreconf -f # Just in case...
 
 	# Modification of the server protocol requires regenerating the server requests
 	if [[ "$(md5sum server/protocol.def)" != "${md5}" ]]; then
