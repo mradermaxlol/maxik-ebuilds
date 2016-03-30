@@ -2,13 +2,13 @@
 # Distributed under the terms of the GNU General Public License v2
 # $Id$
 
-EAPI=5
+EAPI=6
 
 AUTOTOOLS_AUTORECONF=1
 PLOCALES="ar bg ca cs da de el en en_US eo es fa fi fr he hi hr hu it ja ko lt ml nb_NO nl or pa pl pt_BR pt_PT rm ro ru sk sl sr_RS@cyrillic sr_RS@latin sv te th tr uk wa zh_CN zh_TW"
 PLOCALE_BACKUP="en"
 
-inherit autotools-utils eutils fdo-mime flag-o-matic gnome2-utils l10n multilib multilib-minimal pax-utils toolchain-funcs virtualx versionator
+inherit eutils fdo-mime flag-o-matic gnome2-utils l10n multilib multilib-minimal pax-utils toolchain-funcs virtualx versionator
 
 MAJOR_V=$(get_version_component_range 1-2)
 let "MINOR_V_ODD=$(get_version_component_range 2) % 2"
@@ -21,14 +21,6 @@ else
 	KEYWORDS="-* amd64 x86 x86-fbsd"
 fi
 MY_P="${PN}-${MY_PV}"
-
-if use !staging; then # Determine which version of Wine we want
-	use d3d9 && WINETYPE="nine" # Vanilla + Nine-patched Wine
-	use d3d9 || WINETYPE="vanilla" # Vanilla Wine	
-else
-	use d3d9 && WINETYPE="stnine" # Staging-and-Nine-patched Wine
-	use d3d9 || WINETYPE="staging" # Wine with Staging patchset
-fi
 
 SRC_URI="
 	!staging? ( https://dl.winehq.org/wine/source/${MAJOR_V}/${MY_P}.tar.bz2 -> vanilla-${PV}.tar.bz2 )
@@ -168,15 +160,6 @@ usr/share/applications/wine-winecfg.desktop"
 	# die "Staging + Nine is not supported on ${PV} now!"
 # fi
 
-if [ $WINETYPE == "stnine" ]; then
-	S="${WORKDIR}/pontostroy-wine-${PV}"
-	# die "Staging + Nine is not yet supported on ${PV}"
-elif [ $WINETYPE == "vanilla" ] || [ $WINETYPE == "nine" ]; then
-	S="${WORKDIR}/${PN}-${PV}"
-elif [ $WINETYPE == "staging" ]; then
-	S="${WORKDIR}/${PN}-patched-staging-${PV}"
-fi
-
 wine_build_environment_prechecks() {
 	[[ ${MERGE_TYPE} = "binary" ]] && return 0
 
@@ -240,6 +223,23 @@ pkg_pretend() {
 
 pkg_setup() {
 	wine_build_environment_setup_tests || die
+	if use !staging; then # Determine which version of Wine we want
+		if use d3d9; then
+			WINETYPE="nine" # Vanilla + Nine-patched Wine
+		else
+			WINETYPE="vanilla" # Vanilla Wine
+		fi
+		S="${WORKDIR}/${PN}-${PV}"
+	else
+		if use d3d9; then
+			WINETYPE="stnine" # Staging-and-Nine-patched Wine
+			S="${WORKDIR}/pontostroy-wine-${PV}"
+			# die "Staging + Nine is not yet supported on ${PV}"
+		else
+			WINETYPE="staging" # Wine with Staging patchset
+			S="${WORKDIR}/${PN}-patched-staging-${PV}"
+		fi
+	fi
 }
 
 src_unpack() {
@@ -280,7 +280,6 @@ src_prepare() {
 
 	sed 's|OpenCL/opencl.h|CL/opencl.h|g' -i configure*
 
-	autotools-utils_src_prepare
 	autoreconf -f # Just in case...
 
 	# Modification of the server protocol requires regenerating the server requests
