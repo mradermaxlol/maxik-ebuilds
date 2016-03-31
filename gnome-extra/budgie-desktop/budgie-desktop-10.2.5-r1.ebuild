@@ -33,10 +33,6 @@ RDEPEND="${DEPEND}
 
 S="${WORKDIR}/${PN}-${PV}"
 
-src_unpack() {
-	unpack ${PN}-${PV}.tar.xz
-}
-
 src_prepare() {
 	eapply_user # Add support for user patches
 }
@@ -59,10 +55,6 @@ pkg_preinst() {
 
 pkg_postinst() {
 	gnome2_icon_cache_update
-	ewarn "There were some issues (in the past) if using"
-	ewarn "Budgie with GDM3. Please consider installing"
-	ewarn "LightDM if you run into errors or unexpected"
-	ewarn "behaviour."
 }
 
 pkg_postrm() {

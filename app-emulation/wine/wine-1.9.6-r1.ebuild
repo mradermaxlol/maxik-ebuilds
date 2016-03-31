@@ -224,11 +224,8 @@ pkg_pretend() {
 pkg_setup() {
 	wine_build_environment_setup_tests || die
 	if use !staging; then # Determine which version of Wine we want
-		if use d3d9; then
-			WINETYPE="nine" # Vanilla + Nine-patched Wine
-		else
-			WINETYPE="vanilla" # Vanilla Wine
-		fi
+		use d3d9 && WINETYPE="nine" # Vanilla + Nine-patched Wine
+		use d3d9 || WINETYPE="vanilla" # Vanilla Wine
 		S="${WORKDIR}/${PN}-${PV}"
 	else
 		if use d3d9; then
@@ -243,11 +240,11 @@ pkg_setup() {
 }
 
 src_unpack() {
-	if [ ${WINETYPE} == "staging" ]; then	
+	if ${WINETYPE} == "staging"; then	
 		unpack staging-${PV}.tar.gz
-	elif [ ${WINETYPE} == "stnine" ]; then
+	elif ${WINETYPE} == "stnine"; then
 		unpack stnine-${PV}.tar.gz
-	elif [ ${WINETYPE} == "vanilla" ] || [ ${WINETYPE} == "nine" ]; then
+	elif ${WINETYPE} == "vanilla" || ${WINETYPE} == "nine"; then
 		unpack vanilla-${PV}.tar.bz2
 	fi
 	unpack ${WINE_GENTOO}.tar.bz2
@@ -260,7 +257,7 @@ src_prepare() {
 		eapply  "${FILESDIR}/${PN}-gcc5-3-0-fix.patch" # Fix for GCC's #69140
 	fi
 
-	if [ ${WINETYPE} == "nine" ]; then
+	if ${WINETYPE} == "nine"; then
 		eapply "${FILESDIR}/${PN}-d3d9.patch" # Nine patch for vanilla Wine
 	fi
 	
@@ -271,16 +268,16 @@ src_prepare() {
 
 	if use d3d9; then
 		ewarn "Gallium Nine is enabled. If you encounter bugs using it,"
-		ewarn "report to IXiT bugtracker on freenode or github."
+		ewarn "report to iXit bugtracker on freenode or github."
 	fi
 
 	eapply "${FILESDIR}/${PN}-1.9.5-multilib-portage.patch"
 
-	eapply_user
+	eapply_user # Add user patches support
 
 	sed 's|OpenCL/opencl.h|CL/opencl.h|g' -i configure*
 
-	autoreconf -f # Just in case...
+	autoreconf -f
 
 	# Modification of the server protocol requires regenerating the server requests
 	if [[ "$(md5sum server/protocol.def)" != "${md5}" ]]; then
@@ -347,14 +344,12 @@ multilib_src_configure() {
 		$(use_with xml xslt)
 	)
 
-	if [ "$WINETYPE" == "staging" ] || [ "$WINETYPE" == "stnine" ]; then
+	if ${WINETYPE} == "staging" || ${WINETYPE} == "stnine"; then
 		myconf+=(
 			--with-xattr \
 			$(use_with vaapi va)
 		)
-	fi
-
-	if [ "$WINETYPE" == "stnine" ] || [ "$WINETYPE" == "nine" ]; then
+	elif ${WINETYPE} == "stnine" || ${WINETYPE} == "nine"; then
 		myconf+=(
 			--with-d3dadapter \
 		)
@@ -368,7 +363,7 @@ multilib_src_configure() {
 	if use amd64; then
 		if [[ ${ABI} == amd64 ]]; then
 			# bug #574044
-			if [[ -n "${CFLAGS_X86_64}" ]]; then
+			if [[ -n ${CFLAGS_X86_64} ]]; then
 				append-cflags "${CFLAGS_X86_64}"
 				einfo "CFLAGS='${CFLAGS}'"
 				unset CFLAGS_X86_64
