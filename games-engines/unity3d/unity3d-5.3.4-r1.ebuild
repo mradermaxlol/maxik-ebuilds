@@ -49,6 +49,7 @@ src_prepare() {
 	cp -R ${FILESDIR}/* ${FILES}/
 	sed -i "/^Version=/c\Version=${PV}" "${FILES}/unity-editor.desktop"
 	sed -i "/^Version=/c\Version=${PV}" "${FILES}/unity-monodevelop.desktop"
+	eapply_user # In case someone wants to patch .desktop files, for example
 }
 
 src_compile() {
@@ -100,10 +101,6 @@ pkg_postinst() {
 	ewarn "encounter tons of bugs & issues. Hang tight and"
 	ewarn "hope that Unity3D guys will manage to add support"
 	ewarn "for open-source drivers!"
-
-	chmod +x /opt/Unity/Editor/Unity /opt/Unity/Editor/UnityHelper
-	chmod 4755 /opt/Unity/Editor/chrome-sandbox
-	# Fix chrome-sandbox issues
 }
 
 pkg_postrm() {
