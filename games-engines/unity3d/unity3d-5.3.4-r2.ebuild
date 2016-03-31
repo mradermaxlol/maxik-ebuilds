@@ -52,10 +52,6 @@ src_prepare() {
 	eapply_user # In case someone wants to patch .desktop files, for example
 }
 
-src_compile() {
-	true; # Workaround for some portage issues
-}
-
 src_install() {
 	# Install Unity3D itself
 	insinto /opt/Unity
@@ -84,8 +80,8 @@ src_install() {
 	insinto /usr/share/licenses/${PN}
 	doins "${FILES}/EULA"
 
-	fperms +x ${D}/opt/Unity/Editor/Unity ${D}/opt/Unity/Editor/UnityHelper
-	fperms 4755 ${D}/opt/Unity/Editor/chrome-sandbox
+	fperms +x opt/Unity/Editor/Unity ${D}/opt/Unity/Editor/UnityHelper
+	fperms 4755 opt/Unity/Editor/chrome-sandbox
 }
 
 pkg_preinst() {
