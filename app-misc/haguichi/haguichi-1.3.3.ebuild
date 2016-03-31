@@ -35,17 +35,15 @@ src_prepare() {
 		-e "/find_program(VALA_EXECUTABLE/s/valac/$(basename ${VALAC})/" \
 		cmake/FindVala.cmake || die
 
-	# Do not update icon cache during installation, it breaks sandbox!
-	sed -i \
-		-e '/install (CODE "execute_process ( COMMAND ${GTK_UPDATE_ICON_CACHE}/d' \
-		data/icons/hicolor/*/CMakeLists.txt || die
-
 	cmake-utils_src_prepare
 }
 
 src_configure() {
+	# Do not update icon cache during installation,
+	# do not install gsettings schemas, they break sandbox!
 	local mycmakeargs=(
 		-DGSETTINGS_LOCALINSTALL=OFF
+		-DICON_UPDATE=OFF
 	)
 	cmake-utils_src_configure
 }
