@@ -240,11 +240,11 @@ pkg_setup() {
 }
 
 src_unpack() {
-	if ${WINETYPE} == "staging"; then	
+	if [ ${WINETYPE} == "staging" ]; then	
 		unpack staging-${PV}.tar.gz
-	elif ${WINETYPE} == "stnine"; then
+	elif [ ${WINETYPE} == "stnine" ]; then
 		unpack stnine-${PV}.tar.gz
-	elif ${WINETYPE} == "vanilla" || ${WINETYPE} == "nine"; then
+	elif [ ${WINETYPE} == "vanilla " ] || [ ${WINETYPE} == "nine" ]; then
 		unpack vanilla-${PV}.tar.bz2
 	fi
 	unpack ${WINE_GENTOO}.tar.bz2
@@ -257,7 +257,7 @@ src_prepare() {
 		eapply  "${FILESDIR}/${PN}-gcc5-3-0-fix.patch" # Fix for GCC's #69140
 	fi
 
-	if ${WINETYPE} == "nine"; then
+	if [ ${WINETYPE} == "nine" ]; then
 		eapply "${FILESDIR}/${PN}-d3d9.patch" # Nine patch for vanilla Wine
 	fi
 	
@@ -344,12 +344,12 @@ multilib_src_configure() {
 		$(use_with xml xslt)
 	)
 
-	if ${WINETYPE} == "staging" || ${WINETYPE} == "stnine"; then
+	if [ ${WINETYPE} == "staging" ] || [ ${WINETYPE} == "stnine" ]; then
 		myconf+=(
 			--with-xattr \
 			$(use_with vaapi va)
 		)
-	elif ${WINETYPE} == "stnine" || ${WINETYPE} == "nine"; then
+	elif [ ${WINETYPE} == "stnine" ] || [ ${WINETYPE} == "nine" ]; then
 		myconf+=(
 			--with-d3dadapter \
 		)
