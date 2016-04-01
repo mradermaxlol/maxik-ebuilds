@@ -258,7 +258,7 @@ src_prepare() {
 	fi
 
 	if [ ${WINETYPE} == "nine" ]; then
-		eapply "${FILESDIR}/${PN}-d3d9.patch" # Nine patch for vanilla Wine
+		eapply "${FILESDIR}/${PN}-d3d9-${PV}.patch" # Nine patch for vanilla Wine
 	fi
 	
 	if use staging; then
