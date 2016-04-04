@@ -44,7 +44,7 @@ SRC_URI="${SRC_URI}
 
 LICENSE="LGPL-2.1"
 SLOT="1.9"
-IUSE="+abi_x86_32 +abi_x86_64 +alsa capi cups custom-cflags dos elibc_glibc +fontconfig +gecko gphoto2 gsm +gstreamer +jpeg +lcms ldap +mono mp3 ncurses netapi nls odbc +openal +opencl +opengl +osmesa oss +perl pcap pipelight +png prelink pulseaudio +realtime +run-exes +s3tc samba scanner selinux staging d3d9 +ssl test +threads +truetype +udisks v4l +vaapi +X +xcomposite xinerama +xml"
+IUSE="+abi_x86_32 +abi_x86_64 +alsa capi cups custom-cflags dos elibc_glibc +fontconfig +gecko gphoto2 gsm +gstreamer +jpeg +lcms ldap +mono mp3 ncurses netapi nls odbc +openal +opencl +opengl +osmesa oss +perl pcap pipelight +png prelink pulseaudio +realtime +run-exes +s3tc samba scanner selinux -staging d3d9 +ssl test +threads +truetype +udisks v4l +vaapi +X +xcomposite xinerama +xml"
 # Some other things have also been enabled
 REQUIRED_USE="|| ( abi_x86_32 abi_x86_64 )
 	test? ( abi_x86_32 )
@@ -156,10 +156,6 @@ usr/share/applications/wine-notepad.desktop
 usr/share/applications/wine-uninstaller.desktop
 usr/share/applications/wine-winecfg.desktop"
 
-# if use staging && use d3d9; then #Useful for updates
-	# die "Staging + Nine is not supported on ${PV} now!"
-# fi
-
 wine_build_environment_prechecks() {
 	[[ ${MERGE_TYPE} = "binary" ]] && return 0
 
@@ -231,7 +227,6 @@ pkg_setup() {
 		if use d3d9; then
 			WINETYPE="stnine" # Staging-and-Nine-patched Wine
 			S="${WORKDIR}/pontostroy-wine-${PV}"
-			# die "Staging + Nine is not yet supported on ${PV}"
 		else
 			WINETYPE="staging" # Wine with Staging patchset
 			S="${WORKDIR}/${PN}-patched-staging-${PV}"
