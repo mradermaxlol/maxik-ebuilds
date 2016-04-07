@@ -216,29 +216,27 @@ pkg_pretend() {
 
 pkg_setup() {
 	wine_build_environment_setup_tests || die
-	if use !staging; then # Determine which version of Wine we want
-		use d3d9 && WINETYPE="nine" # Vanilla + Nine-patched Wine
-		use d3d9 || WINETYPE="vanilla" # Vanilla Wine
-		S="${WORKDIR}/${PN}-${PV}"
-	else
-		if use d3d9; then
-			WINETYPE="stnine" # Staging-and-Nine-patched Wine
-			S="${WORKDIR}/pontostroy-wine-${PV}"
-		else
-			WINETYPE="staging" # Wine with Staging patchset
-			S="${WORKDIR}/${PN}-patched-staging-${PV}"
-		fi
-	fi
+	
 }
 
 src_unpack() {
-	if [ ${WINETYPE} == "staging" ]; then	
-		unpack "${PN}-staging-${PV}.tar.gz"
-	elif [ ${WINETYPE} == "stnine" ]; then
-		unpack "${PN}-stnine-${PV}.tar.gz"
-	elif [ ${WINETYPE} == "vanilla " ] || [ ${WINETYPE} == "nine" ]; then
-		unpack "${PN}-vanilla-${PV}.tar.bz2"
+	if ! use staging; then # Vanilla-based
+			use d3d9 && WINETYPE="nine" # Vanilla + Nine-patched Wine
+			use d3d9 || WINETYPE="vanilla" # Vanilla Wine
+			unpack "${PN}-vanilla-${PV}.tar.bz2"
+			S="${WORKDIR}/${PN}-${PV}"
+	else # Staging
+		if use d3d9; then
+			WINETYPE="stnine" # Staging-and-Nine-patched Wine
+			unpack "${PN}-stnine-${PV}.tar.gz"
+			S="${WORKDIR}/pontostroy-wine-${PV}"
+		else
+			WINETYPE="staging" # Wine with Staging patchset
+			unpack "${PN}-staging-${PV}.tar.gz"
+			S="${WORKDIR}/${PN}-patched-staging-${PV}"
+		fi
 	fi
+
 	unpack "${WINE_GENTOO}.tar.bz2"
 	l10n_find_plocales_changes "${S}/po" "" ".po"
 }
