@@ -35,7 +35,7 @@ SRC_URI="
 		abi_x86_64? ( https://dl.winehq.org/wine/wine-gecko/${GV}/wine_gecko-${GV}-x86_64.msi )
 	)
 	mono? ( https://dl.winehq.org/wine/wine-mono/${MV}/wine-mono-${MV}.msi )
-	https://dev.gentoo.org/~tetromino/distfiles/${PN}/${WINE_GENTOO}.tar.bz2
+	https://dev.gentoo.org/~tetromino/distfiles/wine/${WINE_GENTOO}.tar.bz2
 "
 WINE_GENTOO="wine-gentoo-2015.03.07"
 DESCRIPTION="Free implementation of Windows(tm) on Unix"
@@ -240,7 +240,7 @@ src_unpack() {
 	elif [ ${WINETYPE} == "vanilla " ] || [ ${WINETYPE} == "nine" ]; then
 		unpack "${PN}-vanilla-${PV}.tar.bz2"
 	fi
-	unpack ${WINE_GENTOO}.tar.bz2
+	unpack "${WINE_GENTOO}.tar.bz2"
 	l10n_find_plocales_changes "${S}/po" "" ".po"
 }
 
