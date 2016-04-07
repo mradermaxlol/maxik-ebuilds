@@ -21,27 +21,25 @@ else
 	KEYWORDS="-* amd64 x86 x86-fbsd"
 fi
 MY_P="${PN}-${MY_PV}"
+GV="2.44" # Gecko version, latest stable
+MV="4.6.2" # Mono version, latest stable
 
 SRC_URI="
-	!staging? ( https://dl.winehq.org/wine/source/${MAJOR_V}/${MY_P}.tar.bz2 -> vanilla-${PV}.tar.bz2 )
+	!staging? ( https://dl.winehq.org/wine/source/${MAJOR_V}/${MY_P}.tar.bz2 -> ${PN}-vanilla-${PV}.tar.bz2 )
 	staging? (
-		!d3d9? ( https://github.com/wine-compholio/wine-patched/archive/staging-${PV}.tar.gz )
-		d3d9? ( https://github.com/mradermaxlol/pontostroy-wine/archive/v${PV}.tar.gz -> stnine-${PV}.tar.gz ) )
-"
+		!d3d9? ( https://github.com/wine-compholio/wine-patched/archive/staging-${PV}.tar.gz -> ${PN}-staging-${PV}.tar.gz )
+		d3d9? ( https://github.com/mradermaxlol/pontostroy-wine/archive/v${PV}.tar.gz -> ${PN}-stnine-${PV}.tar.gz ) )
 
-GV="2.44" # Gecko version, latest stable
-MV="4.6.0" # Mono version, latest stable
-WINE_GENTOO="wine-gentoo-2015.03.07"
-DESCRIPTION="Free implementation of Windows(tm) on Unix"
-HOMEPAGE="http://www.winehq.org/"
-SRC_URI="${SRC_URI}
 	gecko? (
 		abi_x86_32? ( https://dl.winehq.org/wine/wine-gecko/${GV}/wine_gecko-${GV}-x86.msi )
 		abi_x86_64? ( https://dl.winehq.org/wine/wine-gecko/${GV}/wine_gecko-${GV}-x86_64.msi )
 	)
 	mono? ( https://dl.winehq.org/wine/wine-mono/${MV}/wine-mono-${MV}.msi )
-	https://dev.gentoo.org/~tetromino/distfiles/${PN}/${WINE_GENTOO}.tar.bz2"
-
+	https://dev.gentoo.org/~tetromino/distfiles/${PN}/${WINE_GENTOO}.tar.bz2
+"
+WINE_GENTOO="wine-gentoo-2015.03.07"
+DESCRIPTION="Free implementation of Windows(tm) on Unix"
+HOMEPAGE="http://www.winehq.org/"
 LICENSE="LGPL-2.1"
 SLOT="1.9"
 IUSE="+abi_x86_32 +abi_x86_64 +alsa capi cups custom-cflags dos elibc_glibc +fontconfig +gecko gphoto2 gsm +gstreamer +jpeg +lcms ldap +mono mp3 ncurses netapi nls odbc +openal +opencl +opengl +osmesa oss +perl pcap pipelight +png prelink pulseaudio +realtime +run-exes +s3tc samba scanner selinux staging d3d9 +ssl test +threads +truetype +udisks v4l +vaapi +X +xcomposite xinerama +xml"
@@ -236,11 +234,11 @@ pkg_setup() {
 
 src_unpack() {
 	if [ ${WINETYPE} == "staging" ]; then	
-		unpack staging-${PV}.tar.gz
+		unpack "${PN}-staging-${PV}.tar.gz"
 	elif [ ${WINETYPE} == "stnine" ]; then
-		unpack stnine-${PV}.tar.gz
+		unpack "${PN}-stnine-${PV}.tar.gz"
 	elif [ ${WINETYPE} == "vanilla " ] || [ ${WINETYPE} == "nine" ]; then
-		unpack vanilla-${PV}.tar.bz2
+		unpack "${PN}-vanilla-${PV}.tar.bz2"
 	fi
 	unpack ${WINE_GENTOO}.tar.bz2
 	l10n_find_plocales_changes "${S}/po" "" ".po"
