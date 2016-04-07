@@ -23,6 +23,7 @@ fi
 MY_P="${PN}-${MY_PV}"
 GV="2.44" # Gecko version, latest stable
 MV="4.6.2" # Mono version, latest stable
+WINE_GENTOO="wine-gentoo-2015.03.07" # Some distfiles that are *needed*
 
 SRC_URI="
 	!staging? ( https://dl.winehq.org/wine/source/${MAJOR_V}/${MY_P}.tar.bz2 -> ${PN}-vanilla-${PV}.tar.bz2 )
@@ -36,7 +37,6 @@ SRC_URI="${SRC_URI}
 		abi_x86_64? ( https://dl.winehq.org/wine/wine-gecko/${GV}/wine_gecko-${GV}-x86_64.msi ) )
 	mono? ( https://dl.winehq.org/wine/wine-mono/${MV}/wine-mono-${MV}.msi )
 	https://dev.gentoo.org/~tetromino/distfiles/${PN}/${WINE_GENTOO}.tar.bz2"
-WINE_GENTOO="wine-gentoo-2015.03.07"
 DESCRIPTION="Free implementation of Windows(tm) on Unix"
 HOMEPAGE="http://www.winehq.org/"
 LICENSE="LGPL-2.1"
