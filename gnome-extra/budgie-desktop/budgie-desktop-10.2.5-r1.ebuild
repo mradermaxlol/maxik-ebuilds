@@ -6,7 +6,7 @@ EAPI=6
 
 inherit gnome2-utils
 
-DESCRIPTION="Flagship desktop of the Solus Project"
+DESCRIPTION="Flagship desktop of the Solus Project."
 HOMEPAGE="https://github.com/solus-project/budgie-desktop"
 SRC_URI="https://github.com/solus-project/budgie-desktop/releases/download/v${PV}/${PN}-${PV}.tar.xz"
 LICENSE="GPL-2"
