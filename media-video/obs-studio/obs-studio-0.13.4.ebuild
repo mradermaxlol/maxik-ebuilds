@@ -2,7 +2,7 @@
 # Distributed under the terms of the GNU General Public License v2
 # $Id$
 
-# Most some parts of the ebuild taken from https://github.com/saintdev/obs-studio-overlay
+# Most of the ebuild taken from https://github.com/saintdev/obs-studio-overlay
 # Thanks!
 
 EAPI=6
