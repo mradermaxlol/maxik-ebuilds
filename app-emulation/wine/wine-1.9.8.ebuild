@@ -25,16 +25,12 @@ GV="2.44" # Gecko version, latest stable
 MV="4.6.2" # Mono version, latest stable
 WINE_GENTOO="wine-gentoo-2015.03.07" # Some distfiles that are *needed*
 
-SRC_URI="
-	!staging? ( https://dl.winehq.org/wine/source/${MAJOR_V}/${MY_P}.tar.bz2 -> ${PN}-vanilla-${PV}.tar.bz2 )
-	staging? (
-		!d3d9? ( https://github.com/wine-compholio/wine-patched/archive/staging-${PV}.tar.gz -> ${PN}-staging-${PV}.tar.gz )
-		d3d9? ( https://github.com/mradermaxlol/pontostroy-wine/archive/v${PV}.tar.gz -> ${PN}-stnine-${PV}.tar.gz ) )"
+SRC_URI="https://dl.winehq.org/wine/source/${MAJOR_V}/${MY_P}.tar.bz2 -> ${PN}-vanilla-${PV}.tar.bz2"
 
 SRC_URI="${SRC_URI}
 	gecko? (
-		abi_x86_32? ( https://dl.winehq.org/wine/wine-gecko/${GV}/${PN}_gecko-${GV}-x86.msi )
-		abi_x86_64? ( https://dl.winehq.org/wine/wine-gecko/${GV}/${PN}_gecko-${GV}-x86_64.msi ) )
+		abi_x86_32? ( https://dl.winehq.org/wine/wine-gecko/${GV}/wine_gecko-${GV}-x86.msi )
+		abi_x86_64? ( https://dl.winehq.org/wine/wine-gecko/${GV}/wine_gecko-${GV}-x86_64.msi ) )
 	mono? ( https://dl.winehq.org/wine/wine-mono/${MV}/${PN}-mono-${MV}.msi )
 	https://dev.gentoo.org/~tetromino/distfiles/${PN}/${WINE_GENTOO}.tar.bz2"
 DESCRIPTION="Free implementation of Windows(tm) on Unix"
@@ -54,7 +50,7 @@ REQUIRED_USE="|| ( abi_x86_32 abi_x86_64 )
 
 # FIXME: the test suite is unsuitable for us; many tests require net access
 # or fail due to Xvfb's opengl limitations.
-RESTRICT="test"
+RESTRICT="test staging"
 
 COMMON_DEPEND="
 	truetype? ( >=media-libs/freetype-2.0.0[${MULTILIB_USEDEP}] )
@@ -453,4 +449,3 @@ pkg_postrm() {
 	gnome2_icon_cache_update
 	fdo-mime_desktop_database_update
 }
-
