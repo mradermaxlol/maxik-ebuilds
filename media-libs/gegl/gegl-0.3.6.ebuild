@@ -16,7 +16,7 @@ DESCRIPTION="GEGL (Generic Graphics Library) is a graph based image processing f
 HOMEPAGE="http://gegl.org"
 SRC_URI="http://download.gimp.org/pub/${PN}/${PV:0:3}/${P}.tar.bz2"
 LICENSE="|| ( GPL-3 LGPL-3 )"
-SLOT="0"
+SLOT="0.3"
 IUSE="cairo cpu_flags_x86_mmx cpu_flags_x86_sse debug ffmpeg +introspection jpeg jpeg2k lcms lensfun openexr png raw sdl svg test tiff umfpack vala v4l webp"
 REQUIRED_IUSE="
 	svg? ( cairo )
