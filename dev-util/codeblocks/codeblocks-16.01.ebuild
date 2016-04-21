@@ -25,6 +25,8 @@ DEPEND="
 	)"
 RDEPEND="${DEPEND}"
 
+S="${WORKDIR}/${PN}-${PV}.release"
+
 src_configure() {
 	econf \
 		--with-wx-config="${WX_CONFIG}" \
