@@ -3,7 +3,6 @@
 # $Id$
 
 EAPI=6
-WX_GTK_VER="2.8"
 
 inherit eutils wxwidgets
 
@@ -12,7 +11,7 @@ HOMEPAGE="http://www.codeblocks.org"
 SRC_URI="mirror://sourceforge/codeblocks/${PN}_${PV}.tar.gz -> ${PN}-${PV}.tar.gz"
 LICENSE="GPL-3"
 SLOT="0"
-IUSE="contrib debug pch static-libs"
+IUSE="contrib debug pch static-libs fresh-wxgtk fresh-wxgtk3"
 KEYWORDS="~amd64 ~arm ~ppc ~x86 ~x86-fbsd"
 DEPEND="
 	virtual/pkgconfig
@@ -26,6 +25,11 @@ DEPEND="
 RDEPEND="${DEPEND}"
 
 S="${WORKDIR}/${PN}-${PV}.release"
+
+pkg_prepare() {
+	use fresh-wxgtk && WX_GTK_VER="3.0" || WX_GTK_VER="2.8"
+	use fresh-wxgtk3 && WX_GTK_VER="3.0-gtk3" || WX_GTK_VER="2.8"
+}
 
 src_configure() {
 	econf \
