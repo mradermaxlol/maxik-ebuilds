@@ -21,14 +21,21 @@ DEPEND="
 		app-text/hunspell
 		dev-libs/boost:=
 		dev-libs/libgamin
-	)"
+	)
+	fresh-wxgtk? ( x11-libs/wxGTK:3.0[X] )
+	fresh-wxgtk3? ( x11-libs/wxGTK:3.0-gtk3[X] )"
 RDEPEND="${DEPEND}"
 
 S="${WORKDIR}/${PN}-${PV}.release"
 
 pkg_prepare() {
-	use fresh-wxgtk && WX_GTK_VER="3.0" || WX_GTK_VER="2.8"
-	use fresh-wxgtk3 && WX_GTK_VER="3.0-gtk3" || WX_GTK_VER="2.8"
+	if use fresh-wxgtk; then
+		WX_GTK_VER="3.0"
+	elif use fresh-wxgtk3; then
+		WX_GTK_VER="3.0-gtk3"
+	else
+		WX_GTK_VER="2.8"
+	fi
 }
 
 src_configure() {
