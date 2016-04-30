@@ -36,6 +36,7 @@ pkg_prepare() {
 	else
 		WX_GTK_VER="2.8"
 	fi
+	# wxGTK3 is actually unsupported by upstream right now, but this stuff will make us ready for a transition
 }
 
 src_configure() {
