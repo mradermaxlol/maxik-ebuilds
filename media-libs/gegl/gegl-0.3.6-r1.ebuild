@@ -58,8 +58,6 @@ DEPEND="
 	vala? ( $(vala_depend) )"
 RDEPEND="${DEPEND}"
 
-RESTRICT="test" # Because it may either fail or be incompatible
-
 pkg_setup() {
 	use test && use introspection && python-any-r1_pkg_setup
 }
