@@ -25,11 +25,12 @@ GV="2.44" # Gecko version, latest stable
 MV="4.6.2" # Mono version, latest stable
 WINE_GENTOO="wine-gentoo-2015.03.07" # Some distfiles that are *needed*
 
-SRC_URI="
-	!staging? ( https://dl.winehq.org/wine/source/${MAJOR_V}/${MY_P}.tar.bz2 -> ${PN}-vanilla-${PV}.tar.bz2 )
+SRC_URI="!staging? (
+		!d3d9? ( https://dl.winehq.org/wine/source/${MAJOR_V}/${MY_P}.tar.bz2 -> ${PN}-vanilla-${PV}.tar.bz2 )
+		d3d9? ( https://github.com/mradermaxlol/wine-patched-nine/archive/vanilla-nine-v${PV}.tar.gz -> ${PN}-nine-${PV}.tar.gz ) )
 	staging? (
 		!d3d9? ( https://github.com/wine-compholio/wine-patched/archive/staging-${PV}.tar.gz -> ${PN}-staging-${PV}.tar.gz )
-		d3d9? ( https://github.com/mradermaxlol/pontostroy-wine/archive/v${PV}.tar.gz -> ${PN}-stnine-${PV}.tar.gz ) )"
+		d3d9? ( https://github.com/mradermaxlol/wine-patched-nine/archive/staging-nine-v${PV}.tar.gz -> ${PN}-stnine-${PV}.tar.gz ) )"
 
 SRC_URI="${SRC_URI}
 	gecko? (
@@ -54,7 +55,7 @@ REQUIRED_USE="|| ( abi_x86_32 abi_x86_64 )
 
 # FIXME: the test suite is unsuitable for us; many tests require net access
 # or fail due to Xvfb's opengl limitations.
-RESTRICT="test"
+RESTRICT="test staging"
 
 COMMON_DEPEND="
 	truetype? ( >=media-libs/freetype-2.0.0[${MULTILIB_USEDEP}] )
@@ -222,13 +223,18 @@ pkg_setup() {
 src_unpack() {
 	if ! use staging; then # Vanilla-based
 			use d3d9 && WINETYPE="nine" || WINETYPE="vanilla"
-			unpack "${PN}-vanilla-${PV}.tar.bz2"
-			S="${WORKDIR}/${PN}-${PV}"
+			if ${WINETYPE} == "vanilla"; then
+				unpack "${PN}-vanilla-${PV}.tar.bz2"
+				S="${WORKDIR}/${PN}-${PV}"
+			else
+				unpack "${PN}-nine-${PV}.tar.gz"
+				S="${WORKDIR}/${PN}-patched-nine-vanilla-nine-v${PV}"
+			fi
 	else # Staging
 		if use d3d9; then
 			WINETYPE="stnine" # Staging-and-Nine-patched Wine
 			unpack "${PN}-stnine-${PV}.tar.gz"
-			S="${WORKDIR}/pontostroy-wine-${PV}"
+			S="${WORKDIR}/${PN}-patched-nine-staging-nine-v${PV}"
 		else
 			WINETYPE="staging" # Wine with Staging patchset
 			unpack "${PN}-staging-${PV}.tar.gz"
@@ -244,10 +250,6 @@ src_prepare() {
 	local md5="$(md5sum server/protocol.def)"
 	if [[ $(gcc-major-version) = 5 && $(gcc-minor-version) -ge 3 ]]; then
 		eapply  "${FILESDIR}/${PN}-gcc5-3-0-fix.patch" # Fix for GCC's #69140
-	fi
-
-	if [ ${WINETYPE} == "nine" ]; then
-		eapply "${FILESDIR}/${PN}-d3d9-${PV}.patch" # Nine patch for vanilla Wine
 	fi
 	
 	if use staging; then
