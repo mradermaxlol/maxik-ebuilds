@@ -4,3 +4,5 @@ Gentoo ebuilds for various software (maybe with minor additions). Right now the 
 * The very latest Budgie DE
 * Haguichi
 * Sway WM
+* OBS Studio
+* Fresh pf-kernel
