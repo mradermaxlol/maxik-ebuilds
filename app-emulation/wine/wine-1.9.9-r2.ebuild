@@ -260,7 +260,6 @@ src_prepare() {
 
 	eapply "${FILESDIR}/${PN}-1.9.5-multilib-portage.patch" # Bug #395615
 	eapply "${FILESDIR}/steam.patch" # Hack from CrossOver to fix SteamWebHelper
-	eapply "${FILESDIR}/sysmacros.patch" # Bug #580046
 
 	eapply_user # Add user patches support
 
