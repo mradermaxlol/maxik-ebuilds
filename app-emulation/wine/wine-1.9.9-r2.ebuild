@@ -55,7 +55,7 @@ REQUIRED_USE="|| ( abi_x86_32 abi_x86_64 )
 
 # FIXME: the test suite is unsuitable for us; many tests require net access
 # or fail due to Xvfb's opengl limitations.
-RESTRICT="test staging"
+RESTRICT="test mirror"
 
 COMMON_DEPEND="
 	truetype? ( >=media-libs/freetype-2.0.0[${MULTILIB_USEDEP}] )
@@ -127,7 +127,7 @@ RDEPEND="${COMMON_DEPEND}
 	dos? ( games-emulation/dosbox )
 	perl? ( dev-lang/perl dev-perl/XML-Simple )
 	s3tc? ( >=media-libs/libtxc_dxtn-1.0.1-r1[${MULTILIB_USEDEP}] )
-	samba? ( >=net-fs/samba-3.0.25 )
+	samba? ( >=net-fs/samba-3.0.25[winbind] )
 	selinux? ( sec-policy/selinux-wine )
 	udisks? ( sys-fs/udisks:2 )
 	pulseaudio? ( realtime? ( sys-auth/rtkit ) )"
@@ -175,9 +175,9 @@ wine_build_environment_pretests() {
 	[[ ${MERGE_TYPE} = "binary" ]] && return 0
 
 	# bug #549768
-	if use abi_x86_64 && [[ $(gcc-major-version) = 5 && $(gcc-minor-version) -le 2 ]]; then
-		einfo "Checking for gcc-5.1/5.2 MS X86_64 ABI compiler bug ..."
-		$(tc-getCC) -O2 "${FILESDIR}/pr66838.c" -o "${T}/pr66838" || die "compilation failed: pr66838 test"
+	if use abi_x86_64 && [[ $(gcc-major-version) -eq 5 && $(gcc-minor-version) -le 2 ]]; then
+		einfo "Checking for gcc-5.1/gcc-5.2 MS X86_64 ABI compiler bug ..."
+		$(tc-getCC) -O2 "${FILESDIR}/pr66838.c" -o "${T}/pr66838" || die "cc compilation failed: pr66838 test"
 		# Run in subshell to prevent "Aborted" message
 		if ! ( "${T}/pr66838" || false )&>/dev/null; then
 			eerror "gcc-5.1/5.2 MS X86_64 ABI compiler bug detected."
@@ -189,13 +189,9 @@ wine_build_environment_pretests() {
 			return 1
 		fi
 	fi
-}
-
-wine_build_environment_setup_tests() {
-	[[ ${MERGE_TYPE} = "binary" ]] && return 0
-
+	
 	# bug #574044
-	if use abi_x86_64 && [[ $(gcc-major-version) = 5 && $(gcc-minor-version) = 3 ]]; then
+	if use abi_x86_64 && [[ $(gcc-major-version) -eq 5 && $(gcc-minor-version) -eq 3 ]]; then
 		einfo "Checking for gcc-5.3.0 X86_64 misaligned stack compiler bug ..."
 		# Compile in subshell to prevent "Aborted" message
 		if ! ( $(tc-getCC) -O2 -mincoming-stack-boundary=3 "${FILESDIR}"/pr69140.c -o "${T}"/pr69140 || false )&>/dev/null; then
@@ -262,14 +258,16 @@ src_prepare() {
 		ewarn "report to iXit bugtracker on freenode or github."
 	fi
 
-	eapply "${FILESDIR}/${PN}-1.9.5-multilib-portage.patch"
+	eapply "${FILESDIR}/${PN}-1.9.5-multilib-portage.patch" # Bug #395615
 	eapply "${FILESDIR}/steam.patch" # Hack from CrossOver to fix SteamWebHelper
+	eapply "${FILESDIR}/sysmacros.patch" # Bug #580046
 
 	eapply_user # Add user patches support
 
 	sed 's|OpenCL/opencl.h|CL/opencl.h|g' -i configure*
 
-	autoreconf -f
+	default
+	eautoreconf
 
 	# Modification of the server protocol requires regenerating the server requests
 	if [[ "$(md5sum server/protocol.def)" != "${md5}" ]]; then
@@ -290,7 +288,6 @@ src_prepare() {
 src_configure() {
 	export LDCONFIG=/bin/true
 	use custom-cflags || strip-flags
-
 	multilib-minimal_src_configure
 }
 

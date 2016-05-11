@@ -13,6 +13,7 @@ LICENSE="GPL-3"
 SLOT="0"
 IUSE="contrib debug pch static-libs fresh-wxgtk fresh-wxgtk3"
 KEYWORDS="~amd64 ~arm ~ppc ~x86 ~x86-fbsd"
+RESTRICT="mirror"
 DEPEND="
 	virtual/pkgconfig
 	app-arch/zip

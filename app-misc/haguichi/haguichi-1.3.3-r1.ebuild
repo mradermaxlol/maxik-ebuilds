@@ -14,6 +14,7 @@ SRC_URI="https://launchpad.net/haguichi/${MAJOR_V}/${PV}/+download/${PN}-${PV}.t
 LICENSE="GPL-3+"
 SLOT="1.3"
 KEYWORDS="-* ~amd64 ~x86"
+RESTRICT="mirror"
 DEPEND="
 	sys-devel/gettext
 	>=dev-util/cmake-2.6

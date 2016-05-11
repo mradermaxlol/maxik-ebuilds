@@ -16,6 +16,7 @@ LICENSE="GPL-2"
 SLOT="0"
 IUSE="fdk imagemagick jack +pulseaudio +qt5 truetype v4l"
 KEYWORDS="-* ~amd64 ~x86"
+RESTRICT="mirror"
 DEPEND=">=dev-libs/jansson-2.5
 	media-libs/x264
 	media-video/ffmpeg

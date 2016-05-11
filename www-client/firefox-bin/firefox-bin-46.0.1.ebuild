@@ -28,13 +28,11 @@ SRC_URI="${SRC_URI}
 	amd64? ( ${MOZ_HTTP_URI%/}/${MOZ_PV}/linux-x86_64/en-US/${MOZ_P}.tar.bz2 -> ${PN}_x86_64-${PV}.tar.bz2 )
 	x86? ( ${MOZ_HTTP_URI%/}/${MOZ_PV}/linux-i686/en-US/${MOZ_P}.tar.bz2 -> ${PN}_i686-${PV}.tar.bz2 )"
 HOMEPAGE="http://www.mozilla.com/firefox"
-RESTRICT="strip mirror"
-
-KEYWORDS="-* ~amd64 ~x86"
 SLOT="0"
 LICENSE="MPL-2.0 GPL-2 LGPL-2.1"
 IUSE="selinux startup-notification classic-launchers"
-
+KEYWORDS="-* ~amd64 ~x86"
+RESTRICT="strip mirror"
 DEPEND="app-arch/unzip"
 RDEPEND="dev-libs/atk
 	>=sys-apps/dbus-0.60

@@ -12,6 +12,7 @@ SRC_URI="https://github.com/solus-project/budgie-desktop/releases/download/v${PV
 LICENSE="GPL-2"
 SLOT="10.2"
 KEYWORDS="-* ~amd64 ~x86"
+RESTRICT="mirror"
 DEPEND="
 	>=dev-libs/gobject-introspection-1.46.0
 	>=x11-libs/gtk+-3.18.6
