@@ -59,7 +59,7 @@ pkg_setup(){
 }
 
 src_prepare(){
-	eapply "${DISTDIR}/${PF_FILE}"
+	unpack "${DISTDIR}/${PF_FILE}"; eapply "${DISTDIR}/patch-${PV/_p*/}-pf${PV/*_p/}"
 	eapply_user # Add support for extra patches
 	default
 }
