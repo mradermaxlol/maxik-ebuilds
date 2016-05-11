@@ -212,8 +212,8 @@ pkg_pretend() {
 }
 
 pkg_setup() {
-	wine_build_environment_setup_tests || die
-	
+	wine_build_environment_prechecks || die
+	wine_build_environment_pretests || die
 }
 
 src_unpack() {
