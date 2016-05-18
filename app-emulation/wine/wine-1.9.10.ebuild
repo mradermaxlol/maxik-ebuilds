@@ -265,7 +265,7 @@ src_prepare() {
 
 	sed 's|OpenCL/opencl.h|CL/opencl.h|g' -i configure*
 
-	autoreconf -f
+	eautoreconf -f
 
 	# Modification of the server protocol requires regenerating the server requests
 	if [[ "$(md5sum server/protocol.def)" != "${md5}" ]]; then
