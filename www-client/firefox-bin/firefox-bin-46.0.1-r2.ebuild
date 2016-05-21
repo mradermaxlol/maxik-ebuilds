@@ -92,7 +92,7 @@ src_install() {
 	newins "${icon_path}/../../../icons/mozicon128.png" "${icon}.png" || die
 	newicon "${S}"/browser/chrome/icons/default/default48.png ${PN}.png
 	use classic-launchers && sed -ie 's/Mozilla Firefox (bin)/Mozilla Firefox/g' ${FILESDIR}/${PN}.desktop
-	use system-icon && sed -ie sed -ie 's/Icon=firefox-bin/Icon=firefox/g' ${FILESDIR}/${PN}.desktop
+	use system-icon && sed -ie 's/Icon=firefox-bin/Icon=firefox/g' ${FILESDIR}/${PN}.desktop
 	domenu ${FILESDIR}/${PN}.desktop
 	sed -i -e "s:@NAME@:${name}:" -e "s:@ICON@:${icon}:" \
 		"${ED}usr/share/applications/${PN}.desktop" || die
