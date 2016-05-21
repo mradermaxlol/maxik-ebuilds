@@ -30,7 +30,7 @@ SRC_URI="${SRC_URI}
 HOMEPAGE="http://www.mozilla.com/firefox"
 SLOT="0"
 LICENSE="MPL-2.0 GPL-2 LGPL-2.1"
-IUSE="selinux startup-notification classic-launchers"
+IUSE="selinux startup-notification classic-launchers +system-icon"
 KEYWORDS="-* ~amd64 ~x86"
 RESTRICT="strip mirror"
 DEPEND="app-arch/unzip"
@@ -92,6 +92,7 @@ src_install() {
 	newins "${icon_path}/../../../icons/mozicon128.png" "${icon}.png" || die
 	newicon "${S}"/browser/chrome/icons/default/default48.png ${PN}.png
 	use classic-launchers && sed -ie 's/Mozilla Firefox (bin)/Mozilla Firefox/g' ${FILESDIR}/${PN}.desktop
+	use system-icon && sed -ie sed -ie 's/Icon=firefox-bin/Icon=firefox/g' ${FILESDIR}/${PN}.desktop
 	domenu ${FILESDIR}/${PN}.desktop
 	sed -i -e "s:@NAME@:${name}:" -e "s:@ICON@:${icon}:" \
 		"${ED}usr/share/applications/${PN}.desktop" || die
