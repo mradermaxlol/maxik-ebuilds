@@ -219,26 +219,29 @@ pkg_setup() {
 }
 
 src_unpack() {
-	if ! use staging; then # Vanilla-based
-			use d3d9 && WINETYPE="nine" || WINETYPE="vanilla"
-			if ${WINETYPE} == "vanilla"; then
-				unpack "${PN}-vanilla-${PV}.tar.bz2"
-				S="${WORKDIR}/${P}"
-			else
-				unpack "${PN}-nine-${PV}.tar.gz"
-				S="${WORKDIR}/${PN}-patched-nine-vanilla-nine-v${PV}"
-			fi
-	else # Staging
-		if use d3d9; then
-			WINETYPE="stnine" # Staging-and-Nine-patched Wine
-			unpack "${PN}-stnine-${PV}.tar.gz"
-			S="${WORKDIR}/${PN}-patched-nine-staging-nine-v${PV}"
-		else
-			WINETYPE="staging" # Wine with Staging patchset
-			unpack "${PN}-staging-${PV}.tar.gz"
-			S="${WORKDIR}/${PN}-patched-staging-${PV}"
-		fi
-	fi
+#	if ! use staging; then # Vanilla-based
+#			use d3d9 && WINETYPE="nine" || WINETYPE="vanilla"
+#			if ${WINETYPE} == "vanilla"; then
+#				unpack "${PN}-vanilla-${PV}.tar.bz2"
+#				S="${WORKDIR}/${P}"
+#			else
+#				unpack "${PN}-nine-${PV}.tar.gz"
+#				S="${WORKDIR}/${PN}-patched-nine-vanilla-nine-v${PV}"
+#			fi
+#	else # Staging
+#		if use d3d9; then
+#			WINETYPE="stnine" # Staging-and-Nine-patched Wine
+#			unpack "${PN}-stnine-${PV}.tar.gz"
+#			S="${WORKDIR}/${PN}-patched-nine-staging-nine-v${PV}"
+#		else
+#			WINETYPE="staging" # Wine with Staging patchset
+#			unpack "${PN}-staging-${PV}.tar.gz"
+#			S="${WORKDIR}/${PN}-patched-staging-${PV}"
+#		fi
+#	fi
+
+	WINETYPE="vanilla"
+	unpack "${PN}-vanilla-${PV}.tar.bz2"
 
 	unpack "${WINE_GENTOO}.tar.bz2"
 	l10n_find_plocales_changes "${S}/po" "" ".po"
