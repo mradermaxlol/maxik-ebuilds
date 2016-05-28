@@ -25,12 +25,14 @@ GV="2.44" # Gecko version, latest stable
 MV="4.6.2" # Mono version, latest stable
 WINE_GENTOO="wine-gentoo-2015.03.07" # Some distfiles that are *needed*
 
-SRC_URI="!staging? (
-		!d3d9? ( https://dl.winehq.org/wine/source/${MAJOR_V}/${MY_P}.tar.bz2 -> ${PN}-vanilla-${PV}.tar.bz2 )
-		d3d9? ( https://github.com/mradermaxlol/wine-patched-nine/archive/vanilla-nine-v${PV}.tar.gz -> ${PN}-nine-${PV}.tar.gz ) )
-	staging? (
-		!d3d9? ( https://github.com/wine-compholio/wine-patched/archive/staging-${PV}.tar.gz -> ${PN}-staging-${PV}.tar.gz )
-		d3d9? ( https://github.com/mradermaxlol/wine-patched-nine/archive/staging-nine-v${PV}.tar.gz -> ${PN}-stnine-${PV}.tar.gz ) )"
+# SRC_URI="!staging? (
+#		!d3d9? ( https://dl.winehq.org/wine/source/${MAJOR_V}/${MY_P}.tar.bz2 -> ${PN}-vanilla-${PV}.tar.bz2 )
+#		d3d9? ( https://github.com/mradermaxlol/wine-patched-nine/archive/vanilla-nine-v${PV}.tar.gz -> ${PN}-nine-${PV}.tar.gz ) )
+#	staging? (
+#		!d3d9? ( https://github.com/wine-compholio/wine-patched/archive/staging-${PV}.tar.gz -> ${PN}-staging-${PV}.tar.gz )
+#		d3d9? ( https://github.com/mradermaxlol/wine-patched-nine/archive/staging-nine-v${PV}.tar.gz -> ${PN}-stnine-${PV}.tar.gz ) )"
+		
+SRC_URI="https://dl.winehq.org/wine/source/${MAJOR_V}/${MY_P}.tar.bz2 -> ${PN}-vanilla-${PV}.tar.bz2" # For fresh releases
 
 SRC_URI="${SRC_URI}
 	gecko? (
@@ -55,7 +57,7 @@ REQUIRED_USE="|| ( abi_x86_32 abi_x86_64 )
 
 # FIXME: the test suite is unsuitable for us; many tests require net access
 # or fail due to Xvfb's opengl limitations.
-RESTRICT="test mirror"
+RESTRICT="test mirror staging d3d9"
 
 COMMON_DEPEND="
 	truetype? ( >=media-libs/freetype-2.0.0[${MULTILIB_USEDEP}] )
@@ -221,7 +223,7 @@ src_unpack() {
 			use d3d9 && WINETYPE="nine" || WINETYPE="vanilla"
 			if ${WINETYPE} == "vanilla"; then
 				unpack "${PN}-vanilla-${PV}.tar.bz2"
-				S="${WORKDIR}/${PN}-${PV}"
+				S="${WORKDIR}/${P}"
 			else
 				unpack "${PN}-nine-${PV}.tar.gz"
 				S="${WORKDIR}/${PN}-patched-nine-vanilla-nine-v${PV}"
@@ -265,7 +267,7 @@ src_prepare() {
 
 	sed 's|OpenCL/opencl.h|CL/opencl.h|g' -i configure*
 
-	autoreconf -f # eautoreconf is not working for some reason
+	eautoreconf -f # Let's try it (again)
 	
 	# Modification of the server protocol requires regenerating the server requests
 	if [[ "$(md5sum server/protocol.def)" != "${md5}" ]]; then
