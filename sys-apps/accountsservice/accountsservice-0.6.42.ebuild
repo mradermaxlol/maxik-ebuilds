@@ -48,5 +48,5 @@ src_configure() {
 		$(use_enable doc docbook-docs) \
 		$(use_enable introspection) \
 		$(use_enable systemd) \
-		$(systemd_with_unitdir)
+		--with-systemdsystemunitdir="$(systemd_get_systemunitdir)"
 }
