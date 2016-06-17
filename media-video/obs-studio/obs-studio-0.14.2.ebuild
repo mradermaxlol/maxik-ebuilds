@@ -11,7 +11,7 @@ inherit cmake-utils
 
 DESCRIPTION="Free, open source software for live streaming and recording."
 HOMEPAGE="https://obsproject.com"
-SRC_URI="https://github.com/jp9000/obs-studio/archive/${PV}.zip -> obs-${PV}.zip"
+SRC_URI="https://github.com/jp9000/${PN}/archive/${PV}.zip -> ${P}.zip"
 LICENSE="GPL-2"
 SLOT="0"
 IUSE="fdk imagemagick jack +pulseaudio +qt5 truetype v4l"
