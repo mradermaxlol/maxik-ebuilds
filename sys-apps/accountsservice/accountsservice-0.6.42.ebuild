@@ -3,7 +3,6 @@
 # $Id$
 
 EAPI=6
-GCONF_DEBUG="no"
 
 inherit eutils gnome2 systemd
 
